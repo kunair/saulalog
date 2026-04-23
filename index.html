@@ -298,12 +298,12 @@ body.dark-mode .cmode-btn.active { color: #121212; }
 
 <script>
 const BOSS_LIST = [
-    "Araxxi", "Araxzor", "Arch-Glacor", "Beastmaster Durzag", "Black Stone Dragon", "Chaos Elemental", "Corporeal Beast", "Croesus", 
+    "Araxxi", "Araxxor", "Arch-Glacor", "Beastmaster Durzag", "Black Stone Dragon", "Chaos Elemental", "Commander Zilyana", "Corporeal Beast", "Croesus", 
     "Dagannoth Prime", "Dagannoth Rex", "Dagannoth Supreme", "General Graardor", "Gregorovic", "Helwyr", "Hermit", "Kalphite King", 
     "Kalphite Queen", "Kerapac", "King Black Dragon", "K'ril Tsutsaroth", "Kree'arra", "Legio Primus", "Legio Secundus", "Legio Tertius", 
-    "Legio Quartus", "Legio Quintus", "Legio Sextus", "Magister", "Matriarch Pthentraken", "Matriarch Orikalka", "Matriarch Rathis", 
-    "Mole", "Nakatra", "Nex", "Osseous", "Queen Black Dragon", "Raksha", "Solak", "Telos", "The Ambassador", "The Magister", "Twin Furies", 
-    "Tztok-Jad", "Varrago", "Verak Lith", "Vindicta", "Vorago", "Yakamaru", "Zuk"
+    "Legio Quartus", "Legio Quintus", "Legio Sextus", "Magister", "Pthentraken", "Orikalka", "Rathis", 
+    "Giant Mole", "Nakatra", "Nex", "Osseous", "Queen Black Dragon", "Raksha", "Solak", "Telos", "The Ambassador", "The Magister", "Twin Furies", 
+    "Tztok-Jad", "Varrago", "Verak Lith", "Vindicta", "Vorago", "Yakamaru", "Zuk", "Astellarn", "Black stone dragon"
 ];
 
 const SKILLS = [
@@ -377,17 +377,19 @@ function handleCSV(text) {
             const mMatch = details.match(/(?:killing|defeating|surviving|killing a|defeated) (?:the |a )?([\w\s':]+?)(?:, it dropped|: Rex Matriarchs|: Dagannoth Kings|: Legio)/);
             if (mMatch) {
                 d.monster = mMatch[1].trim();
-                d.sub = BOSS_LIST.includes(d.monster) ? 'boss' : 'slayer';
-                const iMatch = details.match(/it dropped (?:a |an |the )?([\w\s':()-]+)\./i);
-                if (iMatch) d.item = iMatch[1].trim();
+                d.sub = BOSS_LIST.some(b => d.monster.toLowerCase().includes(b.toLowerCase())) ? 'boss' : 'slayer';
+                const iMatch = details.match(/(?:dropped|found|gave|found a) (?:a |an |some |pair of )?(.+?)(?:\.|$)/i);
+                if (iMatch) d.item = iMatch[1].charAt(0).toUpperCase() + iMatch[1].slice(1).trim();
+              
             }
         }
         else if (d.super === 'misc' && (/Quest Complete|Quest Points|helped|worked|finally|ended|saved/.test(details) || title.toLowerCase().includes('quest complete'))) {
             d.super = 'quests';
         }
         return d;
-    }).filter(e => e);
-    
+    }).filter(Boolean);
+    selBoss = parsed.find(e => e.sub === 'boss')?.monster || null;
+    selSlayer = parsed.find(e => e.sub === 'slayer')?.monster || null;
     render();
 }
 
