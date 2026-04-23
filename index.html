@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alog - Live Dashboard</title>
+    <title>Adventure Log - Live Feed</title>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
@@ -54,7 +54,6 @@
         input[type=text] { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); font-size: 14px; outline: none; transition: 0.1s; }
         input[type=text]:focus { border-color: var(--color-all); }
 
-        /* Modified status indicator to replace upload box while maintaining layout spacing */
         .sync-status { padding: 10px; border-radius: 6px; border: 1px dashed var(--color-border); background: var(--color-surface); font-size: 12px; color: var(--color-text-dim); text-align: center; }
 
         .theme-toggle { cursor: pointer; padding: 10px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; transition: 0.1s; font-size: 18px; user-select: none; }
@@ -107,7 +106,7 @@
 <div class="wrap">
     <div class="header-row">
         <div class="search-wrap">
-            <div id="sync-indicator" class="sync-status">Fetching data from Google Sheets...</div>
+            <div id="sync-indicator" class="sync-status">Connecting to Google Sheets...</div>
             <input type="text" id="search" placeholder="Search milestones, monsters, or drops..." oninput="render()">
         </div>
         <div class="theme-toggle" onclick="toggleDarkMode()">
@@ -176,8 +175,8 @@
 </div>
 
 <script>
-/* Configuration - Pulling from Sheet as in v6 */
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1Bf83Y5OIn9Bq-U5n5Hq62RNDXIn_jO3XmS0Ie5YvIas/export?format=csv';
+/* Configuration - Pulling from YOUR NEW Spreadsheet */
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1DaIyQQA5XrpFHUN6r6Ntl_JKQ95vHPpQTLrNNm6m6Ag/export?format=csv';
 
 /* Global State */
 let allData = [];
@@ -210,26 +209,28 @@ async function fetchData() {
         indicator.textContent = 'Live Data Connected';
         indicator.style.borderColor = 'var(--color-skill)';
     } catch (err) {
-        indicator.textContent = 'Error connecting to Google Sheets';
+        indicator.textContent = 'Error: Ensure Spreadsheet is "Published to Web" as CSV';
         indicator.style.borderColor = 'var(--color-combat)';
     }
 }
 
 function processCSV(text) {
+    // Basic CSV Parser
     const lines = text.split('\n').filter(l => l.trim());
     if (lines.length < 2) return;
     
     const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
     allData = lines.slice(1).map(line => {
-        const cols = line.split(',');
+        // Regex to handle potential commas inside quotes
+        const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
         let obj = {};
-        headers.forEach((h, i) => obj[h] = cols[i]?.trim());
+        headers.forEach((h, i) => obj[h] = cols[i]?.replace(/^"|"$/g, '').trim());
         return obj;
     }).filter(d => d.ts && d.title);
 
     allData.sort((a, b) => new Date(b.ts) - new Date(a.ts));
     
-    // Auto-select first available monsters for combat view
+    // Auto-select first available monsters
     const bosses = [...new Set(allData.filter(e => e.cat === 'combat' && e.monster_type === 'boss').map(e => e.monster))];
     const slayer = [...new Set(allData.filter(e => e.cat === 'combat' && e.monster_type === 'slayer').map(e => e.monster))];
     if (bosses.length) selBoss = bosses[0];
@@ -239,7 +240,7 @@ function processCSV(text) {
     setFilter('all');
 }
 
-/* Logic & Functions - Identical to v5 */
+/* Identical Logic to v5 */
 function setFilter(f) {
     currentFilter = f;
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
@@ -311,7 +312,7 @@ function render() {
     
     if (currentFilter === 'skills') renderXpChart(filtered);
     
-    document.getElementById('footer').textContent = `${filtered.length} entries matching filters`;
+    document.getElementById('footer').textContent = `${filtered.length} entries shown`;
 }
 
 function renderFeed(items) {
@@ -384,8 +385,7 @@ function renderXpChart(filtered) {
                 backgroundColor: 'rgba(46, 125, 50, 0.1)',
                 fill: true,
                 tension: 0.3,
-                pointRadius: 2,
-                pointHitRadius: 10
+                pointRadius: 2
             }]
         },
         options: {
@@ -393,17 +393,7 @@ function renderXpChart(filtered) {
             maintainAspectRatio: false,
             plugins: { 
                 legend: { display: false },
-                tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    callbacks: {
-                        label: (ctx) => `XP: ${ctx.parsed.y.toLocaleString()}`
-                    }
-                },
-                zoom: { 
-                    zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }, 
-                    pan: { enabled: true, mode: 'x' } 
-                }
+                zoom: { zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }, pan: { enabled: true, mode: 'x' } }
             },
             scales: {
                 x: { 
@@ -415,11 +405,7 @@ function renderXpChart(filtered) {
                 y: { 
                     beginAtZero: true,
                     grid: { color: borderColor },
-                    ticks: { 
-                        color: textColor, 
-                        font: { size: 10 },
-                        callback: (val) => formatXpAxis(val)
-                    }
+                    ticks: { color: textColor, font: { size: 10 }, callback: (v) => formatXpAxis(v) }
                 }
             }
         }
@@ -435,7 +421,7 @@ function toggleDarkMode() {
     const isDark = document.body.classList.contains('dark-mode');
     document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
     localStorage.setItem('dark-mode', isDark);
-    if (xpChart) render(); // Re-render chart to update colors
+    if (xpChart) render(); 
 }
 </script>
 
