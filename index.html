@@ -382,7 +382,7 @@ function handleCSV(text) {
                 if (iMatch) d.item = iMatch[1].trim();
             }
         }
-        else if (details.toLowerCase().includes('quest completed')) {
+        else if (d.super === 'misc' && (/Quest Complete|Quest Points|helped|worked|finally|ended|saved/.test(details) || title.toLowerCase().includes('quest complete'))) {
             d.super = 'quests';
         }
         return d;
