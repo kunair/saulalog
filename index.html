@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- saved from url=(0132)file:///C:/Users/telev/AppData/Local/Temp/MicrosoftEdgeDownloads/30af294b-42f8-4b4b-a95c-131b4f34d6b0/gemini-code-1776939632602.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -53,8 +54,10 @@ input[type=text]:focus { border-color: var(--color-all); box-shadow: 0 0 0 2px r
 .theme-toggle:hover { border-color: var(--color-all); background: var(--color-bg-sub); }
 .theme-toggle:active { transform: scale(0.92); }
 
-.upload-area { border: 2px dashed var(--color-border); padding: 20px; width: 100%; text-align: center; border-radius: 10px; background: var(--color-surface); color: var(--color-text-dim); transition: 0.1s; font-size: 14px; font-weight: 500; user-select: none; }
+.upload-area { border: 2px dashed var(--color-border); padding: 20px; width: 100%; text-align: center; border-radius: 10px; background: var(--color-surface); cursor: pointer; color: var(--color-text-dim); transition: 0.1s; font-size: 14px; font-weight: 500; user-select: none; }
 .upload-area:hover { border-color: var(--color-all); background: var(--color-bg-sub); }
+.upload-area:active { transform: scale(0.98); }
+#csv-file { display: none; }
 
 /* SNAPPY FILTER BUBBLES */
 .filters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; }
@@ -196,7 +199,8 @@ body.dark-mode .cmode-btn.active { color: #121212; }
 <div class="wrap">
   <div class="header-row">
     <div class="search-wrap">
-        <label class="upload-area" id="upload-label">Syncing Google Sheets...</label>
+        <label class="upload-area" for="csv-file" id="upload-label">Loaded: test categorization site - Sheet1.csv</label>
+        <input type="file" id="csv-file" accept=".csv" onchange="handleFileUpload(event)">
         <input type="text" id="search" placeholder="Search by title, monster, or drop..." oninput="render()">
     </div>
     <div class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
@@ -280,177 +284,916 @@ body.dark-mode .cmode-btn.active { color: #121212; }
     <div id="combat-view" class="combat-grid">
       <div class="combat-sec">
         <h3>Bosses</h3>
-        <div class="bubble-wrap" id="boss-bubbles"></div>
-        <div style="margin-top:10px;"><select id="boss-more" onchange="selectMonster(&#39;boss&#39;, this.value)"><option value="">More...</option></select></div>
-        <div class="loot-container" id="boss-loot-list"></div>
+        <div class="bubble-wrap" id="boss-bubbles">
+        <div class="b-pill " onclick="selectMonster(&#39;boss&#39;, &#39;Osseous&#39;)">Osseous</div>
+    
+        <div class="b-pill " onclick="selectMonster(&#39;boss&#39;, &#39;Corporeal Beast&#39;)">Corporeal Beast</div>
+    
+        <div class="b-pill " onclick="selectMonster(&#39;boss&#39;, &#39;K\&#39;ril Tsutsaroth&#39;)">K'ril Tsutsaroth</div>
+    
+        <div class="b-pill " onclick="selectMonster(&#39;boss&#39;, &#39;The Magister&#39;)">The Magister</div>
+    
+        <div class="b-pill " onclick="selectMonster(&#39;boss&#39;, &#39;Kalphite Queen&#39;)">Kalphite Queen</div>
+    </div>
+        <div style="margin-top:10px;"><select id="boss-more" onchange="selectMonster(&#39;boss&#39;, this.value)"><option value="">More...</option><option value="King Black Dragon">King Black Dragon</option><option value="Pthentraken">Pthentraken</option><option value="Commander Zilyana">Commander Zilyana</option><option value="Orikalka">Orikalka</option><option value="Rathis">Rathis</option><option value="General Graardor">General Graardor</option><option value="Kree&#39;arra">Kree'arra</option><option value="Astellarn">Astellarn</option><option value="Helwyr">Helwyr</option><option value="Nex">Nex</option><option value="Beastmaster Durzag">Beastmaster Durzag</option><option value="Black stone dragon">Black stone dragon</option><option value="Verak Lith">Verak Lith</option><option value="Queen Black Dragon">Queen Black Dragon</option><option value="Gregorovic">Gregorovic</option><option value="Vorago">Vorago</option><option value="Kalphite King">Kalphite King</option><option value="Gorvek and Vindicta">Gorvek and Vindicta</option><option value="Dagannoth Prime">Dagannoth Prime</option><option value="Dagannoth Supreme">Dagannoth Supreme</option><option value="Dagannoth Rex">Dagannoth Rex</option><option value="Legio Quartus">Legio Quartus</option><option value="Legio Primus" selected="">Legio Primus</option><option value="Legio Sextus">Legio Sextus</option><option value="Legio Tertius">Legio Tertius</option><option value="Legio Quintus">Legio Quintus</option><option value="Legio Secundus">Legio Secundus</option><option value="Exiled Kalphite Queen">Exiled Kalphite Queen</option><option value="Yakamaru">Yakamaru</option><option value="Chaos Elemental">Chaos Elemental</option><option value="Giant mole">Giant mole</option></select></div>
+        <div class="loot-container" id="boss-loot-list">
+            <div class="loot-row clickable" onclick="toggleLootDrilldown(&#39;boss&#39;, &#39;Corrupted Ascension signet I&#39;)">
+                <span class="loot-name"><span class="loot-count">1x</span>Corrupted Ascension signet I</span>
+                <span class="loot-ts">10/29/2017 13:12</span>
+            </div></div>
       </div>
       <div class="combat-sec">
         <h3>Slayer</h3>
-        <div class="bubble-wrap" id="slayer-bubbles"></div>
-        <div style="margin-top:10px;"><select id="slayer-more" onchange="selectMonster(&#39;slayer&#39;, this.value)"><option value="">More...</option></select></div>
-        <div class="loot-container" id="slayer-loot-list"></div>
+        <div class="bubble-wrap" id="slayer-bubbles">
+        <div class="b-pill " onclick="selectMonster(&#39;slayer&#39;, &#39;Lava strykewyrm&#39;)">Lava strykewyrm</div>
+    
+        <div class="b-pill " onclick="selectMonster(&#39;slayer&#39;, &#39;Venomous dinosaur&#39;)">Venomous dinosaur</div>
+    
+        <div class="b-pill " onclick="selectMonster(&#39;slayer&#39;, &#39;Steel dragon&#39;)">Steel dragon</div>
+    
+        <div class="b-pill active" onclick="selectMonster(&#39;slayer&#39;, &#39;Adamant dragon&#39;)">Adamant dragon</div>
+    
+        <div class="b-pill " onclick="selectMonster(&#39;slayer&#39;, &#39;Nodon enforcer&#39;)">Nodon enforcer</div>
+    </div>
+        <div style="margin-top:10px;"><select id="slayer-more" onchange="selectMonster(&#39;slayer&#39;, this.value)"><option value="">More...</option><option value="Nodon engineer">Nodon engineer</option><option value="Soulgazer">Soulgazer</option><option value="Glacor">Glacor</option><option value="Chaos dwarf">Chaos dwarf</option><option value="Ice strykewyrm">Ice strykewyrm</option><option value="Blood nihil">Blood nihil</option><option value="Spiritual mage">Spiritual mage</option><option value="Gargoyle">Gargoyle</option><option value="Rune dragon">Rune dragon</option><option value="Dagannoth">Dagannoth</option><option value="Mithril dragon">Mithril dragon</option><option value="Elite rune dragon">Elite rune dragon</option><option value="Kal&#39;gerion demon">Kal'gerion demon</option><option value="Luminous snaggler">Luminous snaggler</option><option value="Nodon artificer">Nodon artificer</option><option value="Celestial dragon">Celestial dragon</option><option value="Automaton Guardian">Automaton Guardian</option><option value="Dragonstone dragon">Dragonstone dragon</option><option value="Slasher Demon">Slasher Demon</option><option value="Ripper Demon">Ripper Demon</option><option value="Tormented demon">Tormented demon</option><option value="Camel Warrior">Camel Warrior</option><option value="Onyx dragon">Onyx dragon</option><option value="Crystal Shapeshifter">Crystal Shapeshifter</option><option value="Desert strykewyrm">Desert strykewyrm</option><option value="Capsarius">Capsarius</option><option value="Automaton Tracer">Automaton Tracer</option><option value="Hydrix dragon">Hydrix dragon</option><option value="Automaton Generator">Automaton Generator</option><option value="Jungle strykewyrm">Jungle strykewyrm</option><option value="Nightmare">Nightmare</option><option value="Edimmu">Edimmu</option><option value="Vyrelord">Vyrelord</option><option value="Moss golem">Moss golem</option><option value="Abyssal demon">Abyssal demon</option><option value="Wyvern">Wyvern</option><option value="Airut">Airut</option><option value="Elite Profane Scabarite">Elite Profane Scabarite</option><option value="Zakl&#39;n Gritch">Zakl'n Gritch</option><option value="Balfrug Kreeyath">Balfrug Kreeyath</option><option value="Tstanon Karlak">Tstanon Karlak</option><option value="Mutated jadinko male">Mutated jadinko male</option><option value="Vyrelady">Vyrelady</option><option value="Dark beast">Dark beast</option><option value="Nodon guard">Nodon guard</option><option value="Aquanite">Aquanite</option><option value="Sergeant Grimspike">Sergeant Grimspike</option><option value="Sergeant Strongstack">Sergeant Strongstack</option><option value="Starlight">Starlight</option><option value="Growler">Growler</option><option value="Bree">Bree</option><option value="Wingman Skree">Wingman Skree</option><option value="Crassian warrior">Crassian warrior</option><option value="Vinecrawler">Vinecrawler</option><option value="Black dragon">Black dragon</option><option value="Throwing muspah">Throwing muspah</option><option value="Iron dragon">Iron dragon</option><option value="Flockleader Geerin">Flockleader Geerin</option><option value="Flight Kilisa">Flight Kilisa</option><option value="Sergeant Steelwill">Sergeant Steelwill</option><option value="Ganodermic beast">Ganodermic beast</option><option value="Abyssal walker">Abyssal walker</option><option value="Abyssal leech">Abyssal leech</option><option value="Abyssal guardian">Abyssal guardian</option></select></div>
+        <div class="loot-container" id="slayer-loot-list">
+            <div class="loot-row clickable" onclick="toggleLootDrilldown(&#39;slayer&#39;, &#39;Dragon plateskirt&#39;)">
+                <span class="loot-name"><span class="loot-count">1x</span>Dragon plateskirt</span>
+                <span class="loot-ts">4/14/2026 19:23</span>
+            </div>
+            <div class="loot-row clickable" onclick="toggleLootDrilldown(&#39;slayer&#39;, &#39;Dragon platelegs&#39;)">
+                <span class="loot-name"><span class="loot-count">1x</span>Dragon platelegs</span>
+                <span class="loot-ts">4/14/2026 19:21</span>
+            </div>
+            <div class="loot-row clickable" onclick="toggleLootDrilldown(&#39;slayer&#39;, &#39;Dragon shield left half&#39;)">
+                <span class="loot-name"><span class="loot-count">1x</span>Dragon shield left half</span>
+                <span class="loot-ts">10/9/2017 17:53</span>
+            </div>
+            <div class="loot-row clickable" onclick="toggleLootDrilldown(&#39;slayer&#39;, &#39;Page from Forcae\&#39;s journal&#39;)">
+                <span class="loot-name"><span class="loot-count">1x</span>Page from Forcae's journal</span>
+                <span class="loot-ts">12/22/2015 20:11</span>
+            </div></div>
       </div>
     </div>
-    <div class="entries hidden" id="list"></div>
-    <div class="footer" id="footer">0 entries</div>
+    <div class="entries hidden" id="list">
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">8/16/2023 14:28</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">8/13/2023 4:45</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/30/2023 0:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/30/2023 0:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/14/2023 21:34</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Elite treasure trail completed.</span><span class="entry-details">I have completed an elite treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/13/2023 0:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Elite treasure trail completed.</span><span class="entry-details">I have completed an elite treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/12/2023 23:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/12/2023 20:34</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/12/2023 12:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/11/2023 21:34</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/10/2023 17:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/10/2023 15:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/10/2023 15:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/10/2023 13:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/6/2023 16:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/5/2023 21:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/5/2023 20:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">5/4/2023 15:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/30/2023 16:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/30/2023 2:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/29/2023 11:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/27/2023 20:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/27/2023 13:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/27/2023 10:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/26/2023 22:34</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/26/2023 18:34</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/26/2023 16:36</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/26/2023 14:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/26/2023 13:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/26/2023 13:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/23/2023 22:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/23/2023 22:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/22/2023 20:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/18/2023 20:35</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/18/2023 18:34</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/17/2023 18:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/17/2023 15:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/17/2023 13:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">4/2/2023 11:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">3/26/2023 17:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">3/20/2023 21:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">3/20/2023 21:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">3/20/2023 14:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">3/18/2023 13:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">1/20/2023 2:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">1/17/2023 0:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">1/9/2023 14:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">12/26/2022 20:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">12/25/2022 23:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">12/24/2022 3:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">12/15/2022 22:37</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">12/15/2022 22:37</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">12/12/2022 22:35</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">12/12/2022 15:36</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">12/11/2022 15:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">12/2/2022 22:39</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">11/3/2022 22:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">10/31/2022 12:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">9/26/2022 22:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">9/14/2022 17:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">8/11/2022 1:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">8/10/2022 20:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">8/8/2022 23:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail. I got a wizard robe (g) out of it.</span></div>
+                </div>
+                <span class="entry-ts">8/6/2022 18:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">8/6/2022 16:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">8/1/2022 13:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/30/2022 20:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/28/2022 23:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/27/2022 0:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/26/2022 16:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/25/2022 23:33</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/25/2022 16:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/25/2022 16:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/25/2022 16:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/25/2022 16:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/25/2022 16:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/25/2022 16:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/25/2022 16:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/16/2022 17:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/10/2022 21:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/10/2022 12:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/5/2022 17:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/4/2022 16:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/2/2022 21:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">7/2/2022 3:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/2/2022 12:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/2/2022 12:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/2/2022 12:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Easy treasure trail completed.</span><span class="entry-details">I have completed an easy treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/2/2022 12:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/2/2022 12:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/1/2022 1:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/1/2022 1:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/1/2022 1:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/1/2022 1:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Hard treasure trail completed.</span><span class="entry-details">I have completed a hard treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/1/2022 1:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/1/2022 1:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/1/2022 1:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/1/2022 1:32</span>
+            </div>
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:var(--color-clue)"></span>
+                    <div class="entry-text-stack"><span class="entry-title">Medium treasure trail completed.</span><span class="entry-details">I have completed a medium treasure trail.</span></div>
+                </div>
+                <span class="entry-ts">6/1/2022 1:32</span>
+            </div></div>
   </div>
+  <div class="footer" id="footer">3870 entries</div>
 </div>
 
 <script>
 const BOSS_LIST = [
-    "Araxxi", "Araxzor", "Arch-Glacor", "Beastmaster Durzag", "Black Stone Dragon", "Chaos Elemental", "Corporeal Beast", "Croesus", 
-    "Dagannoth Prime", "Dagannoth Rex", "Dagannoth Supreme", "General Graardor", "Gregorovic", "Helwyr", "Hermit", "Kalphite King", 
-    "Kalphite Queen", "Kerapac", "King Black Dragon", "K'ril Tsutsaroth", "Kree'arra", "Legio Primus", "Legio Secundus", "Legio Tertius", 
-    "Legio Quartus", "Legio Quintus", "Legio Sextus", "Magister", "Matriarch Pthentraken", "Matriarch Orikalka", "Matriarch Rathis", 
-    "Mole", "Nakatra", "Nex", "Osseous", "Queen Black Dragon", "Raksha", "Solak", "Telos", "The Ambassador", "The Magister", "Twin Furies", 
-    "Tztok-Jad", "Varrago", "Verak Lith", "Vindicta", "Vorago", "Yakamaru", "Zuk"
+    "Araxxi", "Araxzor", "Arch-Glacor", "Beastmaster Durzag", "Black Stone Dragon", "Chaos Elemental", 
+    "Corporeal Beast", "Croesus", "Dagannoth Prime", "Dagannoth Rex", "Dagannoth Supreme", 
+    "General Graardor", "Gregorovic", "Helwyr", "Hermit", "Kalphite King", "Kalphite Queen", 
+    "Kerapac", "King Black Dragon", "K'ril Tsutsaroth", "Kree'arra", "Legio Primus", 
+    "Legio Secundus", "Legio Tertius", "Legio Quartus", "Legio Quintus", "Legio Sextus", 
+    "Magister", "Nex", "Nex: Angel of Death", "Osseous", "Pavo", "Oro", "Rath", "Raksha", 
+    "Rasial", "Solak", "Telos", "Twin Furies", "Vindicta", "Vorago", "Yakamaru", "Zamorak", 
+    "Zuk", "Rex Matriarchs", "Pthentraken", "Commander Zilyana", "Orikalka", "Astellarn", 
+    "Verak Lith", "Queen Black Dragon", "Giant mole"
 ];
 
-const SKILLS = [
-    "Attack", "Strength", "Defence", "Ranged", "Prayer", "Magic", "Runecrafting", "Construction", 
-    "Constitution", "Agility", "Herblore", "Thieving", "Crafting", "Fletching", "Slayer", "Hunter", 
-    "Divination", "Mining", "Smithing", "Fishing", "Cooking", "Firemaking", "Woodcutting", "Farming", 
-    "Summoning", "Invention", "Archaeology", "Necromancy"
-];
+const SKILLS = ["Attack", "Strength", "Defence", "Ranged", "Prayer", "Magic", "Runecrafting", "Construction", "Constitution", "Agility", "Herblore", "Thieving", "Crafting", "Fletching", "Slayer", "Hunter", "Mining", "Smithing", "Fishing", "Cooking", "Firemaking", "Woodcutting", "Farming", "Summoning", "Dungeoneering", "Divination", "Invention", "Archaeology", "Necromancy"];
 
-const SKILL_GROUPS = {
-    "Combat": ["Attack", "Strength", "Defence", "Ranged", "Prayer", "Magic", "Constitution", "Summoning", "Necromancy"],
-    "Artisan": ["Herblore", "Crafting", "Fletching", "Smithing", "Cooking", "Firemaking", "Runecrafting", "Construction"],
-    "Gathering": ["Mining", "Fishing", "Woodcutting", "Hunter", "Divination", "Farming", "Archaeology"],
-    "Support": ["Agility", "Thieving", "Slayer", "Invention"]
-};
-
-let ENTRIES = [];
-let activeFilter = 'combat';
-let skillFilter = 'all'; 
-let skillView = 'flat';
+let parsed = [];
+let activeFilter = 'all';
+let selBoss = null; let selSlayer = null;
+let selBossLoot = null; let selSlayerLoot = null;
 let skillSubs = { xp: true, level: true, pet: true, total: true };
 let clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true };
-let selectedBoss = null;
-let selectedSlayer = null;
-let drilldownTarget = null; // { category, monster, item }
-let groupChartMode = 'stacked'; // 'stacked' or 'bars'
+let skillFilter = 'all';
+let skillViewMode = 'flat';
 let xpChart = null;
+let groupChartMode = 'stacked'; // 'stacked' | 'bars'
 
-const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1DaIyQQA5XrpFHUN6r6Ntl_JKQ95vHPpQTLrNNm6m6Ag/export?format=csv";
+const SKILL_GROUPS = {
+    'Combat':    ['Attack', 'Constitution', 'Defence', 'Magic', 'Necromancy', 'Prayer', 'Ranged', 'Strength', 'Summoning'],
+    'Artisan':   ['Construction', 'Cooking', 'Crafting', 'Firemaking', 'Fletching', 'Herblore', 'Invention', 'Runecrafting', 'Smithing'],
+    'Gathering': ['Archaeology', 'Divination', 'Farming', 'Fishing', 'Hunter', 'Mining', 'Woodcutting'],
+    'Support':   ['Agility', 'Dungeoneering', 'Slayer', 'Thieving']
+};
 
-async function fetchGoogleSheet() {
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    if (xpChart) { xpChart.destroy(); xpChart = null; }
+    render();
+}
+
+if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('theme-icon').textContent = '☀️';
+}
+
+/*
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => { 
+        processData(e.target.result); 
+        document.getElementById('upload-label').textContent = `Loaded: ${file.name}`; 
+    };
+    reader.readAsText(file);
+}
+*/
+
+// Google Spreadsheet configuration
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/1DaIyQQA5XrpFHUN6r6Ntl_JKQ95vHPpQTLrNNm6m6Ag/export?format=csv`;
+
+/**
+ * Automatically fetches data from the specified Google Sheet and
+ * passes it to the existing processCSV function.
+ */
+async function fetchGoogleSheetData() {
     const label = document.getElementById('upload-label');
+    label.textContent = "Connecting to Google Sheets...";
+    
     try {
-        const response = await fetch(GOOGLE_SHEET_CSV_URL);
+        const response = await fetch(SHEET_URL);
         if (!response.ok) throw new Error('Network response was not ok');
-        const text = await response.text();
-        label.innerText = "✅ Data Loaded from Google Sheets";
-        handleCSV(text);
-    } catch (error) {
-        console.error('Fetch error:', error);
-        label.innerText = "❌ Error loading Google Sheet";
+        const csvText = await response.text();
+        
+        // Update label to reflect the source and process the data
+        label.textContent = "✅ Data Loaded from Google Sheets";
+        processData(csvText);
+    } catch (err) {
+        console.error("Failed to fetch Google Sheet data:", err);
+        label.textContent = "❌ Error loading Google Sheet";
     }
 }
 
-function handleCSV(text) {
-    const lines = text.split(/\r?\n/);
-    ENTRIES = lines.map(line => {
+function processData(csvText) {
+    const lines = csvText.split(/\r?\n/);
+    parsed = lines.map(line => {
         const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
         if (parts.length < 3) return null;
         const ts = parts[0].replace(/"/g, '').trim();
         const title = parts[1].replace(/"/g, '').trim();
         const details = parts[2].replace(/"/g, '').trim();
-
         let d = { ts, title, details, super: 'misc', sub: 'misc', skill: null, monster: null, item: null };
 
         if (details.toLowerCase().includes('treasure trail')) {
             d.super = 'clues';
-            ['easy', 'medium', 'hard', 'elite', 'master'].forEach(diff => {
-                if (details.toLowerCase().includes(diff)) d.sub = diff;
-            });
+            ['easy', 'medium', 'hard', 'elite', 'master'].forEach(diff => { if (details.toLowerCase().includes(diff)) d.sub = diff; });
         } 
         else if (/experience points in the|I levelled|level 99|While skilling|achieved at least level/i.test(details)) {
             d.super = 'skills';
             SKILLS.forEach(s => { if (details.includes(s)) d.skill = s; });
-            d.sub = details.includes('experience points') ? 'xp' : 
-                    details.includes('While skilling') ? 'pet' : 
-                    details.includes('total level of') ? 'total' : 'level';
-        }
+            d.sub = details.includes('experience points') ? 'xp' : details.includes('While skilling') ? 'pet' : details.includes('total level of') ? 'total' : 'level';
+        } 
         else if (/killed|dropped|looted|found|surviving|defeating/.test(details) && !details.toLowerCase().includes('quest')) {
             d.super = 'combat';
-            const mMatch = details.match(/(?:killing|defeating|surviving|killing a|defeated) (?:the |a )?([\w\s':]+?)(?:, it dropped|: Rex Matriarchs|: Dagannoth Kings|: Legio)/);
+            const mMatch = details.match(/(?:killing|defeating|surviving|killing a|defeated) (?:the |a )?([\w\s':]+?)(?:, it dropped|: Rex Matriarchs|\.|$)/i);
             if (mMatch) {
                 d.monster = mMatch[1].trim();
-                d.sub = BOSS_LIST.includes(d.monster) ? 'boss' : 'slayer';
-                const iMatch = details.match(/it dropped (?:a |an |the )?([\w\s':()-]+)\./i);
-                if (iMatch) d.item = iMatch[1].trim();
+                d.sub = BOSS_LIST.some(b => d.monster.toLowerCase().includes(b.toLowerCase())) ? 'boss' : 'slayer';
+                const iMatch = details.match(/(?:dropped|found|gave|found a) (?:a |an |some |pair of )?(.+?)(?:\.|$)/i);
+                if (iMatch) d.item = iMatch[1].charAt(0).toUpperCase() + iMatch[1].slice(1).trim();
             }
         }
-        else if (d.super === 'misc' && (/Quest Complete|Quest Points|helped|worked|finally|ended|saved/.test(details) || title.toLowerCase().includes('quest complete'))) {
-            d.super = 'quests';
-        }
+        if (d.super === 'misc' && (/Quest Complete|Quest Points|helped|worked|finally|ended|saved/.test(details) || title.toLowerCase().includes('quest complete'))) d.super = 'quests';
         return d;
-    }).filter(e => e);
-    
+    }).filter(Boolean);
+    selBoss = parsed.find(e => e.sub === 'boss')?.monster || null;
+    selSlayer = parsed.find(e => e.sub === 'slayer')?.monster || null;
     render();
 }
 
-function setFilter(f) {
-    activeFilter = f;
+function setFilter(id) {
+    activeFilter = id;
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-    document.getElementById(`pill-${f}`).classList.add('active');
-    
-    document.getElementById('skill-controls').classList.toggle('hidden', f !== 'skills');
-    document.getElementById('clue-controls').classList.toggle('hidden', f !== 'clues');
-    document.getElementById('combat-view').classList.toggle('hidden', f !== 'combat');
-    document.getElementById('list').classList.toggle('hidden', f === 'combat');
-
-    if (f === 'skills') renderXpChart();
+    document.getElementById('pill-' + id).classList.add('active');
     render();
 }
 
-function setSkillFilter(s) {
-    skillFilter = s;
-    buildSkillPicker();
+function toggleSubFilter(cat, id) {
+    const obj = cat === 'skills' ? skillSubs : clueSubs;
+    obj[id] = !obj[id];
+    document.getElementById('btn-' + id).classList.toggle('active', obj[id]);
     render();
 }
 
-function setSkillView(v) {
-    skillView = v;
-    buildSkillPicker();
-}
-
-function setGroupChartMode(mode) {
-    groupChartMode = mode;
-    document.querySelectorAll('.cmode-btn').forEach(b => b.classList.toggle('active', b.id === `cmode-${mode}`));
-    renderXpChart();
-}
-
-function toggleSubFilter(cat, sub) {
-    const obj = (cat === 'skills') ? skillSubs : clueSubs;
-    obj[sub] = !obj[sub];
-    document.getElementById(`btn-${sub}`).classList.toggle('active', obj[sub]);
+function selectMonster(type, name) {
+    if (type === 'boss') { selBoss = name; selBossLoot = null; }
+    else { selSlayer = name; selSlayerLoot = null; }
     render();
 }
 
-function selectMonster(cat, name) {
-    if (!name) return;
-    if (cat === 'boss') selectedBoss = name;
-    else selectedSlayer = name;
-    drilldownTarget = null;
-    render();
-}
-
-function toggleLootDrilldown(cat, itemName) {
-    if (drilldownTarget && drilldownTarget.item === itemName) drilldownTarget = null;
-    else drilldownTarget = { category: cat, monster: (cat === 'boss' ? selectedBoss : selectedSlayer), item: itemName };
+function toggleLootDrilldown(type, itemName) {
+    if (type === 'boss') selBossLoot = itemName;
+    else selSlayerLoot = itemName;
     render();
 }
 
 function render() {
     const q = document.getElementById('search').value.toLowerCase();
     const list = document.getElementById('list');
+    const combatView = document.getElementById('combat-view');
     
-    const filtered = ENTRIES.filter(e => {
-        if (q && !(e.title.toLowerCase().includes(q) || e.details.toLowerCase().includes(q))) return false;
+    document.getElementById('skill-controls').classList.toggle('hidden', activeFilter !== 'skills');
+    document.getElementById('clue-controls').classList.toggle('hidden', activeFilter !== 'clues');
+    combatView.classList.toggle('hidden', activeFilter !== 'combat');
+    list.classList.toggle('hidden', activeFilter === 'combat');
+
+    let filtered = parsed.filter(e => {
+        const searchContent = (e.title + " " + e.details).toLowerCase();
         if (activeFilter !== 'all' && e.super !== activeFilter) return false;
-        
+        if (q && !searchContent.includes(q)) return false;
         if (activeFilter === 'skills') {
             if (skillFilter !== 'all') {
                 if (skillFilter.startsWith('group:')) {
@@ -464,7 +1207,6 @@ function render() {
             if (!skillSubs[e.sub]) return false;
         }
         if (activeFilter === 'clues' && !clueSubs[e.sub]) return false;
-        
         return true;
     });
 
@@ -476,269 +1218,382 @@ function render() {
             <div class="entry">
                 <div class="entry-content">
                     <span class="cat-dot" style="background:${getColor(e.super)}"></span>
-                    <div class="entry-text-stack">
-                        <span class="entry-title">${e.title}</span>
-                        <span class="entry-details">${e.details}</span>
-                    </div>
+                    <div class="entry-text-stack"><span class="entry-title">${e.title}</span><span class="entry-details">${e.details}</span></div>
                 </div>
                 <span class="entry-ts">${e.ts}</span>
-            </div>
-        `).join('');
+            </div>`).join('');
     }
+    document.getElementById('footer').textContent = `${filtered.length} entries`;
 
-    document.getElementById('footer').innerText = `${filtered.length} entries`;
-    if (activeFilter === 'skills') renderXpChart();
+    if (activeFilter === 'skills') updateXpChart();
 }
 
-function renderCombatSide(cat, data) {
-    const container = document.getElementById(`${cat}-bubbles`);
-    const lootList = document.getElementById(`${cat}-loot-list`);
-    const select = document.getElementById(`${cat}-more`);
-    
-    const counts = {};
-    data.forEach(e => { if (e.monster) counts[e.monster] = (counts[e.monster] || 0) + 1; });
-    const sorted = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
-    
-    const top = sorted.slice(0, 5);
-    const rest = sorted.slice(5);
-    const current = (cat === 'boss' ? selectedBoss : selectedSlayer);
+function renderCombatSide(type, entries) {
+    const names = [...new Set(entries.map(e => e.monster))];
+    const top5 = names.slice(0, 5);
+    const currentMonster = (type === 'boss') ? selBoss : selSlayer;
+    const currentDrill = (type === 'boss') ? selBossLoot : selSlayerLoot;
 
-    container.innerHTML = top.map(m => `
-        <div class="b-pill ${current === m ? 'active' : ''}" onclick="selectMonster('${cat}', '${m.replace(/'/g, "\\'")}')">${m}</div>
+    document.getElementById(`${type}-bubbles`).innerHTML = top5.map(n => `
+        <div class="b-pill ${currentMonster === n ? 'active' : ''}" onclick="selectMonster('${type}', '${n.replace(/'/g, "\\'")}')">${n}</div>
     `).join('');
 
-    const existingSelectVal = select.value;
-    select.innerHTML = `<option value="">More...</option>` + rest.map(m => `
-        <option value="${m}" ${current === m ? 'selected' : ''}>${m}</option>
-    `).join('');
+    const others = names.slice(5);
+    document.getElementById(`${type}-more`).innerHTML = `<option value="">More...</option>` + 
+        others.map(n => `<option value="${n}" ${currentMonster === n ? 'selected' : ''}>${n}</option>`).join('');
 
-    if (current) {
-        let monsterData = data.filter(e => e.monster === current);
-        if (drilldownTarget && drilldownTarget.category === cat && drilldownTarget.monster === current) {
-            const item = drilldownTarget.item;
-            const itemDrops = monsterData.filter(e => e.item === item);
-            lootList.innerHTML = `
-                <div class="loot-row back-btn clickable" onclick="toggleLootDrilldown('${cat}', '${item.replace(/'/g, "\\'")}')">
-                    ← Back to all drops
-                </div>
-                <div style="font-weight:800; font-size:12px; margin-bottom:10px; color:var(--color-text)">${item} (${itemDrops.length})</div>
-                ${itemDrops.map(e => `
-                    <div class="loot-row">
-                        <span class="loot-name">${e.title}</span>
-                        <span class="loot-ts">${e.ts}</span>
-                    </div>
-                `).join('')}
-            `;
-        } else {
-            const items = {};
-            monsterData.forEach(e => { if (e.item) items[e.item] = { count: (items[e.item]?.count || 0) + 1, last: e.ts }; });
-            const sortedItems = Object.keys(items).sort((a,b) => items[b].count - items[a].count);
-            lootList.innerHTML = sortedItems.map(i => `
-                <div class="loot-row clickable" onclick="toggleLootDrilldown('${cat}', '${i.replace(/'/g, "\\'")}')">
-                    <span class="loot-name"><span class="loot-count">${items[i].count}x</span>${i}</span>
-                    <span class="loot-ts">${items[i].last}</span>
-                </div>
-            `).join('');
-        }
+    const lootListEl = document.getElementById(`${type}-loot-list`);
+    if (!currentMonster) { lootListEl.innerHTML = '<div style="color:var(--color-text-light); text-align:center; padding-top:40px;">No Selection</div>'; return; }
+
+    const history = entries.filter(e => e.monster === currentMonster);
+
+    if (currentDrill) {
+        const itemHistory = history.filter(h => h.item === currentDrill);
+        lootListEl.innerHTML = `
+            <div class="loot-row clickable back-btn" onclick="toggleLootDrilldown('${type}', null)">← Back to ${currentMonster}</div>
+            ${itemHistory.map(h => `<div class="loot-row"><span class="loot-name">${h.title}</span><span class="loot-ts">${h.ts}</span></div>`).join('')}`;
     } else {
-        lootList.innerHTML = `<div class="xp-no-data">Select a ${cat} to view drops</div>`;
+        const grouped = history.reduce((acc, curr) => {
+            const key = curr.item || 'Kill recorded';
+            if (!acc[key]) acc[key] = { count: 0, lastTs: curr.ts, name: key };
+            acc[key].count++;
+            return acc;
+        }, {});
+        lootListEl.innerHTML = Object.values(grouped).map(g => `
+            <div class="loot-row clickable" onclick="toggleLootDrilldown('${type}', '${g.name.replace(/'/g, "\\'")}')">
+                <span class="loot-name"><span class="loot-count">${g.count}x</span>${g.name}</span>
+                <span class="loot-ts">${g.count > 1 ? 'View History' : g.lastTs}</span>
+            </div>`).join('');
     }
 }
 
-function getColor(s) {
-    const colors = { all: 'var(--color-all)', skills: 'var(--color-skill)', combat: 'var(--color-combat)', clues: 'var(--color-clue)', quests: 'var(--color-quest)', misc: 'var(--color-misc)' };
-    return colors[s] || colors.misc;
-}
+function getColor(cat) { return { skills: 'var(--color-skill)', combat: 'var(--color-combat)', quests: 'var(--color-quest)', clues: 'var(--color-clue)', misc: 'var(--color-misc)' }[cat]; }
 
+const CATS = [{ id: 'all', label: 'All', color: 'var(--color-all)' }, { id: 'skills', label: 'Skills', color: 'var(--color-skill)' }, { id: 'combat', label: 'Combat', color: 'var(--color-combat)' }, { id: 'clues', label: 'Clues', color: 'var(--color-clue)' }, { id: 'quests', label: 'Quests', color: 'var(--color-quest)' }, { id: 'misc', label: 'Misc', color: 'var(--color-misc)' }];
+document.getElementById('pills').innerHTML = CATS.map(c => `
+    <span class="pill" id="pill-${c.id}" onclick="setFilter('${c.id}')" style="color:${c.color}">
+        <span class="dot" style="background:${c.color}"></span>${c.label}
+    </span>`).join('');
+
+// Build skill picker buttons
 function buildSkillPicker() {
-    const flat = document.getElementById('skill-flat-view');
-    const grouped = document.getElementById('skill-grouped-view');
-    const allBtn = document.getElementById('skill-btn-all');
-    
-    flat.classList.toggle('hidden', skillView !== 'flat');
-    grouped.classList.toggle('hidden', skillView !== 'grouped');
-    allBtn.classList.toggle('active', skillFilter === 'all');
-    
-    document.querySelectorAll('.sg-btn').forEach(b => b.classList.toggle('active', skillFilter === `group:${b.dataset.group}`));
+    // Flat view
+    const flatGrid = document.getElementById('skill-flat-view');
+    flatGrid.innerHTML = SKILLS.map(s => `
+        <button class="sk-btn ${skillFilter === s ? 'active' : ''}" id="skbtn-${s}" onclick="setSkillFilter('${s}')">${s}</button>
+    `).join('');
 
-    const pill = (s) => `<div class="sk-btn ${skillFilter === s ? 'active' : ''}" onclick="setSkillFilter('${s}')">${s}</div>`;
-
-    flat.innerHTML = SKILLS.map(s => pill(s)).join('');
-    
-    grouped.innerHTML = Object.keys(SKILL_GROUPS).map(g => `
+    // Grouped view
+    const groupedList = document.getElementById('skill-grouped-view');
+    groupedList.innerHTML = Object.entries(SKILL_GROUPS).map(([groupName, skills]) => `
         <div class="skill-group-block">
-            <div class="skill-group-label">${g}</div>
-            <div class="skill-group-pills">${SKILL_GROUPS[g].map(s => pill(s)).join('')}</div>
+            <div class="skill-group-label">${groupName}</div>
+            <div class="skill-group-pills">
+                ${skills.filter(s => SKILLS.includes(s)).map(s => `
+                    <button class="sk-btn ${skillFilter === s ? 'active' : ''}" id="skbtn-g-${s}" onclick="setSkillFilter('${s}')">${s}</button>
+                `).join('')}
+            </div>
         </div>
     `).join('');
 
-    document.getElementById('view-btn-flat').classList.toggle('active', skillView === 'flat');
-    document.getElementById('view-btn-grouped').classList.toggle('active', skillView === 'grouped');
+    // All skills button
+    document.getElementById('skill-btn-all').classList.toggle('active', skillFilter === 'all');
+
+    // Group buttons
+    document.querySelectorAll('.sg-btn').forEach(btn => {
+        const g = btn.getAttribute('data-group');
+        btn.classList.toggle('active', skillFilter === 'group:' + g);
+    });
 }
 
-function parseDate(ts) {
-    const d = new Date(ts);
-    return isNaN(d) ? null : d;
+function setSkillFilter(skill) {
+    skillFilter = skill;
+    buildSkillPicker();
+    render();
+}
+
+function setSkillView(mode) {
+    skillViewMode = mode;
+    document.getElementById('skill-flat-view').classList.toggle('hidden', mode !== 'flat');
+    document.getElementById('skill-grouped-view').classList.toggle('hidden', mode !== 'grouped');
+    document.getElementById('view-btn-flat').classList.toggle('active', mode === 'flat');
+    document.getElementById('view-btn-grouped').classList.toggle('active', mode === 'grouped');
+}
+
+// ---- XP Chart Logic ----
+
+// Color palette for multi-skill lines
+const SKILL_LINE_COLORS = [
+    '#e53935', '#8e24aa', '#1e88e5', '#43a047', '#fb8c00',
+    '#00acc1', '#f06292', '#7cb342', '#ffb300', '#5e35b1',
+    '#039be5', '#e67c13', '#3949ab', '#00897b', '#c0ca33'
+];
+
+// Group display colors
+const GROUP_COLORS = {
+    Combat:    { light: '#d32f2f', dark: '#e57373' },
+    Artisan:   { light: '#ef6c00', dark: '#ffd54f' },
+    Gathering: { light: '#1565c0', dark: '#64b5f6' },
+    Support:   { light: '#7b1fa2', dark: '#ba68c8' }
+};
+
+function parseXpFromDetails(details) {
+    const m = details.match(/([\d,]+)\s+experience points/i);
+    if (m) return parseInt(m[1].replace(/,/g, ''), 10);
+    return null;
+}
+
+function parseTs(tsStr) {
+    const d = new Date(tsStr);
+    return isNaN(d.getTime()) ? null : d;
+}
+
+// Returns all XP milestone entries for a skill, sorted oldest-first
+function getXpEntriesForSkill(skill, allXpEntries) {
+    return allXpEntries.filter(e => e.skill === skill);
+}
+
+// Returns pet entries for a skill
+function getPetEntries(skill) {
+    return parsed
+        .filter(e => e.super === 'skills' && e.sub === 'pet' && e.skill === skill)
+        .map(e => ({ date: parseTs(e.ts), ts: e.ts }))
+        .filter(e => e.date !== null);
+}
+
+// Given sorted XP data points and a date, find the closest y-value
+function findYAtDate(xpPoints, petDate) {
+    if (!xpPoints.length) return null;
+    let best = null;
+    for (const p of xpPoints) {
+        if (p.x <= petDate) best = p;
+        else break;
+    }
+    return best ? best.y : xpPoints[0].y; // fallback to first known
+}
+
+function buildDatasetForSkill(skill, allXpEntries, color, idx) {
+    const skillEntries = getXpEntriesForSkill(skill, allXpEntries);
+    const isDark = document.body.classList.contains('dark-mode');
+    const surfaceColor = getComputedStyle(document.documentElement).getPropertyValue('--color-surface').trim();
+
+    const xpPoints = skillEntries.map(e => ({
+        x: e.date,
+        y: e.xp,
+        label: `${skill}: ${e.xp.toLocaleString()} XP`,
+        isPet: false
+    }));
+
+    // Pet markers — placed at the pet date, y = last known XP at that time
+    const petEntries = getPetEntries(skill);
+    const petPoints = petEntries.map(pe => {
+        const y = findYAtDate(xpPoints, pe.date);
+        return y !== null ? {
+            x: pe.date,
+            y,
+            label: `🐾 ${skill} pet obtained!`,
+            isPet: true
+        } : null;
+    }).filter(Boolean);
+
+    // XP line dataset
+    const lineDataset = {
+        label: skill,
+        data: xpPoints,
+        borderColor: color,
+        backgroundColor: color + '18',
+        borderWidth: 2,
+        pointRadius: xpPoints.map(p => 3),
+        pointHoverRadius: 7,
+        pointBackgroundColor: xpPoints.map(p => color),
+        pointBorderColor: xpPoints.map(p => surfaceColor),
+        pointBorderWidth: 2,
+        fill: false,
+        tension: 0.3,
+        order: idx + 1,
+        parsing: { xAxisKey: 'x', yAxisKey: 'y' }
+    };
+
+    // Pet scatter dataset (stars on top of the line)
+    const petDataset = petPoints.length > 0 ? {
+        label: `${skill} pet`,
+        data: petPoints,
+        type: 'scatter',
+        showLine: false,
+        pointStyle: 'star',
+        pointRadius: 14,
+        pointHoverRadius: 17,
+        pointBackgroundColor: '#f0c040',
+        pointBorderColor: '#c8930a',
+        pointBorderWidth: 2,
+        order: 0,
+        parsing: { xAxisKey: 'x', yAxisKey: 'y' }
+    } : null;
+
+    return { lineDataset, petDataset, hasPets: petPoints.length > 0 };
+}
+
+function getXpChartData() {
+    const isDark = document.body.classList.contains('dark-mode');
+    const skillColor = getComputedStyle(document.documentElement).getPropertyValue('--color-skill').trim();
+
+    // All XP milestone entries sorted oldest first
+    const allXpEntries = parsed
+        .filter(e => e.super === 'skills' && e.sub === 'xp')
+        .map(e => ({ ...e, xp: parseXpFromDetails(e.details), date: parseTs(e.ts) }))
+        .filter(e => e.xp !== null && e.date !== null)
+        .sort((a, b) => a.date - b.date);
+
+    if (skillFilter === 'all') {
+        // Running total XP across all skills
+        const lastKnownXp = {};
+        const points = [];
+        for (const entry of allXpEntries) {
+            if (entry.skill) {
+                lastKnownXp[entry.skill] = entry.xp;
+                const totalXp = Object.values(lastKnownXp).reduce((a, b) => a + b, 0);
+                points.push({ x: entry.date, y: totalXp, label: `Total XP: ${totalXp.toLocaleString()}`, isPet: false });
+            }
+        }
+        const lineDataset = {
+            label: 'Total XP',
+            data: points,
+            borderColor: skillColor,
+            backgroundColor: skillColor + '22',
+            borderWidth: 2.5,
+            pointRadius: 3,
+            pointHoverRadius: 7,
+            pointBackgroundColor: skillColor,
+            pointBorderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-surface').trim(),
+            pointBorderWidth: 2,
+            fill: true,
+            tension: 0.35,
+            parsing: { xAxisKey: 'x', yAxisKey: 'y' }
+        };
+        return { datasets: [lineDataset], title: 'XP Progress — All Skills (Total)', hasPets: false, skillList: [] };
+    }
+
+    if (skillFilter.startsWith('group:')) {
+        const groupName = skillFilter.slice(6);
+        const groupSkills = (SKILL_GROUPS[groupName] || []).filter(s => SKILLS.includes(s));
+        const groupColor = GROUP_COLORS[groupName];
+        const datasets = [];
+        let hasPets = false;
+        groupSkills.forEach((skill, idx) => {
+            const color = SKILL_LINE_COLORS[idx % SKILL_LINE_COLORS.length];
+            const { lineDataset, petDataset, hasPets: hp } = buildDatasetForSkill(skill, allXpEntries, color, idx);
+            if (lineDataset.data.length > 0) datasets.push(lineDataset);
+            if (petDataset) { datasets.push(petDataset); hasPets = true; }
+            if (hp) hasPets = true;
+        });
+        return { datasets, title: `XP Progress — ${groupName} Skills`, hasPets, skillList: groupSkills };
+    }
+
+    // Single skill
+    const color = skillColor;
+    const { lineDataset, petDataset, hasPets } = buildDatasetForSkill(skillFilter, allXpEntries, color, 0);
+    const datasets = [lineDataset];
+    if (petDataset) datasets.push(petDataset);
+    return { datasets, title: `XP Progress — ${skillFilter}`, hasPets, skillList: [skillFilter] };
 }
 
 function formatXpAxis(val) {
-    if (val >= 1000000) return (val/1000000).toFixed(1) + 'M';
-    if (val >= 1000) return (val/1000).toFixed(0) + 'K';
-    return val;
+    if (val >= 1_000_000_000) return (val / 1_000_000_000).toFixed(1) + 'B';
+    if (val >= 1_000_000) return (val / 1_000_000).toFixed(1) + 'M';
+    if (val >= 1_000) return (val / 1_000).toFixed(0) + 'K';
+    return val.toString();
 }
 
-function renderXpChart() {
-    const canvas = document.getElementById('xp-chart');
-    const legend = document.getElementById('xp-chart-legend');
-    const title = document.getElementById('xp-chart-title');
-    const modeBtns = document.getElementById('chart-mode-btns');
-    const petNote = document.getElementById('xp-pet-note');
-    const canvasWrap = document.getElementById('xp-chart-canvas-wrap');
-    
-    if (xpChart) xpChart.destroy();
-    legend.innerHTML = '';
-    petNote.style.display = 'none';
-    modeBtns.classList.remove('visible');
-    canvasWrap.classList.remove('tall');
+function formatDateLabel(date) {
+    return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+}
 
-    let skillSet = [];
-    let isGroup = false;
-    if (skillFilter === 'all') {
-        skillSet = SKILLS;
-        isGroup = true;
-    } else if (skillFilter.startsWith('group:')) {
-        skillSet = SKILL_GROUPS[skillFilter.slice(6)];
-        isGroup = true;
-    } else {
-        skillSet = [skillFilter];
-    }
+function buildChartLegend(datasets, hasPets) {
+    const legendEl = document.getElementById('xp-chart-legend');
+    const petNoteEl = document.getElementById('xp-pet-note');
 
-    const dataPoints = ENTRIES.filter(e => e.super === 'skills' && e.sub === 'xp' && skillSet.includes(e.skill));
-    if (!dataPoints.length) {
-        canvas.classList.add('hidden');
-        title.innerText = "No XP Data Found";
-        return;
-    }
-    canvas.classList.remove('hidden');
-    title.innerText = isGroup ? `${skillFilter.replace('group:', '')} XP Progress` : `${skillFilter} XP`;
-    if (isGroup) modeBtns.classList.add('visible');
+    // Only show legend for multi-skill views
+    const lineDatasets = datasets.filter(d => !d.label.endsWith(' pet') && d.data && d.data.length > 0);
+    const isMulti = lineDatasets.length > 1;
 
-    const datasets = [];
-    const skillColors = {
-        "Attack": "#9b2222", "Strength": "#047227", "Defence": "#6291d4", "Ranged": "#6d8c00", "Prayer": "#9fd9ff", "Magic": "#3250a1", "Constitution": "#ff2f2f", 
-        "Agility": "#312aab", "Herblore": "#005d00", "Thieving": "#6634b0", "Crafting": "#978207", "Fletching": "#038e7d", "Slayer": "#646464", "Hunter": "#a7a523", 
-        "Divination": "#91039e", "Mining": "#5d8aa8", "Smithing": "#7a7a7a", "Fishing": "#6a9292", "Cooking": "#702386", "Firemaking": "#ff981f", 
-        "Woodcutting": "#a52a2a", "Farming": "#228b22", "Summoning": "#daa520", "Invention": "#eec900", "Archaeology": "#8b4513", "Necromancy": "#4b0082", "Runecrafting": "#f0e68c", "Construction": "#8b4513"
-    };
-
-    if (isGroup && groupChartMode === 'bars') {
-        canvasWrap.classList.add('tall');
-        const latestXp = {};
-        skillSet.forEach(s => {
-            const sData = dataPoints.filter(e => e.skill === s);
-            if (sData.length) {
-                const xpValues = sData.map(e => {
-                    const m = e.details.match(/([0-9,]+) experience/);
-                    return m ? parseInt(m[1].replace(/,/g, '')) : 0;
-                });
-                latestXp[s] = Math.max(...xpValues);
-            }
-        });
-
-        const sortedSkills = Object.keys(latestXp).sort((a,b) => latestXp[b] - latestXp[a]);
-        datasets.push({
-            data: sortedSkills.map(s => latestXp[s]),
-            backgroundColor: sortedSkills.map(s => skillColors[s] || '#888'),
-            borderRadius: 4
-        });
-
-        xpChart = new Chart(canvas, {
-            type: 'bar',
-            data: { labels: sortedSkills, datasets: datasets },
-            options: {
-                indexAxis: 'y',
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `Total XP: ${ctx.raw.toLocaleString()}` } } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { callback: (val) => formatXpAxis(val), color: '#888', font: { size: 10 } } },
-                    y: { grid: { display: false }, ticks: { color: 'var(--color-text)', font: { size: 11, weight: 'bold' } } }
-                }
-            }
-        });
-
-        legend.innerHTML = sortedSkills.map(s => `
+    if (isMulti) {
+        legendEl.innerHTML = lineDatasets.map(d => `
             <div class="xp-legend-item">
-                <div class="xp-legend-swatch" style="background:${skillColors[s] || '#888'}"></div>
-                ${s}
+                <div class="xp-legend-swatch" style="background:${d.borderColor}"></div>
+                ${d.label}
             </div>
-        `).join('');
+        `).join('') + (hasPets ? `<div class="xp-legend-item"><span style="font-size:14px;line-height:1">⭐</span> Pet obtained</div>` : '');
+    } else {
+        legendEl.innerHTML = hasPets ? `<div class="xp-legend-item"><span style="font-size:14px;line-height:1">⭐</span> Pet obtained</div>` : '';
+    }
 
+    petNoteEl.style.display = 'none'; // handled inline in legend now
+}
+
+function updateXpChart() {
+    const isDark = document.body.classList.contains('dark-mode');
+    const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim();
+    const textColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text-dim').trim();
+
+    const { datasets, title, hasPets, skillList } = getXpChartData();
+
+    const wrap = document.getElementById('xp-chart-canvas-wrap');
+    document.getElementById('xp-chart-title').textContent = title;
+
+    const hasData = datasets.some(d => d.data && d.data.length > 0);
+    if (!hasData) {
+        wrap.innerHTML = '<div class="xp-no-data">No XP milestone data available for this selection.</div>';
+        document.getElementById('xp-chart-legend').innerHTML = '';
+        if (xpChart) { xpChart.destroy(); xpChart = null; }
         return;
     }
 
-    const petEvents = ENTRIES.filter(e => e.super === 'skills' && e.sub === 'pet' && skillSet.includes(e.skill));
-    if (petEvents.length) petNote.style.display = 'flex';
+    if (!wrap.querySelector('canvas')) {
+        wrap.innerHTML = '<canvas id="xp-chart"></canvas>';
+    }
 
-    skillSet.forEach(s => {
-        const sData = dataPoints.filter(e => e.skill === s).map(e => {
-            const m = e.details.match(/([0-9,]+) experience/);
-            const xp = m ? parseInt(m[1].replace(/,/g, '')) : 0;
-            return { x: parseDate(e.ts), y: xp };
-        }).filter(p => p.x).sort((a,b) => a.x - b.x);
+    buildChartLegend(datasets, hasPets);
 
-        if (sData.length) {
-            const color = skillColors[s] || '#888';
-            const sPets = petEvents.filter(p => p.skill === s).map(p => parseDate(p.ts)).filter(d => d);
-            
-            datasets.push({
-                label: s,
-                data: sData,
-                borderColor: color,
-                backgroundColor: color,
-                borderWidth: 2,
-                pointRadius: (ctx) => {
-                    const d = ctx.raw?.x;
-                    if (!d) return 0;
-                    return sPets.some(pd => Math.abs(pd - d) < 86400000) ? 6 : 0;
-                },
-                pointStyle: (ctx) => {
-                    const d = ctx.raw?.x;
-                    if (!d) return 'circle';
-                    return sPets.some(pd => Math.abs(pd - d) < 86400000) ? 'star' : 'circle';
-                },
-                pointBackgroundColor: '#f0c040',
-                pointBorderColor: '#c8930a',
-                tension: 0.1,
-                fill: false
-            });
+    const ctx = document.getElementById('xp-chart').getContext('2d');
 
-            legend.innerHTML += `
-                <div class="xp-legend-item">
-                    <div class="xp-legend-swatch" style="background:${color}"></div>
-                    ${s}
-                    ${sPets.length ? '<span class="xp-legend-pet">⭐</span>' : ''}
-                </div>
-            `;
-        }
-    });
+    // Always rebuild when datasets change (multi vs single, etc.)
+    if (xpChart) { xpChart.destroy(); xpChart = null; }
 
-    const isDark = document.body.classList.contains('dark-mode');
-    const textColor = isDark ? '#ced4da' : '#495057';
-    const borderColor = isDark ? '#404040' : '#dee2e6';
-
-    xpChart = new Chart(canvas, {
+    xpChart = new Chart(ctx, {
         type: 'line',
-        data: { datasets: datasets },
+        data: { datasets },
         options: {
+            responsive: true,
             maintainAspectRatio: false,
-            interaction: { intersect: false, mode: 'index' },
+            interaction: { mode: 'nearest', intersect: false, axis: 'x' },
             plugins: {
                 legend: { display: false },
                 tooltip: {
+                    backgroundColor: isDark ? '#2d2d2d' : '#fff',
+                    titleColor: textColor,
+                    bodyColor: textColor,
+                    borderColor: borderColor,
+                    borderWidth: 1,
+                    padding: 10,
+                    filter: (item) => {
+                        // Show pet dataset items first, prominently
+                        return true;
+                    },
                     callbacks: {
-                        label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.y.toLocaleString()} XP`,
+                        title: (items) => {
+                            const d = items[0].raw;
+                            return formatDateLabel(d.x);
+                        },
+                        label: (item) => {
+                            const d = item.raw;
+                            if (d.isPet === false && d.label) return d.label;
+                            if (d.label) return d.label;
+                            return item.dataset.label + ': ' + (d.y || '').toLocaleString();
+                        },
                         labelColor: (item) => {
-                            if (item.dataset.pointStyle && item.dataset.pointStyle(item) === 'star') {
+                            const d = item.raw;
+                            if (d && d.isPet === undefined) {
+                                // Pet dataset
                                 return { borderColor: '#c8930a', backgroundColor: '#f0c040' };
                             }
                             return { borderColor: item.dataset.borderColor, backgroundColor: item.dataset.borderColor };
@@ -764,8 +1619,8 @@ function renderXpChart() {
                 },
                 y: {
                     grid: { color: borderColor },
-                    ticks: { 
-                        color: textColor, 
+                    ticks: {
+                        color: textColor,
                         font: { size: 10 },
                         callback: (val) => formatXpAxis(val)
                     },
@@ -780,18 +1635,11 @@ function resetXpChart() {
     if (xpChart) xpChart.resetZoom();
 }
 
-function toggleDarkMode() {
-    const body = document.body;
-    body.classList.toggle('dark-mode');
-    const isDark = body.classList.contains('dark-mode');
-    document.getElementById('theme-icon').innerText = isDark ? '☀️' : '🌙';
-    if (xpChart) renderXpChart();
-}
-
-// Init
+// Init skill picker
 buildSkillPicker();
 setFilter('all');
-fetchGoogleSheet();
+// --- New Auto-Ingest Call ---
+fetchGoogleSheetData();
 </script>
 
 </body></html>
