@@ -1079,6 +1079,7 @@ if (localStorage.getItem('theme') === 'dark') {
     document.getElementById('theme-icon').textContent = '☀️';
 }
 
+/*
 function handleFileUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -1089,6 +1090,7 @@ function handleFileUpload(event) {
     };
     reader.readAsText(file);
 }
+*/
 
 // Google Spreadsheet configuration
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/1DaIyQQA5XrpFHUN6r6Ntl_JKQ95vHPpQTLrNNm6m6Ag/export?format=csv`;
@@ -1107,11 +1109,11 @@ async function fetchGoogleSheetData() {
         const csvText = await response.text();
         
         // Update label to reflect the source and process the data
-        label.textContent = "Data Source: Google Spreadsheet";
+        label.textContent = "✅ Data Loaded from Google Sheets";
         processData(csvText);
     } catch (err) {
         console.error("Failed to fetch Google Sheet data:", err);
-        label.textContent = "Error: Could not load Google Sheet. Ensure the sheet is public.";
+        label.textContent = "❌ Error loading Google Sheet";
     }
 }
 
