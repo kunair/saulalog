@@ -53,11 +53,10 @@ input[type=text]:focus { border-color: var(--color-all); box-shadow: 0 0 0 2px r
 .theme-toggle:hover { border-color: var(--color-all); background: var(--color-bg-sub); }
 .theme-toggle:active { transform: scale(0.92); }
 
-.upload-area { border: 2px dashed var(--color-border); padding: 20px; width: 100%; text-align: center; border-radius: 10px; background: var(--color-surface); cursor: pointer; color: var(--color-text-dim); transition: 0.1s; font-size: 14px; font-weight: 500; user-select: none; }
+.upload-area { border: 2px dashed var(--color-border); padding: 20px; width: 100%; text-align: center; border-radius: 10px; background: var(--color-surface); color: var(--color-text-dim); transition: 0.1s; font-size: 14px; font-weight: 500; user-select: none; }
 .upload-area:hover { border-color: var(--color-all); background: var(--color-bg-sub); }
-.upload-area:active { transform: scale(0.98); }
-#csv-file { display: none; }
 
+/* SNAPPY FILTER BUBBLES */
 .filters { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; width: 100%; }
 .pill { 
     display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 20px; 
@@ -78,8 +77,10 @@ input[type=text]:focus { border-color: var(--color-all); box-shadow: 0 0 0 2px r
     transition: all 0.1s; font-weight: 600; user-select: none;
 }
 .b-pill:hover { border-color: var(--color-text-light); transform: translateY(-1px); }
+.b-pill:active { transform: scale(0.94); }
+
 .b-pill.active { color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2); transform: scale(1.02); }
-body.dark-mode .b-pill.active { color: #121212 !important; text-shadow: none; }
+body.dark-mode .b-pill.active { color: #121212 !important; text-shadow: none; box-shadow: 0 0 12px rgba(0,0,0,0.4); }
 
 .skill-sec .b-pill.active { background: var(--color-skill); border-color: var(--color-skill); }
 .clue-sec .b-pill.active { background: var(--color-clue); border-color: var(--color-clue); }
@@ -93,18 +94,24 @@ body.dark-mode .b-pill.active { color: #121212 !important; text-shadow: none; }
 .loot-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; padding: 8px 6px; border-bottom: 1px solid var(--color-bg-sub); border-radius: 4px; transition: 0.1s; }
 .loot-row.clickable { cursor: pointer; }
 .loot-row.clickable:hover { background: var(--color-bg-sub); padding-left: 10px; }
+.loot-row.clickable:active { transform: scale(0.99); }
+.loot-row.back-btn { font-weight: bold; color: var(--color-combat); margin-bottom: 8px; border-bottom: 2px solid var(--color-border); }
+
 .loot-name { flex: 1; padding-right: 15px; display: flex; align-items: center; }
 .loot-count { font-weight: 800; margin-right: 10px; color: var(--color-combat); font-size: 13px; }
 .loot-ts { color: var(--color-text-light); font-family: 'Courier New', Courier, monospace; font-size: 11px; white-space: nowrap; }
 
 .entries { width: 100%; display: flex; flex-direction: column; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface); overflow: hidden; }
 .entry { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 18px; font-size: 13px; border-bottom: 1px solid var(--color-bg-sub); transition: background 0.1s; }
+.entry:hover { background: rgba(0,0,0,0.01); }
+body.dark-mode .entry:hover { background: rgba(255,255,255,0.02); }
+
 .entry-content { display: flex; align-items: flex-start; gap: 12px; flex: 1; padding-right: 20px; }
 .entry-text-stack { display: flex; flex-direction: column; gap: 4px; }
 .entry-title { font-weight: 700; color: var(--color-text); }
 .entry-details { color: var(--color-text-dim); font-size: 12px; line-height: 1.4; }
 .entry-ts { color: var(--color-text-light); font-family: 'Courier New', Courier, monospace; font-size: 11px; white-space: nowrap; }
-.cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; box-shadow: 0 0 4px rgba(0,0,0,0.1); }
 
 .hidden { display: none !important; }
 .footer { font-size: 11px; color: var(--color-text-light); margin-top: 8px; width: 100%; text-align: right; font-weight: 500; }
@@ -114,15 +121,19 @@ body.dark-mode .b-pill.active { color: #121212 !important; text-shadow: none; }
 .skill-picker-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .view-toggle-group { display: flex; gap: 4px; margin-left: auto; }
 .view-btn { padding: 4px 12px; border-radius: 10px; border: 1px solid var(--color-border); font-size: 10px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); font-weight: 700; transition: all 0.1s; user-select: none; letter-spacing: 0.5px; text-transform: uppercase; }
+.view-btn:hover { border-color: var(--color-skill); color: var(--color-skill); }
 .view-btn.active { background: var(--color-skill); color: #fff; border-color: var(--color-skill); }
 body.dark-mode .view-btn.active { color: #121212; }
 
-.skill-all-btn { padding: 5px 14px; border-radius: 12px; border: 2px solid var(--color-skill); font-size: 11px; cursor: pointer; background: var(--color-skill); color: #fff; font-weight: 700; transition: all 0.1s; opacity: 0.65; }
-.skill-all-btn.active { opacity: 1; }
+.skill-all-btn { padding: 5px 14px; border-radius: 12px; border: 2px solid var(--color-skill); font-size: 11px; cursor: pointer; background: var(--color-skill); color: #fff; font-weight: 700; transition: all 0.1s; user-select: none; opacity: 0.65; }
+.skill-all-btn.active { opacity: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
 body.dark-mode .skill-all-btn { color: #121212; }
 
+/* Group filter buttons */
 .skill-group-btns { display: flex; gap: 5px; flex-wrap: wrap; }
-.sg-btn { padding: 5px 13px; border-radius: 12px; border: 2px solid transparent; font-size: 11px; cursor: pointer; font-weight: 700; transition: all 0.1s; opacity: 0.7; }
+.sg-btn { padding: 5px 13px; border-radius: 12px; border: 2px solid transparent; font-size: 11px; cursor: pointer; font-weight: 700; transition: all 0.1s; user-select: none; opacity: 0.7; }
+.sg-btn:hover { opacity: 1; transform: translateY(-1px); }
+.sg-btn:active { transform: scale(0.95); }
 .sg-btn.active { opacity: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .sg-btn[data-group="Combat"]    { background: #d32f2f22; color: #d32f2f; border-color: #d32f2f; }
 .sg-btn[data-group="Artisan"]   { background: #ef6c0022; color: #ef6c00; border-color: #ef6c00; }
@@ -132,11 +143,23 @@ body.dark-mode .skill-all-btn { color: #121212; }
 .sg-btn.active[data-group="Artisan"]   { background: #ef6c00; color: #fff; }
 .sg-btn.active[data-group="Gathering"] { background: #1565c0; color: #fff; }
 .sg-btn.active[data-group="Support"]   { background: #7b1fa2; color: #fff; }
+body.dark-mode .sg-btn[data-group="Combat"]    { color: #e57373; border-color: #e57373; background: #e5737322; }
+body.dark-mode .sg-btn[data-group="Artisan"]   { color: #ffd54f; border-color: #ffd54f; background: #ffd54f22; }
+body.dark-mode .sg-btn[data-group="Gathering"] { color: #64b5f6; border-color: #64b5f6; background: #64b5f622; }
+body.dark-mode .sg-btn[data-group="Support"]   { color: #ba68c8; border-color: #ba68c8; background: #ba68c822; }
+body.dark-mode .sg-btn.active[data-group="Combat"]    { background: #e57373; color: #121212; }
+body.dark-mode .sg-btn.active[data-group="Artisan"]   { background: #ffd54f; color: #121212; }
+body.dark-mode .sg-btn.active[data-group="Gathering"] { background: #64b5f6; color: #121212; }
+body.dark-mode .sg-btn.active[data-group="Support"]   { background: #ba68c8; color: #121212; }
 
+/* Chart legend */
 .xp-chart-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
 .xp-legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--color-text-dim); font-weight: 600; }
 .xp-legend-swatch { width: 22px; height: 3px; border-radius: 2px; flex-shrink: 0; }
-.xp-legend-pet { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; color: #f0c040; font-weight: 700; }
+.xp-legend-pet { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; color: #f0c040; font-weight: 700; margin-left: 4px; }
+
+/* Pet marker annotation */
+.xp-pet-note { font-size: 10px; color: var(--color-text-light); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
 
 .skill-flat-grid { display: flex; flex-wrap: wrap; gap: 5px; }
 .skill-grouped-list { display: flex; flex-direction: column; gap: 6px; }
@@ -144,20 +167,28 @@ body.dark-mode .skill-all-btn { color: #121212; }
 .skill-group-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--color-text-light); font-weight: 800; padding-left: 2px; }
 .skill-group-pills { display: flex; flex-wrap: wrap; gap: 4px; }
 
-.sk-btn { padding: 4px 11px; border-radius: 11px; border: 1px solid var(--color-border); font-size: 11px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); transition: all 0.1s; font-weight: 600; }
-.sk-btn.active { background: var(--color-skill); border-color: var(--color-skill); color: #fff; }
+.sk-btn { padding: 4px 11px; border-radius: 11px; border: 1px solid var(--color-border); font-size: 11px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); transition: all 0.1s; font-weight: 600; user-select: none; }
+.sk-btn:hover { border-color: var(--color-skill); color: var(--color-skill); transform: translateY(-1px); }
+.sk-btn:active { transform: scale(0.94); }
+.sk-btn.active { background: var(--color-skill); border-color: var(--color-skill); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
 body.dark-mode .sk-btn.active { color: #121212; }
 
+/* XP Chart */
 .xp-chart-wrap { width: 100%; margin-top: 10px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 14px 16px 10px; }
 .xp-chart-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
 .xp-chart-title { font-size: 11px; font-weight: 700; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px; flex: 1; min-width: 0; }
-.xp-chart-reset { padding: 3px 10px; border-radius: 8px; border: 1px solid var(--color-border); font-size: 10px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); font-weight: 600; }
-.chart-mode-btns { display: none; gap: 3px; } 
+.xp-chart-hint { font-size: 10px; color: var(--color-text-light); white-space: nowrap; }
+.xp-chart-reset { padding: 3px 10px; border-radius: 8px; border: 1px solid var(--color-border); font-size: 10px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); font-weight: 600; transition: all 0.1s; }
+.xp-chart-reset:hover { border-color: var(--color-skill); color: var(--color-skill); }
+.chart-mode-btns { display: none; gap: 3px; } /* shown only in group mode via JS */
 .chart-mode-btns.visible { display: flex; }
-.cmode-btn { padding: 3px 10px; border-radius: 8px; border: 1px solid var(--color-border); font-size: 10px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); font-weight: 700; transition: all 0.1s; }
+.cmode-btn { padding: 3px 10px; border-radius: 8px; border: 1px solid var(--color-border); font-size: 10px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); font-weight: 700; transition: all 0.1s; user-select: none; }
+.cmode-btn:hover { border-color: var(--color-skill); color: var(--color-skill); }
 .cmode-btn.active { background: var(--color-skill); border-color: var(--color-skill); color: #fff; }
 body.dark-mode .cmode-btn.active { color: #121212; }
 .xp-chart-canvas-wrap { position: relative; height: 240px; }
+.xp-chart-canvas-wrap.tall { height: 320px; } /* for bar snapshot with many skills */
+.xp-no-data { text-align: center; padding: 40px 0; color: var(--color-text-light); font-size: 12px; }
 </style>
 </head>
 <body>
@@ -165,8 +196,7 @@ body.dark-mode .cmode-btn.active { color: #121212; }
 <div class="wrap">
   <div class="header-row">
     <div class="search-wrap">
-        <label class="upload-area" for="csv-file" id="upload-label">Drag & drop CSV or click to browse</label>
-        <input type="file" id="csv-file" accept=".csv" onchange="handleFileUpload(event)">
+        <label class="upload-area" id="upload-label">Syncing Google Sheets...</label>
         <input type="text" id="search" placeholder="Search by title, monster, or drop..." oninput="render()">
     </div>
     <div class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
@@ -175,25 +205,24 @@ body.dark-mode .cmode-btn.active { color: #121212; }
   </div>
 
   <div class="filters" id="pills">
-    <span class="pill active" id="pill-all" onclick="setFilter('all')" style="color:var(--color-all)">
+    <span class="pill" id="pill-all" onclick="setFilter(&#39;all&#39;)" style="color:var(--color-all)">
         <span class="dot" style="background:var(--color-all)"></span>All
     </span>
-    <span class="pill" id="pill-skills" onclick="setFilter('skills')" style="color:var(--color-skill)">
+    <span class="pill" id="pill-skills" onclick="setFilter(&#39;skills&#39;)" style="color:var(--color-skill)">
         <span class="dot" style="background:var(--color-skill)"></span>Skills
     </span>
-    <span class="pill" id="pill-combat" onclick="setFilter('combat')" style="color:var(--color-combat)">
+    <span class="pill active" id="pill-combat" onclick="setFilter(&#39;combat&#39;)" style="color:var(--color-combat)">
         <span class="dot" style="background:var(--color-combat)"></span>Combat
     </span>
-    <span class="pill" id="pill-clues" onclick="setFilter('clues')" style="color:var(--color-clue)">
+    <span class="pill" id="pill-clues" onclick="setFilter(&#39;clues&#39;)" style="color:var(--color-clue)">
         <span class="dot" style="background:var(--color-clue)"></span>Clues
     </span>
-    <span class="pill" id="pill-quests" onclick="setFilter('quests')" style="color:var(--color-quest)">
+    <span class="pill" id="pill-quests" onclick="setFilter(&#39;quests&#39;)" style="color:var(--color-quest)">
         <span class="dot" style="background:var(--color-quest)"></span>Quests
     </span>
-    <span class="pill" id="pill-misc" onclick="setFilter('misc')" style="color:var(--color-misc)">
+    <span class="pill" id="pill-misc" onclick="setFilter(&#39;misc&#39;)" style="color:var(--color-misc)">
         <span class="dot" style="background:var(--color-misc)"></span>Misc
-    </span>
-  </div>
+    </span></div>
 
   <div id="skill-controls" class="sub-controls skill-sec hidden">
     <div class="skill-picker" id="skill-picker">
@@ -226,44 +255,45 @@ body.dark-mode .cmode-btn.active { color: #121212; }
           <button class="cmode-btn active" id="cmode-stacked" onclick="setGroupChartMode('stacked')">Stacked</button>
           <button class="cmode-btn" id="cmode-bars" onclick="setGroupChartMode('bars')">Snapshot</button>
         </div>
+        <span class="xp-chart-hint" id="xp-chart-hint">Scroll to zoom · Drag to pan</span>
         <button class="xp-chart-reset" id="xp-chart-reset" onclick="resetXpChart()">Reset View</button>
       </div>
       <div class="xp-chart-legend" id="xp-chart-legend"></div>
       <div class="xp-chart-canvas-wrap" id="xp-chart-canvas-wrap">
         <canvas id="xp-chart"></canvas>
       </div>
+      <div class="xp-pet-note" id="xp-pet-note" style="display:none;">⭐ = Skilling pet obtained</div>
     </div>
   </div>
 
   <div id="clue-controls" class="sub-controls clue-sec hidden">
     <div class="bubble-wrap">
-        <div id="btn-easy" class="b-pill active" onclick="toggleSubFilter('clues', 'easy')">Easy</div>
-        <div id="btn-medium" class="b-pill active" onclick="toggleSubFilter('clues', 'medium')">Medium</div>
-        <div id="btn-hard" class="b-pill active" onclick="toggleSubFilter('clues', 'hard')">Hard</div>
-        <div id="btn-elite" class="b-pill active" onclick="toggleSubFilter('clues', 'elite')">Elite</div>
-        <div id="btn-master" class="b-pill active" onclick="toggleSubFilter('clues', 'master')">Master</div>
+        <div id="btn-easy" class="b-pill active" onclick="toggleSubFilter(&#39;clues&#39;, &#39;easy&#39;)">Easy</div>
+        <div id="btn-medium" class="b-pill active" onclick="toggleSubFilter(&#39;clues&#39;, &#39;medium&#39;)">Medium</div>
+        <div id="btn-hard" class="b-pill active" onclick="toggleSubFilter(&#39;clues&#39;, &#39;hard&#39;)">Hard</div>
+        <div id="btn-elite" class="b-pill active" onclick="toggleSubFilter(&#39;clues&#39;, &#39;elite&#39;)">Elite</div>
+        <div id="btn-master" class="b-pill active" onclick="toggleSubFilter(&#39;clues&#39;, &#39;master&#39;)">Master</div>
     </div>
   </div>
 
   <div id="main-content" style="width: 100%;">
-    <div id="combat-view" class="combat-grid hidden">
+    <div id="combat-view" class="combat-grid">
       <div class="combat-sec">
         <h3>Bosses</h3>
         <div class="bubble-wrap" id="boss-bubbles"></div>
-        <div style="margin-top:10px;"><select id="boss-more" onchange="selectMonster('boss', this.value)"><option value="">More...</option></select></div>
+        <div style="margin-top:10px;"><select id="boss-more" onchange="selectMonster(&#39;boss&#39;, this.value)"><option value="">More...</option></select></div>
         <div class="loot-container" id="boss-loot-list"></div>
       </div>
       <div class="combat-sec">
         <h3>Slayer</h3>
         <div class="bubble-wrap" id="slayer-bubbles"></div>
-        <div style="margin-top:10px;"><select id="slayer-more" onchange="selectMonster('slayer', this.value)"><option value="">More...</option></select></div>
+        <div style="margin-top:10px;"><select id="slayer-more" onchange="selectMonster(&#39;slayer&#39;, this.value)"><option value="">More...</option></select></div>
         <div class="loot-container" id="slayer-loot-list"></div>
       </div>
     </div>
-    <div id="list-view" class="entries"></div>
+    <div class="entries hidden" id="list"></div>
+    <div class="footer" id="footer">0 entries</div>
   </div>
-
-  <div class="footer" id="footer">No data loaded</div>
 </div>
 
 <script>
@@ -271,138 +301,170 @@ const BOSS_LIST = [
     "Araxxi", "Araxzor", "Arch-Glacor", "Beastmaster Durzag", "Black Stone Dragon", "Chaos Elemental", "Corporeal Beast", "Croesus", 
     "Dagannoth Prime", "Dagannoth Rex", "Dagannoth Supreme", "General Graardor", "Gregorovic", "Helwyr", "Hermit", "Kalphite King", 
     "Kalphite Queen", "Kerapac", "King Black Dragon", "K'ril Tsutsaroth", "Kree'arra", "Legio Primus", "Legio Secundus", "Legio Tertius", 
-    "Legio Quartus", "Legio Quintus", "Legio Sextus", "Magister", "Nex", "Nex: Angel of Death", "Osseous", "Pavo", "Oro", "Rath", "Rathis", 
-    "Commander Zilyana", "Raksha", "Rasial", "Solak", "Telos", "Twin Furies", "Vindicta", "Vorago", "Yakamaru", "Zamorak", "Zuk"
+    "Legio Quartus", "Legio Quintus", "Legio Sextus", "Magister", "Matriarch Pthentraken", "Matriarch Orikalka", "Matriarch Rathis", 
+    "Mole", "Nakatra", "Nex", "Osseous", "Queen Black Dragon", "Raksha", "Solak", "Telos", "The Ambassador", "The Magister", "Twin Furies", 
+    "Tztok-Jad", "Varrago", "Verak Lith", "Vindicta", "Vorago", "Yakamaru", "Zuk"
 ];
 
 const SKILLS = [
-    "Attack", "Strength", "Defence", "Ranged", "Prayer", "Magic", "Runecrafting", "Construction", "Constitution", "Agility", 
-    "Herblore", "Thieving", "Crafting", "Fletching", "Slayer", "Hunter", "Divination", "Mining", "Smithing", "Fishing", 
-    "Cooking", "Firemaking", "Woodcutting", "Farming", "Summoning", "Invention", "Archaeology", "Necromancy"
+    "Attack", "Strength", "Defence", "Ranged", "Prayer", "Magic", "Runecrafting", "Construction", 
+    "Constitution", "Agility", "Herblore", "Thieving", "Crafting", "Fletching", "Slayer", "Hunter", 
+    "Divination", "Mining", "Smithing", "Fishing", "Cooking", "Firemaking", "Woodcutting", "Farming", 
+    "Summoning", "Invention", "Archaeology", "Necromancy"
 ];
 
 const SKILL_GROUPS = {
     "Combat": ["Attack", "Strength", "Defence", "Ranged", "Prayer", "Magic", "Constitution", "Summoning", "Necromancy"],
-    "Artisan": ["Herblore", "Runecrafting", "Construction", "Crafting", "Fletching", "Smithing", "Cooking", "Firemaking", "Invention"],
-    "Gathering": ["Divination", "Mining", "Fishing", "Woodcutting", "Farming", "Archaeology", "Hunter"],
-    "Support": ["Agility", "Thieving", "Slayer", "Hunter"]
+    "Artisan": ["Herblore", "Crafting", "Fletching", "Smithing", "Cooking", "Firemaking", "Runecrafting", "Construction"],
+    "Gathering": ["Mining", "Fishing", "Woodcutting", "Hunter", "Divination", "Farming", "Archaeology"],
+    "Support": ["Agility", "Thieving", "Slayer", "Invention"]
 };
 
-const SKILL_LINE_COLORS = ['#2e7d32', '#1565c0', '#c62828', '#ef6c00', '#7b1fa2', '#00838f', '#283593', '#4e342e', '#212121', '#d84315'];
-const GROUP_COLORS = { "Combat": "#d32f2f", "Artisan": "#ef6c00", "Gathering": "#1565c0", "Support": "#7b1fa2" };
-
-let rawData = [];
-let activeFilter = 'all';
-let skillFilter = 'all';
-let skillViewMode = 'flat';
-let groupChartMode = 'stacked';
+let ENTRIES = [];
+let activeFilter = 'combat';
+let skillFilter = 'all'; 
+let skillView = 'flat';
 let skillSubs = { xp: true, level: true, pet: true, total: true };
 let clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true };
-
-let selBoss = null, selBossLoot = null;
-let selSlayer = null, selSlayerLoot = null;
+let selectedBoss = null;
+let selectedSlayer = null;
+let drilldownTarget = null; // { category, monster, item }
+let groupChartMode = 'stacked'; // 'stacked' or 'bars'
 let xpChart = null;
 
-function handleFileUpload(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    document.getElementById('upload-label').textContent = 'Loaded: ' + file.name;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-        const lines = ev.target.result.split('\n');
-        rawData = lines.map(l => parseLine(l)).filter(Boolean);
-        render();
-    };
-    reader.readAsText(file);
+const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1DaIyQQA5XrpFHUN6r6Ntl_JKQ95vHPpQTLrNNm6m6Ag/export?format=csv";
+
+async function fetchGoogleSheet() {
+    const label = document.getElementById('upload-label');
+    try {
+        const response = await fetch(GOOGLE_SHEET_CSV_URL);
+        if (!response.ok) throw new Error('Network response was not ok');
+        const text = await response.text();
+        label.innerText = "✅ Data Loaded from Google Sheets";
+        handleCSV(text);
+    } catch (error) {
+        console.error('Fetch error:', error);
+        label.innerText = "❌ Error loading Google Sheet";
+    }
 }
 
-function parseLine(line) {
-    const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-    if (parts.length < 3) return null;
-    const ts = parts[0].replace(/"/g, '').trim();
-    const title = parts[1].replace(/"/g, '').trim();
-    const details = parts[2].replace(/"/g, '').trim();
-    const dateObj = new Date(ts);
-    if (isNaN(dateObj)) return null;
+function handleCSV(text) {
+    const lines = text.split(/\r?\n/);
+    ENTRIES = lines.map(line => {
+        const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+        if (parts.length < 3) return null;
+        const ts = parts[0].replace(/"/g, '').trim();
+        const title = parts[1].replace(/"/g, '').trim();
+        const details = parts[2].replace(/"/g, '').trim();
 
-    let d = { ts, title, details, date: dateObj, super: 'misc', sub: 'misc', skill: null, monster: null, item: null, xp: 0 };
+        let d = { ts, title, details, super: 'misc', sub: 'misc', skill: null, monster: null, item: null };
 
-    // 1. Quests - Fix "Quest complete" logic
-    if (details.toLowerCase().includes('quest') || title.toLowerCase().includes('quest') || details.toLowerCase().includes('completed the')) {
-        d.super = 'quests';
-        return d;
-    }
-
-    // 2. Clues
-    if (details.toLowerCase().includes('treasure trail')) {
-        d.super = 'clues';
-        ['easy', 'medium', 'hard', 'elite', 'master'].forEach(diff => {
-            if (details.toLowerCase().includes(diff)) d.sub = diff;
-        });
-        return d;
-    } 
-    
-    // 3. Skills
-    if (/experience points in the|I levelled|level 99|While skilling|achieved at least level/i.test(details)) {
-        d.super = 'skills';
-        SKILLS.forEach(s => { if (details.includes(s)) d.skill = s; });
-        d.sub = details.includes('experience points') ? 'xp' : details.includes('While skilling') ? 'pet' : details.includes('total level of') ? 'total' : 'level';
-        const xpMatch = details.match(/([\d,]+) experience points/);
-        if (xpMatch) d.xp = parseInt(xpMatch[1].replace(/,/g, ''));
-        return d;
-    } 
-
-    // 4. Combat - Fix Boss/Slayer categorization
-    if (/killed|dropped|looted|found|surviving|defeating/.test(details)) {
-        d.super = 'combat';
-        const mMatch = details.match(/(?:killing|defeating|surviving|killing a|defeated) (?:the |a )?([\w\s':]+?)(?:, it dropped|: Rex Matriarchs|\.|$)/i);
-        if (mMatch) {
-            d.monster = mMatch[1].trim();
-            d.sub = BOSS_LIST.some(b => d.monster.toLowerCase().includes(b.toLowerCase())) ? 'boss' : 'slayer';
+        if (details.toLowerCase().includes('treasure trail')) {
+            d.super = 'clues';
+            ['easy', 'medium', 'hard', 'elite', 'master'].forEach(diff => {
+                if (details.toLowerCase().includes(diff)) d.sub = diff;
+            });
+        } 
+        else if (/experience points in the|I levelled|level 99|While skilling|achieved at least level/i.test(details)) {
+            d.super = 'skills';
+            SKILLS.forEach(s => { if (details.includes(s)) d.skill = s; });
+            d.sub = details.includes('experience points') ? 'xp' : 
+                    details.includes('While skilling') ? 'pet' : 
+                    details.includes('total level of') ? 'total' : 'level';
         }
-        const iMatch = details.match(/(?:dropped|looted|found) (?:a |an |the )?([\w\s'()+-]+)(?:\.|$)/i);
-        if (iMatch) d.item = iMatch[1].trim();
+        else if (/killed|dropped|looted|found|surviving|defeating/.test(details) && !details.toLowerCase().includes('quest')) {
+            d.super = 'combat';
+            const mMatch = details.match(/(?:killing|defeating|surviving|killing a|defeated) (?:the |a )?([\w\s':]+?)(?:, it dropped|: Rex Matriarchs|: Dagannoth Kings|: Legio)/);
+            if (mMatch) {
+                d.monster = mMatch[1].trim();
+                d.sub = BOSS_LIST.includes(d.monster) ? 'boss' : 'slayer';
+                const iMatch = details.match(/it dropped (?:a |an |the )?([\w\s':()-]+)\./i);
+                if (iMatch) d.item = iMatch[1].trim();
+            }
+        }
+        else if (details.toLowerCase().includes('quest completed')) {
+            d.super = 'quests';
+        }
         return d;
-    }
-
-    return d;
+    }).filter(e => e);
+    
+    render();
 }
 
 function setFilter(f) {
     activeFilter = f;
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-    document.getElementById('pill-' + f).classList.add('active');
+    document.getElementById(`pill-${f}`).classList.add('active');
+    
     document.getElementById('skill-controls').classList.toggle('hidden', f !== 'skills');
     document.getElementById('clue-controls').classList.toggle('hidden', f !== 'clues');
     document.getElementById('combat-view').classList.toggle('hidden', f !== 'combat');
-    document.getElementById('list-view').classList.toggle('hidden', f === 'combat');
+    document.getElementById('list').classList.toggle('hidden', f === 'combat');
+
+    if (f === 'skills') renderXpChart();
     render();
 }
 
+function setSkillFilter(s) {
+    skillFilter = s;
+    buildSkillPicker();
+    render();
+}
+
+function setSkillView(v) {
+    skillView = v;
+    buildSkillPicker();
+}
+
+function setGroupChartMode(mode) {
+    groupChartMode = mode;
+    document.querySelectorAll('.cmode-btn').forEach(b => b.classList.toggle('active', b.id === `cmode-${mode}`));
+    renderXpChart();
+}
+
 function toggleSubFilter(cat, sub) {
-    if (cat === 'skills') skillSubs[sub] = !skillSubs[sub];
-    else clueSubs[sub] = !clueSubs[sub];
-    document.getElementById(`btn-${sub}`).classList.toggle('active');
+    const obj = (cat === 'skills') ? skillSubs : clueSubs;
+    obj[sub] = !obj[sub];
+    document.getElementById(`btn-${sub}`).classList.toggle('active', obj[sub]);
+    render();
+}
+
+function selectMonster(cat, name) {
+    if (!name) return;
+    if (cat === 'boss') selectedBoss = name;
+    else selectedSlayer = name;
+    drilldownTarget = null;
+    render();
+}
+
+function toggleLootDrilldown(cat, itemName) {
+    if (drilldownTarget && drilldownTarget.item === itemName) drilldownTarget = null;
+    else drilldownTarget = { category: cat, monster: (cat === 'boss' ? selectedBoss : selectedSlayer), item: itemName };
     render();
 }
 
 function render() {
     const q = document.getElementById('search').value.toLowerCase();
-    const list = document.getElementById('list-view');
+    const list = document.getElementById('list');
     
-    let filtered = rawData.filter(e => {
-        if (q && !e.title.toLowerCase().includes(q) && !e.details.toLowerCase().includes(q)) return false;
+    const filtered = ENTRIES.filter(e => {
+        if (q && !(e.title.toLowerCase().includes(q) || e.details.toLowerCase().includes(q))) return false;
         if (activeFilter !== 'all' && e.super !== activeFilter) return false;
+        
         if (activeFilter === 'skills') {
             if (skillFilter !== 'all') {
                 if (skillFilter.startsWith('group:')) {
                     const gName = skillFilter.slice(6);
-                    if (!SKILL_GROUPS[gName].includes(e.skill)) return false;
-                } else if (e.skill !== skillFilter) return false;
+                    const gSkills = SKILL_GROUPS[gName] || [];
+                    if (e.skill && !gSkills.includes(e.skill)) return false;
+                } else {
+                    if (e.skill !== skillFilter) return false;
+                }
             }
             if (!skillSubs[e.sub]) return false;
         }
         if (activeFilter === 'clues' && !clueSubs[e.sub]) return false;
+        
         return true;
     });
 
@@ -414,163 +476,322 @@ function render() {
             <div class="entry">
                 <div class="entry-content">
                     <span class="cat-dot" style="background:${getColor(e.super)}"></span>
-                    <div class="entry-text-stack"><span class="entry-title">${e.title}</span><span class="entry-details">${e.details}</span></div>
+                    <div class="entry-text-stack">
+                        <span class="entry-title">${e.title}</span>
+                        <span class="entry-details">${e.details}</span>
+                    </div>
                 </div>
                 <span class="entry-ts">${e.ts}</span>
             </div>
         `).join('');
     }
-    document.getElementById('footer').textContent = `${filtered.length} entries`;
-    if (activeFilter === 'skills') updateXpChart();
+
+    document.getElementById('footer').innerText = `${filtered.length} entries`;
+    if (activeFilter === 'skills') renderXpChart();
 }
 
-function renderCombatSide(type, entries) {
-    const names = [...new Set(entries.map(e => e.monster))].filter(Boolean);
-    const currentMonster = (type === 'boss') ? selBoss : selSlayer;
-    document.getElementById(`${type}-bubbles`).innerHTML = names.slice(0, 5).map(n => `
-        <div class="b-pill ${currentMonster === n ? 'active' : ''}" onclick="selectMonster('${type}', '${n.replace(/'/g, "\\'")}')">${n}</div>
-    `).join('');
+function renderCombatSide(cat, data) {
+    const container = document.getElementById(`${cat}-bubbles`);
+    const lootList = document.getElementById(`${cat}-loot-list`);
+    const select = document.getElementById(`${cat}-more`);
     
-    const more = document.getElementById(`${type}-more`);
-    more.innerHTML = '<option value="">More...</option>' + names.slice(5).map(n => `<option value="${n}" ${currentMonster === n ? 'selected' : ''}>${n}</option>`).join('');
+    const counts = {};
+    data.forEach(e => { if (e.monster) counts[e.monster] = (counts[e.monster] || 0) + 1; });
+    const sorted = Object.keys(counts).sort((a,b) => counts[b] - counts[a]);
+    
+    const top = sorted.slice(0, 5);
+    const rest = sorted.slice(5);
+    const current = (cat === 'boss' ? selectedBoss : selectedSlayer);
 
-    const lootList = document.getElementById(`${type}-loot-list`);
-    if (!currentMonster) {
-        lootList.innerHTML = '<div class="xp-no-data">Select a monster to view drops</div>';
-        return;
-    }
-
-    const mEntries = entries.filter(e => e.monster === currentMonster);
-    const lootMap = {};
-    mEntries.forEach(e => {
-        if (e.item) {
-            if (!lootMap[e.item]) lootMap[e.item] = { count: 0, last: e.ts };
-            lootMap[e.item].count++;
-        }
-    });
-
-    lootList.innerHTML = Object.entries(lootMap).map(([name, data]) => `
-        <div class="loot-row">
-            <span class="loot-name"><span class="loot-count">${data.count}x</span>${name}</span>
-            <span class="loot-ts">${data.last}</span>
-        </div>
+    container.innerHTML = top.map(m => `
+        <div class="b-pill ${current === m ? 'active' : ''}" onclick="selectMonster('${cat}', '${m.replace(/'/g, "\\'")}')">${m}</div>
     `).join('');
+
+    const existingSelectVal = select.value;
+    select.innerHTML = `<option value="">More...</option>` + rest.map(m => `
+        <option value="${m}" ${current === m ? 'selected' : ''}>${m}</option>
+    `).join('');
+
+    if (current) {
+        let monsterData = data.filter(e => e.monster === current);
+        if (drilldownTarget && drilldownTarget.category === cat && drilldownTarget.monster === current) {
+            const item = drilldownTarget.item;
+            const itemDrops = monsterData.filter(e => e.item === item);
+            lootList.innerHTML = `
+                <div class="loot-row back-btn clickable" onclick="toggleLootDrilldown('${cat}', '${item.replace(/'/g, "\\'")}')">
+                    ← Back to all drops
+                </div>
+                <div style="font-weight:800; font-size:12px; margin-bottom:10px; color:var(--color-text)">${item} (${itemDrops.length})</div>
+                ${itemDrops.map(e => `
+                    <div class="loot-row">
+                        <span class="loot-name">${e.title}</span>
+                        <span class="loot-ts">${e.ts}</span>
+                    </div>
+                `).join('')}
+            `;
+        } else {
+            const items = {};
+            monsterData.forEach(e => { if (e.item) items[e.item] = { count: (items[e.item]?.count || 0) + 1, last: e.ts }; });
+            const sortedItems = Object.keys(items).sort((a,b) => items[b].count - items[a].count);
+            lootList.innerHTML = sortedItems.map(i => `
+                <div class="loot-row clickable" onclick="toggleLootDrilldown('${cat}', '${i.replace(/'/g, "\\'")}')">
+                    <span class="loot-name"><span class="loot-count">${items[i].count}x</span>${i}</span>
+                    <span class="loot-ts">${items[i].last}</span>
+                </div>
+            `).join('');
+        }
+    } else {
+        lootList.innerHTML = `<div class="xp-no-data">Select a ${cat} to view drops</div>`;
+    }
 }
 
-function selectMonster(type, name) {
-    if (type === 'boss') selBoss = name; else selSlayer = name;
-    render();
-}
-
-function getColor(cat) {
-    return getComputedStyle(document.documentElement).getPropertyValue(`--color-${cat}`).trim();
-}
-
-function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    document.getElementById('theme-icon').textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-    if (xpChart) updateXpChart();
+function getColor(s) {
+    const colors = { all: 'var(--color-all)', skills: 'var(--color-skill)', combat: 'var(--color-combat)', clues: 'var(--color-clue)', quests: 'var(--color-quest)', misc: 'var(--color-misc)' };
+    return colors[s] || colors.misc;
 }
 
 function buildSkillPicker() {
-    const flatGrid = document.getElementById('skill-flat-view');
-    flatGrid.innerHTML = SKILLS.map(s => `<button class="sk-btn ${skillFilter === s ? 'active' : ''}" onclick="setSkillFilter('${s}')">${s}</button>`).join('');
-    const groupedList = document.getElementById('skill-grouped-view');
-    groupedList.innerHTML = Object.entries(SKILL_GROUPS).map(([g, s]) => `
+    const flat = document.getElementById('skill-flat-view');
+    const grouped = document.getElementById('skill-grouped-view');
+    const allBtn = document.getElementById('skill-btn-all');
+    
+    flat.classList.toggle('hidden', skillView !== 'flat');
+    grouped.classList.toggle('hidden', skillView !== 'grouped');
+    allBtn.classList.toggle('active', skillFilter === 'all');
+    
+    document.querySelectorAll('.sg-btn').forEach(b => b.classList.toggle('active', skillFilter === `group:${b.dataset.group}`));
+
+    const pill = (s) => `<div class="sk-btn ${skillFilter === s ? 'active' : ''}" onclick="setSkillFilter('${s}')">${s}</div>`;
+
+    flat.innerHTML = SKILLS.map(s => pill(s)).join('');
+    
+    grouped.innerHTML = Object.keys(SKILL_GROUPS).map(g => `
         <div class="skill-group-block">
             <div class="skill-group-label">${g}</div>
-            <div class="skill-group-pills">${s.map(skill => `<button class="sk-btn ${skillFilter === skill ? 'active' : ''}" onclick="setSkillFilter('${skill}')">${skill}</button>`).join('')}</div>
+            <div class="skill-group-pills">${SKILL_GROUPS[g].map(s => pill(s)).join('')}</div>
         </div>
     `).join('');
+
+    document.getElementById('view-btn-flat').classList.toggle('active', skillView === 'flat');
+    document.getElementById('view-btn-grouped').classList.toggle('active', skillView === 'grouped');
 }
 
-function setSkillFilter(s) { skillFilter = s; buildSkillPicker(); render(); }
-function setSkillView(m) { 
-    skillViewMode = m; 
-    document.getElementById('skill-flat-view').classList.toggle('hidden', m !== 'flat');
-    document.getElementById('skill-grouped-view').classList.toggle('hidden', m !== 'grouped');
-    document.getElementById('view-btn-flat').classList.toggle('active', m === 'flat');
-    document.getElementById('view-btn-grouped').classList.toggle('active', m === 'grouped');
+function parseDate(ts) {
+    const d = new Date(ts);
+    return isNaN(d) ? null : d;
 }
-function setGroupChartMode(m) { groupChartMode = m; updateXpChart(); }
 
-// Chart Logic - Consolidate Pet Data and Legend
-function updateXpChart() {
-    const ctx = document.getElementById('xp-chart').getContext('2d');
-    const isDark = document.body.classList.contains('dark-mode');
-    const textColor = isDark ? '#f8f9fa' : '#212529';
-    const borderColor = isDark ? '#404040' : '#dee2e6';
-    const surfaceColor = isDark ? '#1e1e1e' : '#ffffff';
+function formatXpAxis(val) {
+    if (val >= 1000000) return (val/1000000).toFixed(1) + 'M';
+    if (val >= 1000) return (val/1000).toFixed(0) + 'K';
+    return val;
+}
 
-    if (xpChart) xpChart.destroy();
-
-    const allXpEntries = rawData.filter(e => e.super === 'skills' && (e.sub === 'xp' || e.sub === 'pet')).sort((a,b) => a.date - b.date);
+function renderXpChart() {
+    const canvas = document.getElementById('xp-chart');
     const legend = document.getElementById('xp-chart-legend');
+    const title = document.getElementById('xp-chart-title');
+    const modeBtns = document.getElementById('chart-mode-btns');
+    const petNote = document.getElementById('xp-pet-note');
+    const canvasWrap = document.getElementById('xp-chart-canvas-wrap');
+    
+    if (xpChart) xpChart.destroy();
     legend.innerHTML = '';
+    petNote.style.display = 'none';
+    modeBtns.classList.remove('visible');
+    canvasWrap.classList.remove('tall');
 
-    let datasets = [];
-    let petPoints = [];
-    let targetSkills = skillFilter === 'all' ? SKILLS : (skillFilter.startsWith('group:') ? SKILL_GROUPS[skillFilter.slice(6)] : [skillFilter]);
-
-    targetSkills.forEach((s, idx) => {
-        const sEntries = allXpEntries.filter(e => e.skill === s);
-        const xpData = sEntries.filter(e => e.sub === 'xp').map(e => ({ x: e.date, y: e.xp }));
-        const pets = sEntries.filter(e => e.sub === 'pet');
-        
-        const color = skillFilter.startsWith('group:') || skillFilter === 'all' ? SKILL_LINE_COLORS[idx % SKILL_LINE_COLORS.length] : getColor('skill');
-
-        if (xpData.length > 0) {
-            datasets.push({
-                label: s,
-                data: xpData,
-                borderColor: color,
-                backgroundColor: color + '22',
-                borderWidth: 2,
-                pointRadius: 0,
-                tension: 0.3,
-                fill: false
-            });
-            legend.innerHTML += `<div class="xp-legend-item"><div class="xp-legend-swatch" style="background:${color}"></div>${s}</div>`;
-        }
-
-        pets.forEach(p => {
-            const nearestXp = xpData.reduce((prev, curr) => Math.abs(curr.x - p.date) < Math.abs(prev.x - p.date) ? curr : prev, xpData[0] || {y:0});
-            petPoints.push({ x: p.date, y: nearestXp.y, skill: s });
-        });
-    });
-
-    // Consolidate Pet markers into one dataset
-    if (petPoints.length > 0) {
-        datasets.push({
-            label: 'Skilling Pets',
-            data: petPoints,
-            type: 'scatter',
-            pointStyle: 'star',
-            pointRadius: 10,
-            pointBackgroundColor: '#f0c040',
-            pointBorderColor: '#c8930a',
-            pointBorderWidth: 1
-        });
-        legend.innerHTML += `<div class="xp-legend-pet">⭐ Skilling Pet Obtained</div>`;
+    let skillSet = [];
+    let isGroup = false;
+    if (skillFilter === 'all') {
+        skillSet = SKILLS;
+        isGroup = true;
+    } else if (skillFilter.startsWith('group:')) {
+        skillSet = SKILL_GROUPS[skillFilter.slice(6)];
+        isGroup = true;
+    } else {
+        skillSet = [skillFilter];
     }
 
-    xpChart = new Chart(ctx, {
+    const dataPoints = ENTRIES.filter(e => e.super === 'skills' && e.sub === 'xp' && skillSet.includes(e.skill));
+    if (!dataPoints.length) {
+        canvas.classList.add('hidden');
+        title.innerText = "No XP Data Found";
+        return;
+    }
+    canvas.classList.remove('hidden');
+    title.innerText = isGroup ? `${skillFilter.replace('group:', '')} XP Progress` : `${skillFilter} XP`;
+    if (isGroup) modeBtns.classList.add('visible');
+
+    const datasets = [];
+    const skillColors = {
+        "Attack": "#9b2222", "Strength": "#047227", "Defence": "#6291d4", "Ranged": "#6d8c00", "Prayer": "#9fd9ff", "Magic": "#3250a1", "Constitution": "#ff2f2f", 
+        "Agility": "#312aab", "Herblore": "#005d00", "Thieving": "#6634b0", "Crafting": "#978207", "Fletching": "#038e7d", "Slayer": "#646464", "Hunter": "#a7a523", 
+        "Divination": "#91039e", "Mining": "#5d8aa8", "Smithing": "#7a7a7a", "Fishing": "#6a9292", "Cooking": "#702386", "Firemaking": "#ff981f", 
+        "Woodcutting": "#a52a2a", "Farming": "#228b22", "Summoning": "#daa520", "Invention": "#eec900", "Archaeology": "#8b4513", "Necromancy": "#4b0082", "Runecrafting": "#f0e68c", "Construction": "#8b4513"
+    };
+
+    if (isGroup && groupChartMode === 'bars') {
+        canvasWrap.classList.add('tall');
+        const latestXp = {};
+        skillSet.forEach(s => {
+            const sData = dataPoints.filter(e => e.skill === s);
+            if (sData.length) {
+                const xpValues = sData.map(e => {
+                    const m = e.details.match(/([0-9,]+) experience/);
+                    return m ? parseInt(m[1].replace(/,/g, '')) : 0;
+                });
+                latestXp[s] = Math.max(...xpValues);
+            }
+        });
+
+        const sortedSkills = Object.keys(latestXp).sort((a,b) => latestXp[b] - latestXp[a]);
+        datasets.push({
+            data: sortedSkills.map(s => latestXp[s]),
+            backgroundColor: sortedSkills.map(s => skillColors[s] || '#888'),
+            borderRadius: 4
+        });
+
+        xpChart = new Chart(canvas, {
+            type: 'bar',
+            data: { labels: sortedSkills, datasets: datasets },
+            options: {
+                indexAxis: 'y',
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `Total XP: ${ctx.raw.toLocaleString()}` } } },
+                scales: {
+                    x: { grid: { display: false }, ticks: { callback: (val) => formatXpAxis(val), color: '#888', font: { size: 10 } } },
+                    y: { grid: { display: false }, ticks: { color: 'var(--color-text)', font: { size: 11, weight: 'bold' } } }
+                }
+            }
+        });
+
+        legend.innerHTML = sortedSkills.map(s => `
+            <div class="xp-legend-item">
+                <div class="xp-legend-swatch" style="background:${skillColors[s] || '#888'}"></div>
+                ${s}
+            </div>
+        `).join('');
+
+        return;
+    }
+
+    const petEvents = ENTRIES.filter(e => e.super === 'skills' && e.sub === 'pet' && skillSet.includes(e.skill));
+    if (petEvents.length) petNote.style.display = 'flex';
+
+    skillSet.forEach(s => {
+        const sData = dataPoints.filter(e => e.skill === s).map(e => {
+            const m = e.details.match(/([0-9,]+) experience/);
+            const xp = m ? parseInt(m[1].replace(/,/g, '')) : 0;
+            return { x: parseDate(e.ts), y: xp };
+        }).filter(p => p.x).sort((a,b) => a.x - b.x);
+
+        if (sData.length) {
+            const color = skillColors[s] || '#888';
+            const sPets = petEvents.filter(p => p.skill === s).map(p => parseDate(p.ts)).filter(d => d);
+            
+            datasets.push({
+                label: s,
+                data: sData,
+                borderColor: color,
+                backgroundColor: color,
+                borderWidth: 2,
+                pointRadius: (ctx) => {
+                    const d = ctx.raw?.x;
+                    if (!d) return 0;
+                    return sPets.some(pd => Math.abs(pd - d) < 86400000) ? 6 : 0;
+                },
+                pointStyle: (ctx) => {
+                    const d = ctx.raw?.x;
+                    if (!d) return 'circle';
+                    return sPets.some(pd => Math.abs(pd - d) < 86400000) ? 'star' : 'circle';
+                },
+                pointBackgroundColor: '#f0c040',
+                pointBorderColor: '#c8930a',
+                tension: 0.1,
+                fill: false
+            });
+
+            legend.innerHTML += `
+                <div class="xp-legend-item">
+                    <div class="xp-legend-swatch" style="background:${color}"></div>
+                    ${s}
+                    ${sPets.length ? '<span class="xp-legend-pet">⭐</span>' : ''}
+                </div>
+            `;
+        }
+    });
+
+    const isDark = document.body.classList.contains('dark-mode');
+    const textColor = isDark ? '#ced4da' : '#495057';
+    const borderColor = isDark ? '#404040' : '#dee2e6';
+
+    xpChart = new Chart(canvas, {
         type: 'line',
-        data: { datasets },
+        data: { datasets: datasets },
         options: {
-            responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false }, zoom: { zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x' }, pan: { enabled: true, mode: 'x' } } },
+            interaction: { intersect: false, mode: 'index' },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `${ctx.dataset.label}: ${ctx.raw.y.toLocaleString()} XP`,
+                        labelColor: (item) => {
+                            if (item.dataset.pointStyle && item.dataset.pointStyle(item) === 'star') {
+                                return { borderColor: '#c8930a', backgroundColor: '#f0c040' };
+                            }
+                            return { borderColor: item.dataset.borderColor, backgroundColor: item.dataset.borderColor };
+                        }
+                    }
+                },
+                zoom: {
+                    pan: { enabled: true, mode: 'x' },
+                    zoom: {
+                        wheel: { enabled: true },
+                        pinch: { enabled: true },
+                        mode: 'x'
+                    }
+                }
+            },
             scales: {
-                x: { type: 'time', time: { unit: 'month' }, grid: { color: borderColor }, ticks: { color: textColor } },
-                y: { grid: { color: borderColor }, ticks: { color: textColor, callback: (v) => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1e3).toFixed(0)+'k' } }
+                x: {
+                    type: 'time',
+                    time: { unit: 'month', tooltipFormat: 'MMM yyyy', displayFormats: { month: 'MMM yy', year: 'yyyy' } },
+                    grid: { color: borderColor },
+                    ticks: { color: textColor, maxTicksLimit: 12, font: { size: 10 } },
+                    border: { color: borderColor }
+                },
+                y: {
+                    grid: { color: borderColor },
+                    ticks: { 
+                        color: textColor, 
+                        font: { size: 10 },
+                        callback: (val) => formatXpAxis(val)
+                    },
+                    border: { color: borderColor }
+                }
             }
         }
     });
 }
 
-function resetXpChart() { if (xpChart) xpChart.resetZoom(); }
+function resetXpChart() {
+    if (xpChart) xpChart.resetZoom();
+}
+
+function toggleDarkMode() {
+    const body = document.body;
+    body.classList.toggle('dark-mode');
+    const isDark = body.classList.contains('dark-mode');
+    document.getElementById('theme-icon').innerText = isDark ? '☀️' : '🌙';
+    if (xpChart) renderXpChart();
+}
+
+// Init
 buildSkillPicker();
 setFilter('all');
+fetchGoogleSheet();
 </script>
+
 </body></html>
