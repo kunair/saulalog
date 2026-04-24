@@ -320,6 +320,22 @@ body.dark-mode .sort-btn.active { color: #121212; }
 .clue-type-row:hover { background: var(--color-bg-sub); padding-left: 12px; }
 .clue-type-name { font-size: 13px; font-weight: 700; color: var(--color-text); }
 .clue-type-count { font-size: 12px; font-weight: 700; color: var(--color-text-dim); }
+/* Clue filter button row */
+.clue-btn-row {
+    padding-bottom: 10px; margin-bottom: 8px;
+    border-bottom: 1px solid var(--color-bg-sub);
+}
+.b-pill .b-pill-count {
+    margin-left: 6px; padding: 1px 7px; border-radius: 8px;
+    background: var(--color-bg-sub); color: var(--color-text-dim);
+    font-size: 10px; font-weight: 800;
+}
+.b-pill.active .b-pill-count {
+    background: rgba(255,255,255,0.25); color: #fff;
+}
+body.dark-mode .b-pill.active .b-pill-count {
+    background: rgba(0,0,0,0.2); color: #121212;
+}
 /* Drill navigation header inside a panel */
 .dual-drill-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -355,8 +371,8 @@ body.dark-mode .clue-loot-count { color: #121212; }
 <div class="wrap">
   <div class="header-row">
     <div class="search-wrap">
-        <label class="upload-area" for="csv-file" id="upload-label">Loaded: test categorization site - Sheet1.csv</label>
-        <input type="file" id="csv-file" accept=".csv">
+        <label class="upload-area" for="csv-file" id="upload-label">Click to upload a CSV (or wait for Google Sheets sync)</label>
+        <input type="file" id="csv-file" accept=".csv" onchange="handleFileUpload(event)">
         <input type="text" id="search" placeholder="Search by title, monster, or drop..." oninput="currentPage=0; render()">
     </div>
     <div class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
@@ -1251,9 +1267,9 @@ let sortOrder = 'newest';
 let currentPage = 0;
 const PAGE_SIZE = 100;
 // Clue panel state
-let selClueType = null;       // null=summary, 'easy'|'medium'|etc = drill into that type's logs
-let selClueLootType = null;   // null=type summary, 'easy'|etc = drill into loot for that type
-let selClueLootItem = null;   // null=grouped, 'itemname' = history for specific item
+let selClueType = 'easy';     // which clue tier's logs to show
+let selClueLootType = 'easy'; // which clue tier's loot to show
+let selClueLootItem = null;   // null=grouped list, 'itemname' = history for specific item
 
 const SKILL_GROUPS = {
     'Combat':    ['Attack', 'Constitution', 'Defence', 'Magic', 'Necromancy', 'Prayer', 'Ranged', 'Strength', 'Summoning'],
@@ -1441,6 +1457,21 @@ document.addEventListener('keydown', e => {
 });
 
 
+// ── CSV Upload (manual override) ──
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        document.getElementById('upload-label').textContent = `Loaded: ${file.name}`;
+        processData(e.target.result);
+    };
+    reader.onerror = () => {
+        document.getElementById('upload-label').textContent = `❌ Failed to read ${file.name}`;
+    };
+    reader.readAsText(file);
+}
+
 // Google Spreadsheet configuration
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/1DaIyQQA5XrpFHUN6r6Ntl_JKQ95vHPpQTLrNNm6m6Ag/export?format=csv`;
 
@@ -1561,6 +1592,7 @@ function processData(csvText) {
                     /dropped (?:a pair of|some|an|a) ([^.,!]+)/i,
                     /After putting .+?, back into hibernation.+?I found (?:a pair of |some |an |a )?([^.!]+)/i,
                     /After surviving [^']+?'s lair.+?I found (?:a pair of |some |an |a )?([^.!]+)/i,
+                    /After defeating .+?, I found (?:a pair of |some |an |a )?([^.!]+)/i,
                     /I looted (?:a pair of |some |an |a )?([^.!]+)/i,
                 ];
                 for (const re of itemRegexes) {
@@ -1601,7 +1633,7 @@ function processData(csvText) {
 function setFilter(id) {
     activeFilter = id;
     currentPage = 0;
-    selClueType = null; selClueLootType = null; selClueLootItem = null;
+    selClueLootItem = null;  // reset only the drilldown; keep type selections
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     const pill = document.getElementById('pill-' + id);
     if (pill) pill.classList.add('active');
@@ -1609,11 +1641,11 @@ function setFilter(id) {
 }
 
 function selectClueType(type) {
-    selClueType = (selClueType === type) ? null : type;
+    selClueType = type;
     render();
 }
 function selectClueLootType(type) {
-    selClueLootType = (selClueLootType === type) ? null : type;
+    selClueLootType = type;
     selClueLootItem = null;
     render();
 }
@@ -1694,45 +1726,45 @@ function renderQuestPanel(entries) {
 const CLUE_TYPES = ['easy','medium','hard','elite','master'];
 
 function renderCluePanel(allEntries) {
-    // ── LEFT: clue_counter ── summary of completions by type, click to drill into logs
-    const leftEl    = document.getElementById('clue-completion-list');
-    const leftCount = document.getElementById('clue-completion-count');
-
-    if (selClueType) {
-        const logs = allEntries.filter(e => e.sub === selClueType);
-        leftCount.textContent = logs.length.toLocaleString();
-        leftEl.innerHTML =
-            `<div class="dual-entry dual-drill-header">
-                <span class="dual-drill-back" onclick="selectClueType('${selClueType}')">← Back to summary</span>
-                <span style="color:var(--color-text-dim);font-size:11px;">${selClueType.charAt(0).toUpperCase()+selClueType.slice(1)} clues</span>
-             </div>` +
-            (logs.length ? logs.map(e => `
-                <div class="loot-row">
-                    <span class="loot-name">${e.details}</span>
-                    <span class="loot-ts">${e.ts}</span>
-                </div>`).join('') : '<div class="dual-empty">No entries</div>');
-    } else {
-        leftCount.textContent = allEntries.length.toLocaleString();
-        leftEl.innerHTML = CLUE_TYPES.map(type => {
-            const count = allEntries.filter(e => e.sub === type).length;
-            return `<div class="clue-type-row" onclick="selectClueType('${type}')">
-                <span class="clue-type-name">${type.charAt(0).toUpperCase()+type.slice(1)}</span>
-                <span class="clue-type-count">${count}</span>
-            </div>`;
-        }).join('');
-    }
-
-    // ── RIGHT: clue_loot ── grouped by clue type, then by item, then history
-    const rightEl    = document.getElementById('clue-loot-list');
-    const rightCount = document.getElementById('clue-loot-count');
     const lootEntries = allEntries.filter(e => e.item);
 
-    if (selClueLootItem && selClueLootType) {
-        // Deepest: history for a specific item in a specific clue type, newest first
+    // Build button-row HTML for a column. typeCount(type) returns the number to display.
+    const buttonRow = (selected, onclickFn, typeCount) => `
+        <div class="bubble-wrap clue-btn-row">
+            ${CLUE_TYPES.map(type => `
+                <div class="b-pill pill-clue ${selected === type ? 'active' : ''}"
+                     onclick="${onclickFn}('${type}')">
+                    ${type.charAt(0).toUpperCase()+type.slice(1)}
+                    <span class="b-pill-count">${typeCount(type)}</span>
+                </div>`).join('')}
+        </div>`;
+
+    // ── LEFT: completions ──
+    const leftEl    = document.getElementById('clue-completion-list');
+    const leftCount = document.getElementById('clue-completion-count');
+    const completionsRow = buttonRow(selClueType, 'selectClueType',
+        type => allEntries.filter(e => e.sub === type).length);
+    const logs = allEntries.filter(e => e.sub === selClueType);
+    leftCount.textContent = logs.length.toLocaleString();
+    leftEl.innerHTML = completionsRow +
+        (logs.length ? logs.map(e => `
+            <div class="loot-row">
+                <span class="loot-name">${e.details}</span>
+                <span class="loot-ts">${e.ts}</span>
+            </div>`).join('') : '<div class="dual-empty">No entries for this clue type</div>');
+
+    // ── RIGHT: loot ──
+    const rightEl    = document.getElementById('clue-loot-list');
+    const rightCount = document.getElementById('clue-loot-count');
+    const lootRow = buttonRow(selClueLootType, 'selectClueLootType',
+        type => lootEntries.filter(e => e.sub === type).length);
+
+    if (selClueLootItem) {
+        // Deepest drill: history for one item within the selected clue type
         const history = lootEntries.filter(e => e.sub === selClueLootType && e.item === selClueLootItem)
                                    .sort((a,b) => new Date(b.ts) - new Date(a.ts));
         rightCount.textContent = history.length.toLocaleString();
-        rightEl.innerHTML =
+        rightEl.innerHTML = lootRow +
             `<div class="dual-entry dual-drill-header">
                 <span class="dual-drill-back" onclick="clueLootBack()">← Back to ${selClueLootType.charAt(0).toUpperCase()+selClueLootType.slice(1)} loot</span>
                 <span style="color:var(--color-text-dim);font-size:11px;">${selClueLootItem}</span>
@@ -1742,8 +1774,8 @@ function renderCluePanel(allEntries) {
                     <span class="loot-name">${e.item}</span>
                     <span class="loot-ts">${e.ts}</span>
                 </div>`).join('');
-    } else if (selClueLootType) {
-        // Mid: loot items for selected clue type, grouped by name, newest first
+    } else {
+        // Grouped loot for selected clue type
         const typeLoot = lootEntries.filter(e => e.sub === selClueLootType);
         const lootMap = {};
         typeLoot.forEach(e => {
@@ -1753,27 +1785,12 @@ function renderCluePanel(allEntries) {
         });
         const grouped = Object.values(lootMap).sort((a,b) => new Date(b.lastTs) - new Date(a.lastTs));
         rightCount.textContent = grouped.length.toLocaleString();
-        rightEl.innerHTML =
-            `<div class="dual-entry dual-drill-header">
-                <span class="dual-drill-back" onclick="selectClueLootType('${selClueLootType}')">← Back to summary</span>
-                <span style="color:var(--color-text-dim);font-size:11px;">${selClueLootType.charAt(0).toUpperCase()+selClueLootType.slice(1)} loot</span>
-             </div>` +
+        rightEl.innerHTML = lootRow +
             (grouped.length ? grouped.map(g => `
                 <div class="loot-row ${g.count > 1 ? 'clickable' : ''}" ${g.count > 1 ? `onclick="selectClueLootItem('${g.name.replace(/'/g,"\'")}')"` : ''}>
                     <span class="loot-name">${g.count > 1 ? `<span class="loot-count" style="color:var(--color-clue);">${g.count}x</span>` : ''}${g.name}</span>
                     <span class="loot-ts">${g.count > 1 ? 'View History' : g.lastTs}</span>
-                </div>`).join('') : '<div class="dual-empty">No loot recorded</div>');
-    } else {
-        // Summary: one row per clue type showing unique item count + total drops
-        rightCount.textContent = lootEntries.length.toLocaleString();
-        rightEl.innerHTML = CLUE_TYPES.map(type => {
-            const typeLoot  = lootEntries.filter(e => e.sub === type);
-            const uniqueItems = new Set(typeLoot.map(e => e.item)).size;
-            return `<div class="clue-type-row" onclick="selectClueLootType('${type}')">
-                <span class="clue-type-name">${type.charAt(0).toUpperCase()+type.slice(1)}</span>
-                <span class="clue-type-count">${uniqueItems} item${uniqueItems!==1?'s':''} &middot; ${typeLoot.length} drop${typeLoot.length!==1?'s':''}</span>
-            </div>`;
-        }).join('');
+                </div>`).join('') : '<div class="dual-empty">No loot recorded for this clue type</div>');
     }
 }
 
