@@ -122,38 +122,11 @@ body.dark-mode .entry:hover { background: rgba(255,255,255,0.02); }
 /* Skill picker styles */
 .skill-picker { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .skill-picker-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.view-toggle-group { display: flex; gap: 4px; margin-left: auto; }
-.view-btn { padding: 4px 12px; border-radius: 10px; border: 1px solid var(--color-border); font-size: 10px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); font-weight: 700; transition: all 0.1s; user-select: none; letter-spacing: 0.5px; text-transform: uppercase; }
-.view-btn:hover { border-color: var(--color-skill); color: var(--color-skill); }
-.view-btn.active { background: var(--color-skill); color: #fff; border-color: var(--color-skill); }
-body.dark-mode .view-btn.active { color: #121212; }
 
 .skill-all-btn { padding: 5px 14px; border-radius: 12px; border: 2px solid var(--color-skill); font-size: 11px; cursor: pointer; background: var(--color-skill); color: #fff; font-weight: 700; transition: all 0.1s; user-select: none; opacity: 0.65; }
 .skill-all-btn.active { opacity: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
 body.dark-mode .skill-all-btn { color: #121212; }
 
-/* Group filter buttons */
-.skill-group-btns { display: flex; gap: 5px; flex-wrap: wrap; }
-.sg-btn { padding: 5px 13px; border-radius: 12px; border: 2px solid transparent; font-size: 11px; cursor: pointer; font-weight: 700; transition: all 0.1s; user-select: none; opacity: 0.7; }
-.sg-btn:hover { opacity: 1; transform: translateY(-1px); }
-.sg-btn:active { transform: scale(0.95); }
-.sg-btn.active { opacity: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-.sg-btn[data-group="Combat"]    { background: #d32f2f22; color: #d32f2f; border-color: #d32f2f; }
-.sg-btn[data-group="Artisan"]   { background: #ef6c0022; color: #ef6c00; border-color: #ef6c00; }
-.sg-btn[data-group="Gathering"] { background: #1565c022; color: #1565c0; border-color: #1565c0; }
-.sg-btn[data-group="Support"]   { background: #7b1fa222; color: #7b1fa2; border-color: #7b1fa2; }
-.sg-btn.active[data-group="Combat"]    { background: #d32f2f; color: #fff; }
-.sg-btn.active[data-group="Artisan"]   { background: #ef6c00; color: #fff; }
-.sg-btn.active[data-group="Gathering"] { background: #1565c0; color: #fff; }
-.sg-btn.active[data-group="Support"]   { background: #7b1fa2; color: #fff; }
-body.dark-mode .sg-btn[data-group="Combat"]    { color: #e57373; border-color: #e57373; background: #e5737322; }
-body.dark-mode .sg-btn[data-group="Artisan"]   { color: #ffd54f; border-color: #ffd54f; background: #ffd54f22; }
-body.dark-mode .sg-btn[data-group="Gathering"] { color: #64b5f6; border-color: #64b5f6; background: #64b5f622; }
-body.dark-mode .sg-btn[data-group="Support"]   { color: #ba68c8; border-color: #ba68c8; background: #ba68c822; }
-body.dark-mode .sg-btn.active[data-group="Combat"]    { background: #e57373; color: #121212; }
-body.dark-mode .sg-btn.active[data-group="Artisan"]   { background: #ffd54f; color: #121212; }
-body.dark-mode .sg-btn.active[data-group="Gathering"] { background: #64b5f6; color: #121212; }
-body.dark-mode .sg-btn.active[data-group="Support"]   { background: #ba68c8; color: #121212; }
 
 /* Chart legend */
 .xp-chart-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
@@ -165,9 +138,35 @@ body.dark-mode .sg-btn.active[data-group="Support"]   { background: #ba68c8; col
 .xp-pet-note { font-size: 10px; color: var(--color-text-light); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
 
 .skill-flat-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-.skill-grouped-list { display: flex; flex-direction: column; gap: 6px; }
+.skill-grouped-list { display: flex; flex-direction: column; gap: 8px; }
 .skill-group-block { display: flex; flex-direction: column; gap: 4px; }
-.skill-group-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--color-text-light); font-weight: 800; padding-left: 2px; }
+.skill-group-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px;
+    font-weight: 800; padding: 3px 10px 3px 4px;
+    border-radius: 8px; cursor: pointer; user-select: none;
+    border: 1px solid transparent; transition: all 0.1s;
+    width: fit-content;
+}
+.skill-group-label:hover { opacity: 1; transform: translateY(-1px); }
+.skill-group-label:active { transform: scale(0.97); }
+.skill-group-label[data-group="Combat"]    { color: #d32f2f; }
+.skill-group-label[data-group="Artisan"]   { color: #ef6c00; }
+.skill-group-label[data-group="Gathering"] { color: #1565c0; }
+.skill-group-label[data-group="Support"]   { color: #7b1fa2; }
+.skill-group-label.active[data-group="Combat"]    { background: #d32f2f18; border-color: #d32f2f55; }
+.skill-group-label.active[data-group="Artisan"]   { background: #ef6c0018; border-color: #ef6c0055; }
+.skill-group-label.active[data-group="Gathering"] { background: #1565c018; border-color: #1565c055; }
+.skill-group-label.active[data-group="Support"]   { background: #7b1fa218; border-color: #7b1fa255; }
+body.dark-mode .skill-group-label[data-group="Combat"]    { color: #e57373; }
+body.dark-mode .skill-group-label[data-group="Artisan"]   { color: #ffd54f; }
+body.dark-mode .skill-group-label[data-group="Gathering"] { color: #64b5f6; }
+body.dark-mode .skill-group-label[data-group="Support"]   { color: #ba68c8; }
+body.dark-mode .skill-group-label.active[data-group="Combat"]    { background: #e5737322; border-color: #e5737366; }
+body.dark-mode .skill-group-label.active[data-group="Artisan"]   { background: #ffd54f22; border-color: #ffd54f66; }
+body.dark-mode .skill-group-label.active[data-group="Gathering"] { background: #64b5f622; border-color: #64b5f666; }
+body.dark-mode .skill-group-label.active[data-group="Support"]   { background: #ba68c822; border-color: #ba68c866; }
+.skill-group-label-arrow { font-size: 9px; opacity: 0.5; }
 .skill-group-pills { display: flex; flex-wrap: wrap; gap: 4px; }
 
 .sk-btn { padding: 4px 11px; border-radius: 11px; border: 1px solid var(--color-border); font-size: 11px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); transition: all 0.1s; font-weight: 600; user-select: none; }
@@ -252,7 +251,7 @@ body.dark-mode .sort-btn.active { color: #121212; }
   <div class="header-row">
     <div class="search-wrap">
         <label class="upload-area" for="csv-file" id="upload-label">Loaded: test categorization site - Sheet1.csv</label>
-        <input type="file" id="csv-file" accept=".csv" onchange="handleFileUpload(event)">
+        <input type="file" id="csv-file" accept=".csv">
         <input type="text" id="search" placeholder="Search by title, monster, or drop..." oninput="render()">
     </div>
     <div class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
@@ -275,43 +274,16 @@ body.dark-mode .sort-btn.active { color: #121212; }
     </div>
   </div>
 
-  <div class="filters" id="pills">
-    <span class="pill" id="pill-all" onclick="setFilter(&#39;all&#39;)" style="color:var(--color-all)">
-        <span class="dot" style="background:var(--color-all)"></span>All
-    </span>
-    <span class="pill" id="pill-skills" onclick="setFilter(&#39;skills&#39;)" style="color:var(--color-skill)">
-        <span class="dot" style="background:var(--color-skill)"></span>Skills
-    </span>
-    <span class="pill active" id="pill-combat" onclick="setFilter(&#39;combat&#39;)" style="color:var(--color-combat)">
-        <span class="dot" style="background:var(--color-combat)"></span>Combat
-    </span>
-    <span class="pill" id="pill-clues" onclick="setFilter(&#39;clues&#39;)" style="color:var(--color-clue)">
-        <span class="dot" style="background:var(--color-clue)"></span>Clues
-    </span>
-    <span class="pill" id="pill-quests" onclick="setFilter(&#39;quests&#39;)" style="color:var(--color-quest)">
-        <span class="dot" style="background:var(--color-quest)"></span>Quests
-    </span>
-    <span class="pill" id="pill-misc" onclick="setFilter(&#39;misc&#39;)" style="color:var(--color-misc)">
-        <span class="dot" style="background:var(--color-misc)"></span>Misc
-    </span></div>
+  <!-- Category filter is now handled by the stats chips above -->
+  <div id="pills" style="display:none"></div>
+
 
   <div id="skill-controls" class="sub-controls skill-sec hidden">
     <div class="skill-picker" id="skill-picker">
       <div class="skill-picker-top">
         <button class="skill-all-btn active" id="skill-btn-all" onclick="setSkillFilter('all')">All Skills</button>
-        <div class="skill-group-btns">
-          <button class="sg-btn" data-group="Combat"    onclick="setSkillFilter('group:Combat')">Combat</button>
-          <button class="sg-btn" data-group="Artisan"   onclick="setSkillFilter('group:Artisan')">Artisan</button>
-          <button class="sg-btn" data-group="Gathering" onclick="setSkillFilter('group:Gathering')">Gathering</button>
-          <button class="sg-btn" data-group="Support"   onclick="setSkillFilter('group:Support')">Support</button>
-        </div>
-        <div class="view-toggle-group">
-          <button class="view-btn active" id="view-btn-flat" onclick="setSkillView('flat')">Flat</button>
-          <button class="view-btn" id="view-btn-grouped" onclick="setSkillView('grouped')">Grouped</button>
-        </div>
       </div>
-      <div id="skill-flat-view" class="skill-flat-grid"></div>
-      <div id="skill-grouped-view" class="skill-grouped-list hidden"></div>
+      <div id="skill-grouped-view" class="skill-grouped-list"></div>
     </div>
     <div class="bubble-wrap" style="margin-top:6px;">
         <div id="btn-xp" class="b-pill active" onclick="toggleSubFilter('skills', 'xp')">XP Milestones</div>
@@ -1213,6 +1185,7 @@ function renderStatsBar(filteredForCount) {
     });
     const cnt = cat => base.filter(e => e.super === cat).length;
     const items = [
+        { id: 'all',    label: 'All',    color: 'var(--color-all)',    count: base.length },
         { id: 'skills', label: 'Skills',  color: 'var(--color-skill)',  count: cnt('skills') },
         { id: 'combat', label: 'Combat',  color: 'var(--color-combat)', count: cnt('combat') },
         { id: 'clues',  label: 'Clues',   color: 'var(--color-clue)',   count: cnt('clues')  },
@@ -1312,18 +1285,6 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { document.getElementById('search').value = ''; render(); }
 });
 
-/*
-function handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => { 
-        processData(e.target.result); 
-        document.getElementById('upload-label').textContent = `Loaded: ${file.name}`; 
-    };
-    reader.readAsText(file);
-}
-*/
 
 // Google Spreadsheet configuration
 const SHEET_URL = `https://docs.google.com/spreadsheets/d/1DaIyQQA5XrpFHUN6r6Ntl_JKQ95vHPpQTLrNNm6m6Ag/export?format=csv`;
@@ -1389,8 +1350,10 @@ function processData(csvText) {
 
 function setFilter(id) {
     activeFilter = id;
+    // pills are hidden but kept for keyboard-shortcut compat; chips update via renderStatsBar
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-    document.getElementById('pill-' + id).classList.add('active');
+    const pill = document.getElementById('pill-' + id);
+    if (pill) pill.classList.add('active');
     render();
 }
 
@@ -1522,35 +1485,26 @@ document.getElementById('pills').innerHTML = CATS.map(c => `
         <span class="dot" style="background:${c.color}"></span>${c.label}
     </span>`).join('');
 
-// Build skill picker buttons
+// Build skill picker buttons (grouped-only, group headers are clickable)
 function buildSkillPicker() {
-    // Flat view
-    const flatGrid = document.getElementById('skill-flat-view');
-    flatGrid.innerHTML = SKILLS.map(s => `
-        <button class="sk-btn ${skillFilter === s ? 'active' : ''}" id="skbtn-${s}" onclick="setSkillFilter('${s}')">${s}</button>
-    `).join('');
-
-    // Grouped view
     const groupedList = document.getElementById('skill-grouped-view');
-    groupedList.innerHTML = Object.entries(SKILL_GROUPS).map(([groupName, skills]) => `
+    groupedList.innerHTML = Object.entries(SKILL_GROUPS).map(([groupName, skills]) => {
+        const isGroupActive = skillFilter === 'group:' + groupName;
+        return `
         <div class="skill-group-block">
-            <div class="skill-group-label">${groupName}</div>
+            <div class="skill-group-label ${isGroupActive ? 'active' : ''}" data-group="${groupName}"
+                 onclick="setSkillFilter('group:${groupName}')">
+                <span class="skill-group-label-arrow">▶</span>${groupName}
+            </div>
             <div class="skill-group-pills">
                 ${skills.filter(s => SKILLS.includes(s)).map(s => `
-                    <button class="sk-btn ${skillFilter === s ? 'active' : ''}" id="skbtn-g-${s}" onclick="setSkillFilter('${s}')">${s}</button>
+                    <button class="sk-btn ${skillFilter === s ? 'active' : ''}" onclick="setSkillFilter('${s}')">${s}</button>
                 `).join('')}
             </div>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 
-    // All skills button
     document.getElementById('skill-btn-all').classList.toggle('active', skillFilter === 'all');
-
-    // Group buttons
-    document.querySelectorAll('.sg-btn').forEach(btn => {
-        const g = btn.getAttribute('data-group');
-        btn.classList.toggle('active', skillFilter === 'group:' + g);
-    });
 }
 
 function setSkillFilter(skill) {
@@ -1559,13 +1513,6 @@ function setSkillFilter(skill) {
     render();
 }
 
-function setSkillView(mode) {
-    skillViewMode = mode;
-    document.getElementById('skill-flat-view').classList.toggle('hidden', mode !== 'flat');
-    document.getElementById('skill-grouped-view').classList.toggle('hidden', mode !== 'grouped');
-    document.getElementById('view-btn-flat').classList.toggle('active', mode === 'flat');
-    document.getElementById('view-btn-grouped').classList.toggle('active', mode === 'grouped');
-}
 
 // ---- XP Chart Logic ----
 
