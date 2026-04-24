@@ -90,13 +90,12 @@ input[type=text]:focus { border-color: var(--color-ui); box-shadow: 0 0 0 2px va
 body.dark-mode .b-pill.active { text-shadow: none; box-shadow: 0 0 12px rgba(0,0,0,0.4); }
 
 /* Category-colored active states — class on the pill itself */
-.b-pill.skill-sec.active  { background: var(--color-skill);  border-color: var(--color-skill);  color: #fff; }
-.b-pill.clue-sec.active   { background: var(--color-clue);   border-color: var(--color-clue);   color: #fff; }
-.b-pill.combat-sec.active { background: var(--color-combat); border-color: var(--color-combat); color: #fff; }
-/* Dark mode adjustments for clue (yellow → dark text already set; skill/combat keep white) */
-body.dark-mode .b-pill.skill-sec.active  { color: #121212; }
-body.dark-mode .b-pill.clue-sec.active   { color: #121212; }
-body.dark-mode .b-pill.combat-sec.active { color: #121212; }
+.b-pill.pill-skill.active  { background: var(--color-skill);  border-color: var(--color-skill);  color: #fff; }
+.b-pill.pill-clue.active   { background: var(--color-clue);   border-color: var(--color-clue);   color: #fff; }
+.b-pill.pill-combat.active { background: var(--color-combat); border-color: var(--color-combat); color: #fff; }
+body.dark-mode .b-pill.pill-skill.active  { color: #121212; }
+body.dark-mode .b-pill.pill-clue.active   { color: #121212; }
+body.dark-mode .b-pill.pill-combat.active { color: #121212; }
 
 .combat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
 .combat-sec { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 15px; display: flex; flex-direction: column; min-height: 450px; }
@@ -311,7 +310,29 @@ body.dark-mode .sort-btn.active { color: #121212; }
 .dual-entry-ts { color: var(--color-text-light); font-family: 'Courier New', monospace; font-size: 10px; margin-top: 3px; }
 .dual-empty { text-align: center; padding: 40px 0; color: var(--color-text-light); font-size: 12px; }
 
-/* Clue loot rows — match loot-row style from combat */
+/* Clue type summary rows */
+.clue-type-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 6px; border-bottom: 1px solid var(--color-bg-sub);
+    cursor: pointer; border-radius: 4px; transition: all 0.1s;
+}
+.clue-type-row:last-child { border-bottom: none; }
+.clue-type-row:hover { background: var(--color-bg-sub); padding-left: 12px; }
+.clue-type-name { font-size: 13px; font-weight: 700; color: var(--color-text); }
+.clue-type-count { font-size: 12px; font-weight: 700; color: var(--color-text-dim); }
+/* Drill navigation header inside a panel */
+.dual-drill-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 8px; margin-bottom: 4px;
+    border-bottom: 2px solid var(--color-border) !important;
+}
+.dual-drill-back {
+    font-size: 11px; font-weight: 700; color: var(--color-clue);
+    cursor: pointer; transition: opacity 0.1s;
+}
+.dual-drill-back:hover { opacity: 0.7; }
+.clue-loot-item.clickable { cursor: pointer; }
+.clue-loot-item.clickable:hover { background: var(--color-bg-sub); padding-left: 10px; }
 .clue-loot-item {
     display: flex; align-items: center; justify-content: space-between;
     padding: 8px 6px; border-bottom: 1px solid var(--color-bg-sub);
@@ -1229,6 +1250,10 @@ let dateTo = null;
 let sortOrder = 'newest';
 let currentPage = 0;
 const PAGE_SIZE = 100;
+// Clue panel state
+let selClueType = null;       // null=summary, 'easy'|'medium'|etc = drill into that type's logs
+let selClueLootType = null;   // null=type summary, 'easy'|etc = drill into loot for that type
+let selClueLootItem = null;   // null=grouped, 'itemname' = history for specific item
 
 const SKILL_GROUPS = {
     'Combat':    ['Attack', 'Constitution', 'Defence', 'Magic', 'Necromancy', 'Prayer', 'Ranged', 'Strength', 'Summoning'],
@@ -1486,17 +1511,17 @@ function processData(csvText) {
 
         // ── Combat ──
         if (/killed|dropped|looted|found|surviving|defeating/.test(details) && !details.toLowerCase().includes('quest')) {
-            // Try to match named bosses first (handles commas in names like "Ivar, King of Bones")
             let monsterName = null;
+            // Boss-list scan first (handles names with commas like "Ivar, King of Bones")
             for (const boss of BOSS_LIST) {
                 if (details.toLowerCase().includes(boss.toLowerCase())) {
                     monsterName = boss;
                     break;
                 }
             }
-            // Fallback: regex capture up to ", I " or ", it " or end-of-meaningful-phrase
+            // Fallback regex — includes both "killing" and "killed" (past tense)
             if (!monsterName) {
-                const mMatch = details.match(/(?:killing|defeating|surviving|killing a|defeated) (?:the |a )?([\w\s':,\-]+?)(?:, I | it dropped |: Rex Matriarchs|\.|$)/i);
+                const mMatch = details.match(/(?:killing|defeating|surviving|killed|defeated) (?:the |a )?([\w\s':,\-]+?)(?:, I | it dropped |: Rex Matriarchs|\.|$)/i);
                 if (mMatch) monsterName = mMatch[1].trim().replace(/,$/, '');
             }
             if (monsterName) {
@@ -1507,24 +1532,20 @@ function processData(csvText) {
                 if (iMatch && iMatch[1]) {
                     d.item = iMatch[1].charAt(0).toUpperCase() + iMatch[1].slice(1).trim();
                 }
+                return d;
             }
-            return d;
+            // Could not extract monster — fall through to quest/misc checks below
         }
 
         // ── Quests ──
-        if (/Quest Complete|Quest Points|helped|worked|finally|ended|saved/.test(details) || title.toLowerCase().includes('quest complete')) {
+        // Left column: only entries whose title explicitly starts with "Quest complete:"
+        if (/^quest complete:/i.test(title)) {
             d.super = 'quests';
             d.sub = 'completion';
             return d;
         }
-        // Songs unlocked → quests/milestone
-        if (/unlocked a total of \d+ songs/i.test(details)) {
-            d.super = 'quests';
-            d.sub = 'milestone';
-            return d;
-        }
-        // Quest points milestone → quests/milestone
-        if (/quest points?/i.test(details)) {
+        // Right column: points milestones, song unlocks, and other quest-related text
+        if (/quest points?/i.test(details) || /unlocked a total of \d+ songs/i.test(details) || /Quest Complete/.test(details)) {
             d.super = 'quests';
             d.sub = 'milestone';
             return d;
@@ -1541,9 +1562,28 @@ function processData(csvText) {
 function setFilter(id) {
     activeFilter = id;
     currentPage = 0;
+    selClueType = null; selClueLootType = null; selClueLootItem = null;
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     const pill = document.getElementById('pill-' + id);
     if (pill) pill.classList.add('active');
+    render();
+}
+
+function selectClueType(type) {
+    selClueType = (selClueType === type) ? null : type;
+    render();
+}
+function selectClueLootType(type) {
+    selClueLootType = (selClueLootType === type) ? null : type;
+    selClueLootItem = null;
+    render();
+}
+function selectClueLootItem(item) {
+    selClueLootItem = item;
+    render();
+}
+function clueLootBack() {
+    selClueLootItem = null;
     render();
 }
 
@@ -1577,7 +1617,7 @@ function renderListHeader(filtered) {
             { id: 'pet', label: 'Skilling Pets' }, { id: 'total', label: 'Total Level' }
         ];
         pillsHtml = subs.map(s => `
-            <div class="b-pill skill-sec ${skillSubs[s.id] ? 'active' : ''}"
+            <div class="b-pill pill-skill ${skillSubs[s.id] ? 'active' : ''}"
                  onclick="toggleSubFilter('skills','${s.id}')">${s.label}</div>`).join('');
     }
     header.innerHTML = `
@@ -1591,8 +1631,10 @@ function renderListHeader(filtered) {
 }
 
 function renderQuestPanel(entries) {
-    const completions = entries.filter(e => e.sub === 'completion');
-    const milestones  = entries.filter(e => e.sub === 'milestone' || (e.sub !== 'completion'));
+    // Left: only title starts with "Quest complete:"
+    const completions = entries.filter(e => /^quest complete:/i.test(e.title));
+    // Right: everything else (quest points, songs, other)
+    const milestones  = entries.filter(e => !/^quest complete:/i.test(e.title));
 
     document.getElementById('quest-completion-count').textContent = completions.length.toLocaleString();
     document.getElementById('quest-milestone-count').textContent  = milestones.length.toLocaleString();
@@ -1605,48 +1647,98 @@ function renderQuestPanel(entries) {
         </div>`;
 
     document.getElementById('quest-completion-list').innerHTML =
-        completions.length ? completions.map(makeEntry).join('') : '<div class="dual-empty">No completions found</div>';
+        completions.length ? completions.map(makeEntry).join('') : '<div class="dual-empty">No quest completions found</div>';
     document.getElementById('quest-milestone-list').innerHTML =
         milestones.length ? milestones.map(makeEntry).join('') : '<div class="dual-empty">No milestones found</div>';
 }
 
-function renderCluePanel(entries) {
-    // Left: all clue completions sorted by date
-    // Right: entries that have an item drop, grouped by item
-    const completions = entries;
-    const lootEntries = entries.filter(e => e.item);
+const CLUE_TYPES = ['easy','medium','hard','elite','master'];
 
-    document.getElementById('clue-completion-count').textContent = completions.length.toLocaleString();
+function renderCluePanel(allEntries) {
+    // ── LEFT: clue_counter ── summary of completions by type, click to drill into logs
+    const leftEl    = document.getElementById('clue-completion-list');
+    const leftCount = document.getElementById('clue-completion-count');
 
-    document.getElementById('clue-completion-list').innerHTML = completions.length
-        ? completions.map(e => `
-            <div class="dual-entry">
-                <div class="dual-entry-title">${e.title}</div>
-                <div class="dual-entry-detail">${e.details}</div>
-                <div class="dual-entry-ts">${e.ts}</div>
-            </div>`).join('')
-        : '<div class="dual-empty">No clues found</div>';
+    if (selClueType) {
+        const logs = allEntries.filter(e => e.sub === selClueType);
+        leftCount.textContent = logs.length.toLocaleString();
+        leftEl.innerHTML =
+            `<div class="dual-entry dual-drill-header">
+                <span class="dual-drill-back" onclick="selectClueType('${selClueType}')">← Back to summary</span>
+                <span style="color:var(--color-text-dim);font-size:11px;">${selClueType.charAt(0).toUpperCase()+selClueType.slice(1)} clues</span>
+             </div>` +
+            (logs.length ? logs.map(e => `
+                <div class="dual-entry">
+                    <div class="dual-entry-title">${e.title}</div>
+                    <div class="dual-entry-detail">${e.details}</div>
+                    <div class="dual-entry-ts">${e.ts}</div>
+                </div>`).join('') : '<div class="dual-empty">No entries</div>');
+    } else {
+        leftCount.textContent = allEntries.length.toLocaleString();
+        leftEl.innerHTML = CLUE_TYPES.map(type => {
+            const count = allEntries.filter(e => e.sub === type).length;
+            return `<div class="clue-type-row" onclick="selectClueType('${type}')">
+                <span class="clue-type-name">${type.charAt(0).toUpperCase()+type.slice(1)}</span>
+                <span class="clue-type-count">${count}</span>
+            </div>`;
+        }).join('');
+    }
 
-    // Group loot by item name
-    const lootMap = {};
-    lootEntries.forEach(e => {
-        const key = e.item;
-        if (!lootMap[key]) lootMap[key] = { name: key, count: 0, lastTs: e.ts, diff: e.sub };
-        lootMap[key].count++;
-    });
-    const lootSorted = Object.values(lootMap).sort((a, b) => b.count - a.count);
+    // ── RIGHT: clue_loot ── grouped by clue type, then by item, then history
+    const rightEl    = document.getElementById('clue-loot-list');
+    const rightCount = document.getElementById('clue-loot-count');
+    const lootEntries = allEntries.filter(e => e.item);
 
-    document.getElementById('clue-loot-count').textContent = lootSorted.length.toLocaleString();
-    document.getElementById('clue-loot-list').innerHTML = lootSorted.length
-        ? lootSorted.map(g => `
-            <div class="clue-loot-item">
-                <div>
-                    <div class="clue-loot-name">${g.name}</div>
-                    <div class="clue-loot-meta">${g.diff ? g.diff.charAt(0).toUpperCase() + g.diff.slice(1) : ''} · ${g.lastTs}</div>
-                </div>
-                <span class="clue-loot-count">${g.count}×</span>
-            </div>`).join('')
-        : '<div class="dual-empty">No notable loot recorded</div>';
+    if (selClueLootItem && selClueLootType) {
+        // Deepest: history for a specific item in a specific clue type, newest first
+        const history = lootEntries.filter(e => e.sub === selClueLootType && e.item === selClueLootItem)
+                                   .sort((a,b) => new Date(b.ts) - new Date(a.ts));
+        rightCount.textContent = history.length.toLocaleString();
+        rightEl.innerHTML =
+            `<div class="dual-entry dual-drill-header">
+                <span class="dual-drill-back" onclick="clueLootBack()">← Back to ${selClueLootType.charAt(0).toUpperCase()+selClueLootType.slice(1)} loot</span>
+                <span style="color:var(--color-text-dim);font-size:11px;">${selClueLootItem}</span>
+             </div>` +
+            history.map(e => `
+                <div class="clue-loot-item" style="cursor:default;">
+                    <div><div class="clue-loot-name">${e.item}</div><div class="clue-loot-meta">${e.ts}</div></div>
+                </div>`).join('');
+    } else if (selClueLootType) {
+        // Mid: loot items for selected clue type, grouped by name, newest first
+        const typeLoot = lootEntries.filter(e => e.sub === selClueLootType);
+        const lootMap = {};
+        typeLoot.forEach(e => {
+            if (!lootMap[e.item]) lootMap[e.item] = { name: e.item, count: 0, lastTs: e.ts };
+            else if (new Date(e.ts) > new Date(lootMap[e.item].lastTs)) lootMap[e.item].lastTs = e.ts;
+            lootMap[e.item].count++;
+        });
+        const grouped = Object.values(lootMap).sort((a,b) => new Date(b.lastTs) - new Date(a.lastTs));
+        rightCount.textContent = grouped.length.toLocaleString();
+        rightEl.innerHTML =
+            `<div class="dual-entry dual-drill-header">
+                <span class="dual-drill-back" onclick="selectClueLootType('${selClueLootType}')">← Back to summary</span>
+                <span style="color:var(--color-text-dim);font-size:11px;">${selClueLootType.charAt(0).toUpperCase()+selClueLootType.slice(1)} loot</span>
+             </div>` +
+            (grouped.length ? grouped.map(g => `
+                <div class="clue-loot-item ${g.count > 1 ? 'clickable' : ''}" ${g.count > 1 ? `onclick="selectClueLootItem('${g.name.replace(/'/g,"\'")}')"` : ''}>
+                    <div>
+                        <div class="clue-loot-name">${g.name}</div>
+                        <div class="clue-loot-meta">${g.lastTs}</div>
+                    </div>
+                    ${g.count > 1 ? `<span class="clue-loot-count">${g.count}×</span>` : ''}
+                </div>`).join('') : '<div class="dual-empty">No loot recorded</div>');
+    } else {
+        // Summary: one row per clue type showing unique item count + total drops
+        rightCount.textContent = lootEntries.length.toLocaleString();
+        rightEl.innerHTML = CLUE_TYPES.map(type => {
+            const typeLoot  = lootEntries.filter(e => e.sub === type);
+            const uniqueItems = new Set(typeLoot.map(e => e.item)).size;
+            return `<div class="clue-type-row" onclick="selectClueLootType('${type}')">
+                <span class="clue-type-name">${type.charAt(0).toUpperCase()+type.slice(1)}</span>
+                <span class="clue-type-count">${uniqueItems} item${uniqueItems!==1?'s':''} &middot; ${typeLoot.length} drop${typeLoot.length!==1?'s':''}</span>
+            </div>`;
+        }).join('');
+    }
 }
 
 function render() {
@@ -1747,7 +1839,7 @@ function renderCombatSide(type, entries) {
     const currentDrill = (type === 'boss') ? selBossLoot : selSlayerLoot;
 
     document.getElementById(`${type}-bubbles`).innerHTML = top5.map(n => `
-        <div class="b-pill combat-sec ${currentMonster === n ? 'active' : ''}" onclick="selectMonster('${type}', '${n.replace(/'/g, "\\'")}')">${n}</div>
+        <div class="b-pill pill-combat ${currentMonster === n ? 'active' : ''}" onclick="selectMonster('${type}', '${n.replace(/'/g, "\\'")}')">${n}</div>
     `).join('');
 
     const others = names.slice(5);
