@@ -292,7 +292,7 @@ body.dark-mode .sort-btn.active { color: #121212; }
 /* Match .combat-sec h3 exactly */
 .dual-col-header {
     display: flex; align-items: baseline; justify-content: space-between;
-    font-size: 11px; font-weight: 600; color: var(--color-text-light);
+    font-size: 11px; font-weight: 700; color: var(--color-text-light);
     text-transform: uppercase; letter-spacing: 1.5px;
     border-bottom: 1px solid var(--color-border);
     padding-bottom: 6px; margin-bottom: 12px;
@@ -1226,11 +1226,11 @@ const BOSS_LIST = [
     "General Graardor", "Gregorovic", "Helwyr", "Hermit", "Ivar, King of Bones", "Kalphite King", 
     "Kalphite Queen", "Kerapac", "King Black Dragon", "K'ril Tsutsaroth", "Kree'arra", 
     "Legio Primus", "Legio Secundus", "Legio Tertius", "Legio Quartus", "Legio Quintus", "Legio Sextus", 
-    "Magister", "Nex", "Nex: Angel of Death", "Osseous", "Pavo", "Oro", "Rath", "Raksha", 
+    "Magister", "Nex", "Nex: Angel of Death", "Osseous", "Rathis", "Raksha", 
     "Rasial", "Solak", "Telos", "Twin Furies", "Vindicta", "Vorago", "Yakamaru", "Zamorak", 
     "Zuk", "Rex Matriarchs", "Pthentraken", "Commander Zilyana", "Orikalka", "Astellarn", 
     "Verak Lith", "Queen Black Dragon", "Giant mole"
-];
+].sort((a, b) => b.length - a.length); // longest first so "Rathis" wins over any partial
 
 const SKILLS = ["Attack", "Strength", "Defence", "Ranged", "Prayer", "Magic", "Runecrafting", "Construction", "Constitution", "Agility", "Herblore", "Thieving", "Crafting", "Fletching", "Slayer", "Hunter", "Mining", "Smithing", "Fishing", "Cooking", "Firemaking", "Woodcutting", "Farming", "Summoning", "Dungeoneering", "Divination", "Invention", "Archaeology", "Necromancy"];
 
@@ -1484,7 +1484,7 @@ function processData(csvText) {
                 if (details.toLowerCase().includes(diff)) d.sub = diff;
             });
             // Parse notable loot from clue entries: "I got a X out of it" or "received a X"
-            const lootMatch = details.match(/(?:I got|received|found) (?:a |an |some )?(.+?)(?:\.|$)/i);
+            const lootMatch = details.match(/(?:I got|received|found) (?:a |an |some )?(.+?)(?:\s+out of it|\.|$)/i);
             if (lootMatch && !lootMatch[1].toLowerCase().includes('treasure trail') && !lootMatch[1].toLowerCase().includes('clue')) {
                 d.item = lootMatch[1].trim();
                 d.item = d.item.charAt(0).toUpperCase() + d.item.slice(1);
@@ -1512,17 +1512,22 @@ function processData(csvText) {
         // ── Combat ──
         if (/killed|dropped|looted|found|surviving|defeating/.test(details) && !details.toLowerCase().includes('quest')) {
             let monsterName = null;
-            // Boss-list scan first (handles names with commas like "Ivar, King of Bones")
+            // Word-boundary BOSS_LIST scan — prevents "Rath" matching "Rathis", "Pavo" matching "Pavonis", etc.
             for (const boss of BOSS_LIST) {
-                if (details.toLowerCase().includes(boss.toLowerCase())) {
-                    monsterName = boss;
-                    break;
-                }
+                const escaped = boss.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const re = new RegExp(`\\b${escaped}\\b`, 'i');
+                if (re.test(details)) { monsterName = boss; break; }
             }
-            // Fallback regex — includes both "killing" and "killed" (past tense)
+            // Fallback: regex extraction for slayer-style entries
             if (!monsterName) {
                 const mMatch = details.match(/(?:killing|defeating|surviving|killed|defeated) (?:the |a )?([\w\s':,\-]+?)(?:, I | it dropped |: Rex Matriarchs|\.|$)/i);
-                if (mMatch) monsterName = mMatch[1].trim().replace(/,$/, '');
+                if (mMatch) {
+                    monsterName = mMatch[1].trim().replace(/,$/, '');
+                    // Strip leading count: "32 mithril dragons" → "mithril dragons"
+                    monsterName = monsterName.replace(/^\d+\s+/, '').trim();
+                    // Conservative singularization: "dragons" → "dragon" (but not "glass" → "glas")
+                    monsterName = monsterName.replace(/([^s])s$/i, '$1');
+                }
             }
             if (monsterName) {
                 d.super = 'combat';
@@ -1534,7 +1539,7 @@ function processData(csvText) {
                 }
                 return d;
             }
-            // Could not extract monster — fall through to quest/misc checks below
+            // No monster could be extracted — fall through to quest/misc checks
         }
 
         // ── Quests ──
@@ -1668,10 +1673,9 @@ function renderCluePanel(allEntries) {
                 <span style="color:var(--color-text-dim);font-size:11px;">${selClueType.charAt(0).toUpperCase()+selClueType.slice(1)} clues</span>
              </div>` +
             (logs.length ? logs.map(e => `
-                <div class="dual-entry">
-                    <div class="dual-entry-title">${e.title}</div>
-                    <div class="dual-entry-detail">${e.details}</div>
-                    <div class="dual-entry-ts">${e.ts}</div>
+                <div class="loot-row">
+                    <span class="loot-name">${e.details}</span>
+                    <span class="loot-ts">${e.ts}</span>
                 </div>`).join('') : '<div class="dual-empty">No entries</div>');
     } else {
         leftCount.textContent = allEntries.length.toLocaleString();
@@ -1700,8 +1704,9 @@ function renderCluePanel(allEntries) {
                 <span style="color:var(--color-text-dim);font-size:11px;">${selClueLootItem}</span>
              </div>` +
             history.map(e => `
-                <div class="clue-loot-item" style="cursor:default;">
-                    <div><div class="clue-loot-name">${e.item}</div><div class="clue-loot-meta">${e.ts}</div></div>
+                <div class="loot-row">
+                    <span class="loot-name">${e.item}</span>
+                    <span class="loot-ts">${e.ts}</span>
                 </div>`).join('');
     } else if (selClueLootType) {
         // Mid: loot items for selected clue type, grouped by name, newest first
