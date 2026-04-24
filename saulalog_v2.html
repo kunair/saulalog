@@ -9,9 +9,9 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --color-bg: #fdfdfd;
-  --color-surface: #ffffff;
-  --color-bg-sub: #f1f3f5;
+  --color-bg: #eef1f5;
+  --color-surface: #f8f9fb;
+  --color-bg-sub: #e4e8ed;
   --color-border: #dee2e6;
   --color-text: #212529;
   --color-text-dim: #495057;
@@ -23,6 +23,8 @@
   --color-quest: #1565c0;  
   --color-clue: #ef6c00;   
   --color-misc: #455a64;   
+  --color-ui: #546e7a;     /* neutral steel-blue for chrome: focus rings, hover borders */
+  --color-ui-glow: rgba(84,110,122,0.12);
 }
 
 body.dark-mode {
@@ -40,6 +42,8 @@ body.dark-mode {
   --color-quest: #64b5f6;  
   --color-clue: #ffd54f;   
   --color-misc: #90a4ae;   
+  --color-ui: #90a4ae;     /* neutral steel-blue for chrome in dark mode */
+  --color-ui-glow: rgba(144,164,174,0.12);
 }
 
 body { background: var(--color-bg); color: var(--color-text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; transition: background 0.3s, color 0.3s; }
@@ -48,14 +52,14 @@ body { background: var(--color-bg); color: var(--color-text); font-family: -appl
 .header-row { width: 100%; max-width: 500px; display: flex; align-items: center; gap: 10px; }
 .search-wrap { flex-grow: 1; display: flex; flex-direction: column; gap: 10px; }
 input[type=text], select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); font-size: 14px; outline: none; transition: 0.1s; }
-input[type=text]:focus { border-color: var(--color-all); box-shadow: 0 0 0 2px rgba(123, 31, 162, 0.1); }
+input[type=text]:focus { border-color: var(--color-ui); box-shadow: 0 0 0 2px var(--color-ui-glow); }
 
 .theme-toggle { cursor: pointer; padding: 10px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; transition: 0.1s; font-size: 18px; user-select: none; }
-.theme-toggle:hover { border-color: var(--color-all); background: var(--color-bg-sub); }
+.theme-toggle:hover { border-color: var(--color-ui); background: var(--color-bg-sub); }
 .theme-toggle:active { transform: scale(0.92); }
 
 .upload-area { border: 2px dashed var(--color-border); padding: 20px; width: 100%; text-align: center; border-radius: 10px; background: var(--color-surface); cursor: pointer; color: var(--color-text-dim); transition: 0.1s; font-size: 14px; font-weight: 500; user-select: none; }
-.upload-area:hover { border-color: var(--color-all); background: var(--color-bg-sub); }
+.upload-area:hover { border-color: var(--color-ui); background: var(--color-bg-sub); }
 .upload-area:active { transform: scale(0.98); }
 #csv-file { display: none; }
 
@@ -82,12 +86,17 @@ input[type=text]:focus { border-color: var(--color-all); box-shadow: 0 0 0 2px r
 .b-pill:hover { border-color: var(--color-text-light); transform: translateY(-1px); }
 .b-pill:active { transform: scale(0.94); }
 
-.b-pill.active { color: #fff !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2); transform: scale(1.02); }
-body.dark-mode .b-pill.active { color: #121212 !important; text-shadow: none; box-shadow: 0 0 12px rgba(0,0,0,0.4); }
+.b-pill.active { text-shadow: 0 1px 2px rgba(0,0,0,0.2); transform: scale(1.02); }
+body.dark-mode .b-pill.active { text-shadow: none; box-shadow: 0 0 12px rgba(0,0,0,0.4); }
 
-.skill-sec .b-pill.active { background: var(--color-skill); border-color: var(--color-skill); }
-.clue-sec .b-pill.active { background: var(--color-clue); border-color: var(--color-clue); }
-.combat-sec .b-pill.active { background: var(--color-combat); border-color: var(--color-combat); }
+/* Category-colored active states — class on the pill itself */
+.b-pill.skill-sec.active  { background: var(--color-skill);  border-color: var(--color-skill);  color: #fff; }
+.b-pill.clue-sec.active   { background: var(--color-clue);   border-color: var(--color-clue);   color: #121212; }
+.b-pill.combat-sec.active { background: var(--color-combat); border-color: var(--color-combat); color: #fff; }
+/* Dark mode adjustments for clue (yellow → dark text already set; skill/combat keep white) */
+body.dark-mode .b-pill.skill-sec.active  { color: #121212; }
+body.dark-mode .b-pill.clue-sec.active   { color: #121212; }
+body.dark-mode .b-pill.combat-sec.active { color: #121212; }
 
 .combat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
 .combat-sec { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 15px; display: flex; flex-direction: column; min-height: 450px; }
@@ -215,9 +224,9 @@ body.dark-mode .cmode-btn.active { color: #121212; }
     font-size: 11px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim);
     font-weight: 700; transition: all 0.1s; user-select: none;
 }
-.dp-btn:hover { border-color: var(--color-all); color: var(--color-all); }
+.dp-btn:hover { border-color: var(--color-ui); color: var(--color-ui); }
 .dp-btn:active { transform: scale(0.94); }
-.dp-btn.active { background: var(--color-all); border-color: var(--color-all); color: #fff; }
+.dp-btn.active { background: var(--color-ui); border-color: var(--color-ui); color: #fff; }
 body.dark-mode .dp-btn.active { color: #121212; }
 
 /* ── Activity Heatmap ── */
@@ -231,18 +240,35 @@ body.dark-mode .dp-btn.active { color: #121212; }
 .heatmap-legend { display: flex; align-items: center; gap: 3px; font-size: 9px; color: var(--color-text-light); font-weight: 600; }
 .heatmap-legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
 
-/* ── Footer Row with Sort ── */
-.footer-row { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 8px; }
-.sort-row { display: flex; align-items: center; gap: 5px; }
+/* ── List Pane Header ── */
+.list-pane-header {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 10px 14px; border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface); border-radius: 8px 8px 0 0;
+}
+.list-header-pills { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.list-header-right { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-shrink: 0; }
+.entry-count { font-size: 10px; color: var(--color-text-light); font-weight: 700; white-space: nowrap; padding-left: 6px; border-left: 1px solid var(--color-border); }
+
+/* ── Load More ── */
+.load-more-btn {
+    width: 100%; padding: 12px; text-align: center; font-size: 12px; font-weight: 700;
+    color: var(--color-text-dim); background: var(--color-bg-sub);
+    border: none; border-top: 1px solid var(--color-border); cursor: pointer;
+    transition: background 0.1s; border-radius: 0 0 8px 8px;
+}
+.load-more-btn:hover { background: var(--color-border); }
+
 .sort-label { font-size: 10px; font-weight: 700; color: var(--color-text-light); text-transform: uppercase; letter-spacing: 1px; }
 .sort-btn {
-    padding: 4px 10px; border-radius: 10px; border: 1px solid var(--color-border);
+    padding: 3px 9px; border-radius: 9px; border: 1px solid var(--color-border);
     font-size: 10px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim);
     font-weight: 700; transition: all 0.1s; user-select: none;
 }
-.sort-btn:hover { border-color: var(--color-all); color: var(--color-all); }
-.sort-btn.active { background: var(--color-all); border-color: var(--color-all); color: #fff; }
+.sort-btn:hover { border-color: var(--color-ui); color: var(--color-ui); }
+.sort-btn.active { background: var(--color-ui); border-color: var(--color-ui); color: #fff; }
 body.dark-mode .sort-btn.active { color: #121212; }
+.footer-stub { font-size: 11px; color: var(--color-text-light); margin-top: 4px; text-align: right; font-weight: 500; width: 100%; }
 </style>
 </head>
 <body>
@@ -252,7 +278,7 @@ body.dark-mode .sort-btn.active { color: #121212; }
     <div class="search-wrap">
         <label class="upload-area" for="csv-file" id="upload-label">Loaded: test categorization site - Sheet1.csv</label>
         <input type="file" id="csv-file" accept=".csv">
-        <input type="text" id="search" placeholder="Search by title, monster, or drop..." oninput="render()">
+        <input type="text" id="search" placeholder="Search by title, monster, or drop..." oninput="currentPage=0; render()">
     </div>
     <div class="theme-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
         <span id="theme-icon">🌙</span>
@@ -285,12 +311,6 @@ body.dark-mode .sort-btn.active { color: #121212; }
       </div>
       <div id="skill-grouped-view" class="skill-grouped-list"></div>
     </div>
-    <div class="bubble-wrap" style="margin-top:6px;">
-        <div id="btn-xp" class="b-pill active" onclick="toggleSubFilter('skills', 'xp')">XP Milestones</div>
-        <div id="btn-level" class="b-pill active" onclick="toggleSubFilter('skills', 'level')">Level Ups</div>
-        <div id="btn-pet" class="b-pill active" onclick="toggleSubFilter('skills', 'pet')">Skilling Pets</div>
-        <div id="btn-total" class="b-pill active" onclick="toggleSubFilter('skills', 'total')">Total Level</div>
-    </div>
     <div class="xp-chart-wrap" id="xp-chart-section">
       <div class="xp-chart-header">
         <span class="xp-chart-title" id="xp-chart-title">XP Progress</span>
@@ -309,20 +329,11 @@ body.dark-mode .sort-btn.active { color: #121212; }
     </div>
   </div>
 
-  <div id="clue-controls" class="sub-controls clue-sec hidden">
-    <div class="bubble-wrap">
-        <div id="btn-easy" class="b-pill active" onclick="toggleSubFilter(&#39;clues&#39;, &#39;easy&#39;)">Easy</div>
-        <div id="btn-medium" class="b-pill active" onclick="toggleSubFilter(&#39;clues&#39;, &#39;medium&#39;)">Medium</div>
-        <div id="btn-hard" class="b-pill active" onclick="toggleSubFilter(&#39;clues&#39;, &#39;hard&#39;)">Hard</div>
-        <div id="btn-elite" class="b-pill active" onclick="toggleSubFilter(&#39;clues&#39;, &#39;elite&#39;)">Elite</div>
-        <div id="btn-master" class="b-pill active" onclick="toggleSubFilter(&#39;clues&#39;, &#39;master&#39;)">Master</div>
-    </div>
-  </div>
 
   <!-- Activity Heatmap -->
   <div class="heatmap-wrap" id="heatmap-wrap">
     <div class="heatmap-header">
-      <span class="heatmap-title">Activity Heatmap</span>
+      <span class="heatmap-title" id="heatmap-title">Activity Heatmap</span>
       <span class="heatmap-year" id="heatmap-year"></span>
       <div class="heatmap-legend">
         <span>Less</span>
@@ -392,7 +403,10 @@ body.dark-mode .sort-btn.active { color: #121212; }
             </div></div>
       </div>
     </div>
-    <div class="entries hidden" id="list">
+    <div class="entries hidden" id="list-pane-header-wrap" style="border-radius:8px 8px 0 0; border-bottom:none;">
+      <div class="list-pane-header" id="list-pane-header"></div>
+    </div>
+    <div class="entries hidden" id="list" style="border-radius:0 0 8px 8px; border-top:none;">
             <div class="entry">
                 <div class="entry-content">
                     <span class="cat-dot" style="background:var(--color-clue)"></span>
@@ -1087,14 +1101,7 @@ body.dark-mode .sort-btn.active { color: #121212; }
                 <span class="entry-ts">6/1/2022 1:32</span>
             </div></div>
   </div>
-  <div class="footer-row">
-    <div class="footer" id="footer">0 entries</div>
-    <div class="sort-row" id="sort-row">
-      <span class="sort-label">Sort</span>
-      <button class="sort-btn active" id="sort-newest" onclick="setSortOrder('newest')">Newest</button>
-      <button class="sort-btn" id="sort-oldest" onclick="setSortOrder('oldest')">Oldest</button>
-    </div>
-  </div>
+  <div class="footer-stub" id="footer"></div>
 </div>
 
 <script>
@@ -1126,6 +1133,8 @@ let datePreset = 'all';
 let dateFrom = null;
 let dateTo = null;
 let sortOrder = 'newest';
+let currentPage = 0;
+const PAGE_SIZE = 100;
 
 const SKILL_GROUPS = {
     'Combat':    ['Attack', 'Constitution', 'Defence', 'Magic', 'Necromancy', 'Prayer', 'Ranged', 'Strength', 'Summoning'],
@@ -1139,7 +1148,7 @@ function toggleDarkMode() {
     document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
     if (xpChart) { xpChart.destroy(); xpChart = null; }
-    renderHeatmap();
+    renderHeatmap(activeFilter);
     render();
 }
 
@@ -1151,6 +1160,7 @@ if (localStorage.getItem('theme') === 'dark') {
 // ── Date Range ──
 function setDatePreset(p) {
     datePreset = p;
+    currentPage = 0;
     document.querySelectorAll('.dp-btn').forEach(b => b.classList.toggle('active', b.dataset.p === p));
     const now = new Date(); now.setHours(23, 59, 59, 999);
     const ago = (days) => { const d = new Date(); d.setDate(d.getDate() - days); d.setHours(0,0,0,0); return d; };
@@ -1167,8 +1177,7 @@ function setDatePreset(p) {
 // ── Sort ──
 function setSortOrder(order) {
     sortOrder = order;
-    document.getElementById('sort-newest').classList.toggle('active', order === 'newest');
-    document.getElementById('sort-oldest').classList.toggle('active', order === 'oldest');
+    currentPage = 0;
     render();
 }
 
@@ -1202,22 +1211,47 @@ function renderStatsBar(filteredForCount) {
 }
 
 // ── Activity Heatmap ──
-function renderHeatmap() {
+const HEATMAP_PALETTES = {
+    light: {
+        all:    ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'],
+        skills: ['#ebedf0', '#a5d6a7', '#66bb6a', '#2e7d32', '#1b5e20'],
+        combat: ['#ebedf0', '#ef9a9a', '#e57373', '#c62828', '#7f0000'],
+        clues:  ['#ebedf0', '#ffcc80', '#ffa726', '#e65100', '#bf360c'],
+        quests: ['#ebedf0', '#90caf9', '#42a5f5', '#1565c0', '#0d47a1'],
+        misc:   ['#ebedf0', '#b0bec5', '#78909c', '#455a64', '#263238'],
+    },
+    dark: {
+        all:    ['#1e2533', '#0e4429', '#006d32', '#26a641', '#39d353'],
+        skills: ['#1a2a1a', '#1b5e20', '#2e7d32', '#43a047', '#66bb6a'],
+        combat: ['#2a1a1a', '#7f0000', '#c62828', '#e53935', '#ef9a9a'],
+        clues:  ['#2a1e10', '#bf360c', '#e64a19', '#ff7043', '#ffab91'],
+        quests: ['#0d1a2a', '#0d47a1', '#1565c0', '#1976d2', '#64b5f6'],
+        misc:   ['#1a1e22', '#263238', '#37474f', '#546e7a', '#90a4ae'],
+    }
+};
+
+function renderHeatmap(cat) {
     const isDark = document.body.classList.contains('dark-mode');
     const wrap = document.getElementById('heatmap-svg-wrap');
+    const theme = isDark ? 'dark' : 'light';
+    const palKey = (cat && HEATMAP_PALETTES[theme][cat]) ? cat : 'all';
+    const palette = HEATMAP_PALETTES[theme][palKey];
 
-    // Count all parsed entries by day
+    // Count entries by day, filtered by active category + date range
     const counts = {};
     for (const e of parsed) {
+        if (cat && cat !== 'all' && e.super !== cat) continue;
+        if (dateFrom || dateTo) {
+            const d = parseTs(e.ts);
+            if (!d) continue;
+            if (dateFrom && d < dateFrom) continue;
+            if (dateTo && d > dateTo) continue;
+        }
         const d = parseTs(e.ts);
         if (!d) continue;
         const key = d.toISOString().slice(0, 10);
         counts[key] = (counts[key] || 0) + 1;
     }
-
-    const lightColors = ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'];
-    const darkColors  = ['#1e2533', '#0e4429', '#006d32', '#26a641', '#39d353'];
-    const palette = isDark ? darkColors : lightColors;
 
     // Update legend swatches
     palette.forEach((c, i) => {
@@ -1225,7 +1259,7 @@ function renderHeatmap() {
         if (el) el.style.background = c;
     });
 
-    function getColor(n) {
+    function getCellColor(n) {
         if (!n) return palette[0];
         if (n <= 2) return palette[1];
         if (n <= 5) return palette[2];
@@ -1236,7 +1270,7 @@ function renderHeatmap() {
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const startDate = new Date(today);
     startDate.setDate(startDate.getDate() - 364);
-    startDate.setDate(startDate.getDate() - startDate.getDay()); // back to Sunday
+    startDate.setDate(startDate.getDate() - startDate.getDay());
 
     const WEEKS = 53, DAYS = 7;
     const cs = 11, gap = 2, step = cs + gap;
@@ -1259,7 +1293,7 @@ function renderHeatmap() {
             const count = counts[key] || 0;
             const x = padLeft + w * step;
             const y = padTop + d * step;
-            cells += `<rect x="${x}" y="${y}" width="${cs}" height="${cs}" rx="2" fill="${getColor(count)}"><title>${key}: ${count} event${count !== 1 ? 's' : ''}</title></rect>`;
+            cells += `<rect x="${x}" y="${y}" width="${cs}" height="${cs}" rx="2" fill="${getCellColor(count)}"><title>${key}: ${count} event${count !== 1 ? 's' : ''}</title></rect>`;
             if (d === 0 && date.getMonth() !== lastMonth) {
                 lastMonth = date.getMonth();
                 monthLabels += `<text x="${x}" y="${padTop - 5}" font-size="8" fill="${textColor}" font-family="-apple-system,BlinkMacSystemFont,sans-serif">${MONTHS[lastMonth]}</text>`;
@@ -1275,6 +1309,8 @@ function renderHeatmap() {
 
     const startYear = startDate.getFullYear(), endYear = today.getFullYear();
     document.getElementById('heatmap-year').textContent = startYear === endYear ? startYear : `${startYear}–${endYear}`;
+    const catLabel = cat && cat !== 'all' ? cat.charAt(0).toUpperCase() + cat.slice(1) + ' · ' : '';
+    document.getElementById('heatmap-title').textContent = `${catLabel}Activity Heatmap`;
 }
 
 // ── Keyboard shortcuts ──
@@ -1325,7 +1361,7 @@ function processData(csvText) {
             d.super = 'clues';
             ['easy', 'medium', 'hard', 'elite', 'master'].forEach(diff => { if (details.toLowerCase().includes(diff)) d.sub = diff; });
         } 
-        else if (/experience points in the|I levelled|level 99|While skilling|achieved at least level/i.test(details)) {
+        else if (/experience points in the|I levelled|level 99|While skilling|achieved at least level|total level of/i.test(details)) {
             d.super = 'skills';
             SKILLS.forEach(s => { if (details.includes(s)) d.skill = s; });
             d.sub = details.includes('experience points') ? 'xp' : details.includes('While skilling') ? 'pet' : details.includes('total level of') ? 'total' : 'level';
@@ -1350,7 +1386,7 @@ function processData(csvText) {
 
 function setFilter(id) {
     activeFilter = id;
-    // pills are hidden but kept for keyboard-shortcut compat; chips update via renderStatsBar
+    currentPage = 0;
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     const pill = document.getElementById('pill-' + id);
     if (pill) pill.classList.add('active');
@@ -1360,7 +1396,7 @@ function setFilter(id) {
 function toggleSubFilter(cat, id) {
     const obj = cat === 'skills' ? skillSubs : clueSubs;
     obj[id] = !obj[id];
-    document.getElementById('btn-' + id).classList.toggle('active', obj[id]);
+    currentPage = 0;
     render();
 }
 
@@ -1376,20 +1412,52 @@ function toggleLootDrilldown(type, itemName) {
     render();
 }
 
+function renderListHeader(filtered) {
+    const headerWrap = document.getElementById('list-pane-header-wrap');
+    const header = document.getElementById('list-pane-header');
+    if (!header) return;
+
+    let pillsHtml = '';
+    if (activeFilter === 'skills') {
+        const subs = [
+            { id: 'xp', label: 'XP Milestones' }, { id: 'level', label: 'Level Ups' },
+            { id: 'pet', label: 'Skilling Pets' }, { id: 'total', label: 'Total Level' }
+        ];
+        pillsHtml = subs.map(s => `
+            <div class="b-pill skill-sec ${skillSubs[s.id] ? 'active' : ''}"
+                 onclick="toggleSubFilter('skills','${s.id}')">${s.label}</div>`).join('');
+    } else if (activeFilter === 'clues') {
+        const diffs = ['easy', 'medium', 'hard', 'elite', 'master'];
+        pillsHtml = diffs.map(d => `
+            <div class="b-pill clue-sec ${clueSubs[d] ? 'active' : ''}"
+                 onclick="toggleSubFilter('clues','${d}')">${d.charAt(0).toUpperCase() + d.slice(1)}</div>`).join('');
+    }
+
+    header.innerHTML = `
+        <div class="list-header-pills">${pillsHtml}</div>
+        <div class="list-header-right">
+            <span class="sort-label">Sort</span>
+            <button class="sort-btn ${sortOrder === 'newest' ? 'active' : ''}" onclick="setSortOrder('newest')">Newest</button>
+            <button class="sort-btn ${sortOrder === 'oldest' ? 'active' : ''}" onclick="setSortOrder('oldest')">Oldest</button>
+            <span class="entry-count">${filtered.length.toLocaleString()} entries</span>
+        </div>`;
+}
+
 function render() {
     const q = document.getElementById('search').value.toLowerCase();
     const list = document.getElementById('list');
+    const headerWrap = document.getElementById('list-pane-header-wrap');
     const combatView = document.getElementById('combat-view');
-    const sortRow = document.getElementById('sort-row');
-    
+
     document.getElementById('skill-controls').classList.toggle('hidden', activeFilter !== 'skills');
-    document.getElementById('clue-controls').classList.toggle('hidden', activeFilter !== 'clues');
     combatView.classList.toggle('hidden', activeFilter !== 'combat');
-    list.classList.toggle('hidden', activeFilter === 'combat');
-    if (sortRow) sortRow.style.visibility = activeFilter === 'combat' ? 'hidden' : 'visible';
+
+    const showList = activeFilter !== 'combat';
+    list.classList.toggle('hidden', !showList);
+    if (headerWrap) headerWrap.classList.toggle('hidden', !showList);
 
     let filtered = parsed.filter(e => {
-        const searchContent = (e.title + " " + e.details).toLowerCase();
+        const searchContent = (e.title + ' ' + e.details).toLowerCase();
         if (activeFilter !== 'all' && e.super !== activeFilter) return false;
         if (q && !searchContent.includes(q)) return false;
         if (dateFrom || dateTo) {
@@ -1402,8 +1470,7 @@ function render() {
             if (skillFilter !== 'all') {
                 if (skillFilter.startsWith('group:')) {
                     const gName = skillFilter.slice(6);
-                    const gSkills = SKILL_GROUPS[gName] || [];
-                    if (e.skill && !gSkills.includes(e.skill)) return false;
+                    if (e.skill && !(SKILL_GROUPS[gName] || []).includes(e.skill)) return false;
                 } else {
                     if (e.skill !== skillFilter) return false;
                 }
@@ -1419,23 +1486,37 @@ function render() {
         renderCombatSide('slayer', filtered.filter(e => e.sub === 'slayer'));
     } else {
         let display = [...filtered];
-        if (sortOrder === 'oldest') {
-            display.sort((a, b) => new Date(a.ts) - new Date(b.ts));
-        }
-        list.innerHTML = display.map(e => `
+        if (sortOrder === 'oldest') display.sort((a, b) => new Date(a.ts) - new Date(b.ts));
+
+        const pageEnd = (currentPage + 1) * PAGE_SIZE;
+        const visible = display.slice(0, pageEnd);
+        const hasMore = display.length > pageEnd;
+
+        list.innerHTML = visible.map(e => `
             <div class="entry">
                 <div class="entry-content">
                     <span class="cat-dot" style="background:${getColor(e.super)}"></span>
-                    <div class="entry-text-stack"><span class="entry-title">${e.title}</span><span class="entry-details">${e.details}</span></div>
+                    <div class="entry-text-stack">
+                        <span class="entry-title">${e.title}</span>
+                        <span class="entry-details">${e.details}</span>
+                    </div>
                 </div>
                 <span class="entry-ts">${e.ts}</span>
-            </div>`).join('');
-    }
-    document.getElementById('footer').textContent = `${filtered.length.toLocaleString()} entries`;
+            </div>`).join('')
+            + (hasMore ? `<button class="load-more-btn" onclick="loadMore()">Load more — showing ${visible.length.toLocaleString()} of ${display.length.toLocaleString()}</button>` : '');
 
+        renderListHeader(filtered);
+    }
+
+    document.getElementById('footer').textContent = '';
     renderStatsBar(filtered);
-    renderHeatmap();
+    renderHeatmap(activeFilter);
     if (activeFilter === 'skills') updateXpChart();
+}
+
+function loadMore() {
+    currentPage++;
+    render();
 }
 
 function renderCombatSide(type, entries) {
