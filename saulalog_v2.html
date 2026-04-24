@@ -1833,7 +1833,13 @@ function loadMore() {
 }
 
 function renderCombatSide(type, entries) {
-    const names = [...new Set(entries.map(e => e.monster))];
+    // 5 most recent distinct monsters, ordered by most-recent kill timestamp (newest first)
+    const lastSeen = {};
+    entries.forEach(e => {
+        const t = new Date(e.ts).getTime();
+        if (!lastSeen[e.monster] || t > lastSeen[e.monster]) lastSeen[e.monster] = t;
+    });
+    const names = Object.keys(lastSeen).sort((a, b) => lastSeen[b] - lastSeen[a]);
     const top5 = names.slice(0, 5);
     const currentMonster = (type === 'boss') ? selBoss : selSlayer;
     const currentDrill = (type === 'boss') ? selBossLoot : selSlayerLoot;
@@ -1843,32 +1849,44 @@ function renderCombatSide(type, entries) {
     `).join('');
 
     const others = names.slice(5);
-    document.getElementById(`${type}-more`).innerHTML = `<option value="">More...</option>` + 
+    document.getElementById(`${type}-more`).innerHTML = `<option value="">More...</option>` +
         others.map(n => `<option value="${n}" ${currentMonster === n ? 'selected' : ''}>${n}</option>`).join('');
 
     const lootListEl = document.getElementById(`${type}-loot-list`);
     if (!currentMonster) { lootListEl.innerHTML = '<div style="color:var(--color-text-light); text-align:center; padding-top:40px;">No Selection</div>'; return; }
 
-    const history = entries.filter(e => e.monster === currentMonster);
+    // Only actual drops — exclude entries where no item was parsed
+    const history = entries.filter(e => e.monster === currentMonster && e.item);
 
     if (currentDrill) {
-        const itemHistory = history.filter(h => h.item === currentDrill);
+        const itemHistory = history.filter(h => h.item === currentDrill)
+                                   .sort((a, b) => new Date(b.ts) - new Date(a.ts));
         lootListEl.innerHTML = `
             <div class="loot-row clickable back-btn" onclick="toggleLootDrilldown('${type}', null)">← Back to ${currentMonster}</div>
             ${itemHistory.map(h => `<div class="loot-row"><span class="loot-name">${h.title}</span><span class="loot-ts">${h.ts}</span></div>`).join('')}`;
-    } else {
-        const grouped = history.reduce((acc, curr) => {
-            const key = curr.item || 'Kill recorded';
-            if (!acc[key]) acc[key] = { count: 0, lastTs: curr.ts, name: key };
-            acc[key].count++;
-            return acc;
-        }, {});
-        lootListEl.innerHTML = Object.values(grouped).map(g => `
-            <div class="loot-row clickable" onclick="toggleLootDrilldown('${type}', '${g.name.replace(/'/g, "\\'")}')">
-                <span class="loot-name"><span class="loot-count">${g.count}x</span>${g.name}</span>
-                <span class="loot-ts">${g.count > 1 ? 'View History' : g.lastTs}</span>
-            </div>`).join('');
+        return;
     }
+
+    if (!history.length) {
+        lootListEl.innerHTML = '<div style="color:var(--color-text-light); text-align:center; padding-top:40px;">No drops recorded</div>';
+        return;
+    }
+
+    // Group actual drops by item name, sorted by most-recent drop
+    const grouped = history.reduce((acc, curr) => {
+        const key = curr.item;
+        if (!acc[key]) acc[key] = { count: 0, lastTs: curr.ts, name: key };
+        acc[key].count++;
+        if (new Date(curr.ts) > new Date(acc[key].lastTs)) acc[key].lastTs = curr.ts;
+        return acc;
+    }, {});
+    const sorted = Object.values(grouped).sort((a, b) => new Date(b.lastTs) - new Date(a.lastTs));
+
+    lootListEl.innerHTML = sorted.map(g => `
+        <div class="loot-row clickable" onclick="toggleLootDrilldown('${type}', '${g.name.replace(/'/g, "\\'")}')">
+            <span class="loot-name"><span class="loot-count">${g.count}x</span>${g.name}</span>
+            <span class="loot-ts">${g.count > 1 ? 'View History' : g.lastTs}</span>
+        </div>`).join('');
 }
 
 function getColor(cat) { return { skills: 'var(--color-skill)', combat: 'var(--color-combat)', quests: 'var(--color-quest)', clues: 'var(--color-clue)', misc: 'var(--color-misc)' }[cat]; }
