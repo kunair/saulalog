@@ -1510,29 +1510,44 @@ function processData(csvText) {
         }
 
         // ── Combat ──
-        if (/killed|dropped|looted|found|surviving|defeating/.test(details) && !details.toLowerCase().includes('quest')) {
+        if (/killed|dropped|looted|found|surviving|defeating|battling|freeing|diving|exploring|plundering|hibernation/i.test(details) && !details.toLowerCase().includes('quest')) {
             let monsterName = null;
             let isBoss = false;
 
-            // Boss scan: ONLY accept canonical BOSS_LIST names via word-boundary match.
-            // Never infer boss names from free-form log text.
+            // Step 1: Boss identification — BOSS_LIST canonical match via word boundary.
+            // Boss names always come from the BOSS_LIST constant, never inferred from log text.
             for (const boss of BOSS_LIST) {
                 const escaped = boss.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const re = new RegExp(`\\b${escaped}\\b`, 'i');
                 if (re.test(details)) {
-                    monsterName = boss;   // <-- always the exact BOSS_LIST string
+                    monsterName = boss;
                     isBoss = true;
                     break;
                 }
             }
 
-            // Fallback: extract slayer-monster names from log text. These are NEVER bosses.
+            // Step 2: Slayer fallback — apply monster regexes in priority order.
             if (!monsterName) {
-                const mMatch = details.match(/(?:killing|defeating|surviving|killed|defeated) (?:the |a )?([\w\s':,\-]+?)(?:, I | it dropped |: Rex Matriarchs|\.|$)/i);
-                if (mMatch) {
-                    monsterName = mMatch[1].trim().replace(/,$/, '');
-                    monsterName = monsterName.replace(/^\d+\s+/, '').trim();      // strip leading count
-                    monsterName = monsterName.replace(/([^s])s$/i, '$1');          // conservative singularize
+                const monsterRegexes = [
+                    /After killing\s+(.+?)(?:\s*,|\s+it dropped)/i,
+                    /After putting (.+?), back into hibernation/i,
+                    /After surviving ([^']+)'s lair/i,
+                    /While battling the ([^,]+),?/i,
+                    /After defeating wights of the ([^,.]+)(?:,|$)/i,
+                    /After defeating ([^,.]+)(?:,|$)/i,
+                    /After freeing ([^,.]+)(?: from|$)/i,
+                    /While (?:diving|exploring|plundering) (?:in the |the |a )?([^,.]+)(?:,|$)/i,
+                    /While looting a ([^,.]+)(?:,|$)/i,
+                    /While battling shades in ([^,.]+)(?:,|$)/i,
+                ];
+                for (const re of monsterRegexes) {
+                    const m = details.match(re);
+                    if (m && m[1]) {
+                        let name = m[1].trim();
+                        name = name.replace(/^(?:a|an|the)\s+/i, '').trim();  // strip leading articles
+                        if (name) monsterName = name.charAt(0).toUpperCase() + name.slice(1);
+                        break;
+                    }
                 }
             }
 
@@ -1540,13 +1555,25 @@ function processData(csvText) {
                 d.super = 'combat';
                 d.monster = monsterName;
                 d.sub = isBoss ? 'boss' : 'slayer';
-                const iMatch = details.match(/(?:dropped|found|gave|found a|found an) (?:a |an |some |pair of )?(.+?)(?:\.|$)/i);
-                if (iMatch && iMatch[1]) {
-                    d.item = iMatch[1].charAt(0).toUpperCase() + iMatch[1].slice(1).trim();
+
+                // Step 3: Item extraction — apply drop regexes in priority order.
+                const itemRegexes = [
+                    /dropped (?:a pair of|some|an|a) ([^.,!]+)/i,
+                    /After putting .+?, back into hibernation.+?I found (?:a pair of |some |an |a )?([^.!]+)/i,
+                    /After surviving [^']+?'s lair.+?I found (?:a pair of |some |an |a )?([^.!]+)/i,
+                    /I looted (?:a pair of |some |an |a )?([^.!]+)/i,
+                ];
+                for (const re of itemRegexes) {
+                    const m = details.match(re);
+                    if (m && m[1]) {
+                        const item = m[1].trim();
+                        if (item) d.item = item.charAt(0).toUpperCase() + item.slice(1);
+                        break;
+                    }
                 }
                 return d;
             }
-            // No monster could be extracted — fall through to quest/misc checks
+            // No monster could be extracted — fall through to quest/misc
         }
 
         // ── Quests ──
