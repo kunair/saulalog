@@ -1512,27 +1512,34 @@ function processData(csvText) {
         // ── Combat ──
         if (/killed|dropped|looted|found|surviving|defeating/.test(details) && !details.toLowerCase().includes('quest')) {
             let monsterName = null;
-            // Word-boundary BOSS_LIST scan — prevents "Rath" matching "Rathis", "Pavo" matching "Pavonis", etc.
+            let isBoss = false;
+
+            // Boss scan: ONLY accept canonical BOSS_LIST names via word-boundary match.
+            // Never infer boss names from free-form log text.
             for (const boss of BOSS_LIST) {
                 const escaped = boss.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 const re = new RegExp(`\\b${escaped}\\b`, 'i');
-                if (re.test(details)) { monsterName = boss; break; }
+                if (re.test(details)) {
+                    monsterName = boss;   // <-- always the exact BOSS_LIST string
+                    isBoss = true;
+                    break;
+                }
             }
-            // Fallback: regex extraction for slayer-style entries
+
+            // Fallback: extract slayer-monster names from log text. These are NEVER bosses.
             if (!monsterName) {
                 const mMatch = details.match(/(?:killing|defeating|surviving|killed|defeated) (?:the |a )?([\w\s':,\-]+?)(?:, I | it dropped |: Rex Matriarchs|\.|$)/i);
                 if (mMatch) {
                     monsterName = mMatch[1].trim().replace(/,$/, '');
-                    // Strip leading count: "32 mithril dragons" → "mithril dragons"
-                    monsterName = monsterName.replace(/^\d+\s+/, '').trim();
-                    // Conservative singularization: "dragons" → "dragon" (but not "glass" → "glas")
-                    monsterName = monsterName.replace(/([^s])s$/i, '$1');
+                    monsterName = monsterName.replace(/^\d+\s+/, '').trim();      // strip leading count
+                    monsterName = monsterName.replace(/([^s])s$/i, '$1');          // conservative singularize
                 }
             }
+
             if (monsterName) {
                 d.super = 'combat';
                 d.monster = monsterName;
-                d.sub = BOSS_LIST.some(b => d.monster.toLowerCase() === b.toLowerCase() || d.monster.toLowerCase().includes(b.toLowerCase())) ? 'boss' : 'slayer';
+                d.sub = isBoss ? 'boss' : 'slayer';
                 const iMatch = details.match(/(?:dropped|found|gave|found a|found an) (?:a |an |some |pair of )?(.+?)(?:\.|$)/i);
                 if (iMatch && iMatch[1]) {
                     d.item = iMatch[1].charAt(0).toUpperCase() + iMatch[1].slice(1).trim();
@@ -1725,12 +1732,9 @@ function renderCluePanel(allEntries) {
                 <span style="color:var(--color-text-dim);font-size:11px;">${selClueLootType.charAt(0).toUpperCase()+selClueLootType.slice(1)} loot</span>
              </div>` +
             (grouped.length ? grouped.map(g => `
-                <div class="clue-loot-item ${g.count > 1 ? 'clickable' : ''}" ${g.count > 1 ? `onclick="selectClueLootItem('${g.name.replace(/'/g,"\'")}')"` : ''}>
-                    <div>
-                        <div class="clue-loot-name">${g.name}</div>
-                        <div class="clue-loot-meta">${g.lastTs}</div>
-                    </div>
-                    ${g.count > 1 ? `<span class="clue-loot-count">${g.count}×</span>` : ''}
+                <div class="loot-row ${g.count > 1 ? 'clickable' : ''}" ${g.count > 1 ? `onclick="selectClueLootItem('${g.name.replace(/'/g,"\'")}')"` : ''}>
+                    <span class="loot-name">${g.count > 1 ? `<span class="loot-count" style="color:var(--color-clue);">${g.count}x</span>` : ''}${g.name}</span>
+                    <span class="loot-ts">${g.count > 1 ? 'View History' : g.lastTs}</span>
                 </div>`).join('') : '<div class="dual-empty">No loot recorded</div>');
     } else {
         // Summary: one row per clue type showing unique item count + total drops
