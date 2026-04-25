@@ -374,6 +374,46 @@ body.dark-mode .b-pill.active .b-pill-count {
 .skill-history-col .xp-chart-canvas-wrap { height: 360px; }
 .skill-entry-toolbar { margin: -4px -2px 10px; border: 0; border-bottom: 1px solid var(--color-border); border-radius: 0; padding: 0 0 10px; }
 .skill-entry-toolbar .list-header-pills { flex: 1; }
+.skill-filter-context {
+    --skill-filter-color: var(--color-skill);
+    --skill-filter-text-active: #fff;
+}
+.skill-filter-context .b-pill.pill-skill:hover {
+    border-color: var(--skill-filter-color);
+    color: var(--skill-filter-color);
+}
+.skill-filter-context .b-pill.pill-skill.active {
+    background: var(--skill-filter-color);
+    border-color: var(--skill-filter-color);
+    color: var(--skill-filter-text-active);
+}
+.skill-filter-context .b-pill.pill-skill.active .b-pill-count {
+    background: rgba(255,255,255,0.25);
+    color: var(--skill-filter-text-active);
+}
+body.dark-mode .skill-filter-context {
+    --skill-filter-text-active: #121212;
+}
+.skill-history-col {
+    min-width: 0;
+    overflow: hidden;
+}
+.skill-history-col .xp-chart-wrap {
+    min-width: 0;
+    overflow: hidden;
+}
+.skill-history-col .xp-chart-canvas-wrap {
+    height: clamp(260px, 38vh, 340px);
+    max-height: 340px;
+    min-height: 260px;
+    min-width: 0;
+    overflow: hidden;
+}
+.skill-history-col .xp-chart-canvas-wrap canvas {
+    display: block;
+    max-width: 100%;
+}
+.skill-entries-col { min-width: 0; }
 @media (max-width: 720px) {
     .skill-history-col .xp-chart-canvas-wrap { height: 280px; }
 }
@@ -552,10 +592,7 @@ body.dark-mode .clue-loot-count { color: #121212; }
 <div class="xp-chart-wrap" id="xp-chart-section">
 <div class="xp-chart-header">
 <span class="xp-chart-title" id="xp-chart-title">XP Progress</span>
-<div class="chart-mode-btns" id="chart-mode-btns">
-<button class="cmode-btn active" id="cmode-stacked" onclick="setGroupChartMode('stacked')">Stacked</button>
-<button class="cmode-btn" id="cmode-bars" onclick="setGroupChartMode('bars')">Snapshot</button>
-</div>
+<div class="chart-mode-btns" id="chart-mode-btns" aria-hidden="true"></div>
 <span class="xp-chart-hint" id="xp-chart-hint">Scroll to zoom · Drag to pan</span>
 <button class="xp-chart-reset" id="xp-chart-reset" onclick="resetXpChart()">Reset View</button>
 </div>
@@ -616,6 +653,8 @@ const BOSS_ALIASES = [
     { match: /\bShadow Realm\b/i, canonical: 'Rise of the Six' },
     { match: /\bAvaryss\b/i, canonical: 'Twin Furies' },
     { match: /\bSeiryus?\b/i, canonical: 'Seiryu the Azure Serpent' },
+    { match: /\bHar['’]Aken\b/i, canonical: 'Har-Aken' },
+    { match: /\bFight Kiln\b/i, canonical: 'Har-Aken' },
     // Add more grouped-boss aliases here as they come up.
 ];
 
@@ -631,7 +670,7 @@ let clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true
 let selectedSkills = new Set(); // empty = "All Skills"; otherwise the explicit set of selected skills
 let skillViewMode = 'flat';
 let xpChart = null;
-let groupChartMode = 'stacked'; // 'stacked' | 'bars'
+let groupChartMode = 'stacked'; // only stacked line mode is shown
 let datePreset = 'all';
 let dateFrom = null;
 let dateTo = null;
@@ -907,6 +946,9 @@ function extractApproxKillCount(rowText, monsterName, hasItemDrop = false, alter
     const monsterMatches = makeMonsterMatcher(monsterName).test(rowText) || matcherMatches(rowText, alternateMatcher);
     if (!monsterMatches) return 0;
 
+    // Loot/drop rows are not killcount rows. This must happen before numeric extraction because item names can contain numbers, e.g. "godsword shard 2".
+    if (hasItemDrop) return 0;
+
     // Mirrors the Google Sheets approach: match the monster row, count "killed many"
     // with no explicit digits as 100, otherwise use the first numeric value on the row.
     if (/killed\s+many/i.test(rowText) && !/\d/.test(rowText)) return 100;
@@ -917,7 +959,7 @@ function extractApproxKillCount(rowText, monsterName, hasItemDrop = false, alter
     // Singular kill-only entries usually read like "I killed a Glacor..." and do not
     // include a number. Count those as 1, but ONLY when this row did not also parse
     // an item/drop, so loot rows are not inflated by an implicit kill.
-    if (!hasItemDrop && /\bkilled\s+(?:a|an|the)\s+/i.test(rowText)) {
+    if (/\bkilled\s+(?:a|an|the)\s+/i.test(rowText)) {
         return 1;
     }
 
@@ -969,6 +1011,17 @@ function processData(csvText) {
                   : details.includes('While skilling')   ? 'pet'
                   : details.includes('total level of')   ? 'total'
                   : 'level';
+            return d;
+        }
+
+        // ── Combat one-offs ──
+        // Fight Kiln completions count as a Har-Aken boss kill even though the log
+        // wording is a completion rather than a normal "killed/dropped" combat row.
+        if (/Completed the Fight Kiln/i.test(d.rawText)) {
+            d.super = 'combat';
+            d.sub = 'boss';
+            d.monster = 'Har-Aken';
+            d.killCount = 1;
             return d;
         }
 
@@ -1190,11 +1243,7 @@ function renderListHeader(filtered, countBase = filtered) {
             </div>`).join('');
     }
     header.innerHTML = `
-        <div class="list-header-pills">${pillsHtml}</div>
-        <div class="list-header-right">
-            <span class="sort-label">Sort</span>
-            <button class="sort-btn ${sortOrder === 'newest' ? 'active' : ''}" onclick="setSortOrder('newest')">Newest</button>
-            <button class="sort-btn ${sortOrder === 'oldest' ? 'active' : ''}" onclick="setSortOrder('oldest')">Oldest</button>
+        <div class="list-header-pills ${activeFilter === 'skills' ? 'skill-filter-context' : ''}" style="${activeFilter === 'skills' ? getSkillFilterColorStyle() : ''}">${pillsHtml}</div>
             <span class="entry-count">${filtered.length.toLocaleString()} entries</span>
         </div>`;
 }
@@ -1210,7 +1259,26 @@ function getSkillSelectionLabel() {
     const group = Object.keys(SKILL_GROUPS).find(g => isGroupFullySelected(g));
     if (group) return group;
     if (selectedSkills.size === 1) return [...selectedSkills][0];
-    return `${selectedSkills.size} selected skills`;
+    return selectedSkills.size + ' selected skills';
+}
+
+function getActiveSkillGroupForColor() {
+    if (selectedSkills.size === 0) return null; // All Skills uses the native green skill color
+    const exactGroup = Object.keys(SKILL_GROUPS).find(g => isGroupFullySelected(g));
+    if (exactGroup) return exactGroup;
+    if (selectedSkills.size === 1) return getSkillGroupName([...selectedSkills][0]) || null;
+    const groups = new Set([...selectedSkills].map(getSkillGroupName).filter(Boolean));
+    return groups.size === 1 ? [...groups][0] : null;
+}
+
+function getSkillFilterColorStyle() {
+    const group = getActiveSkillGroupForColor();
+    if (!group || !GROUP_COLORS[group]) {
+        return '--skill-filter-color: var(--color-skill);';
+    }
+    const isDark = document.body.classList.contains('dark-mode');
+    const color = GROUP_COLORS[group][isDark ? 'dark' : 'light'];
+    return '--skill-filter-color:' + color + ';';
 }
 
 function skillEntryMatchesSelection(e) {
@@ -1270,33 +1338,24 @@ function renderSkillPanel(entries) {
     const selectedBase = entries.filter(skillEntryMatchesSelection);
     const skillEntries = selectedBase.filter(skillEntryMatchesSubFilters);
 
-    const sortEntries = arr => arr.slice().sort((a, b) => sortOrder === 'oldest'
-        ? new Date(a.ts) - new Date(b.ts)
-        : new Date(b.ts) - new Date(a.ts)
-    );
+    const sortEntries = arr => arr.slice().sort((a, b) => new Date(b.ts) - new Date(a.ts));
 
     const toolbarEl = document.getElementById('skill-entry-toolbar');
     const entryEl = document.getElementById('skill-entry-list');
     const entryCount = document.getElementById('skill-entry-count');
     const historyLabel = document.getElementById('skill-history-label');
 
-    if (entryCount) entryCount.textContent = skillEntries.length.toLocaleString();
+    if (entryCount) entryCount.textContent = `${skillEntries.length.toLocaleString()} entries`;
     if (historyLabel) historyLabel.textContent = selectionLabel;
 
     if (toolbarEl) {
         toolbarEl.innerHTML = `
-            <div class="list-header-pills">
+            <div class="list-header-pills skill-filter-context" style="${getSkillFilterColorStyle()}">
                 ${getSkillFilterOptions().map(s => `
                     <div class="b-pill pill-skill ${skillSubs[s.id] ? 'active' : ''}"
                          onclick="toggleSubFilter('skills','${s.id}')">
                         ${s.label}<span class="b-pill-count">${getSkillSubFilterCount(selectedBase, s.id).toLocaleString()}</span>
                     </div>`).join('')}
-            </div>
-            <div class="list-header-right">
-                <span style="color:var(--color-text-dim);font-size:11px;font-weight:700;">${escapeHtml(selectionLabel)}</span>
-                <span class="sort-label">Sort</span>
-                <button class="sort-btn ${sortOrder === 'newest' ? 'active' : ''}" onclick="setSortOrder('newest')">Newest</button>
-                <button class="sort-btn ${sortOrder === 'oldest' ? 'active' : ''}" onclick="setSortOrder('oldest')">Oldest</button>
             </div>`;
     }
 
@@ -1676,9 +1735,7 @@ function clearSkillSelection() {
 }
 
 function setGroupChartMode(mode) {
-    groupChartMode = mode === 'bars' ? 'bars' : 'stacked';
-    document.getElementById('cmode-stacked')?.classList.toggle('active', groupChartMode === 'stacked');
-    document.getElementById('cmode-bars')?.classList.toggle('active', groupChartMode === 'bars');
+    groupChartMode = 'stacked';
     if (xpChart) { xpChart.destroy(); xpChart = null; }
     updateXpChart();
 }
@@ -1880,38 +1937,6 @@ function getXpChartData() {
         return { datasets, title: `XP Progress — ${onlySkill}`, hasPets, skillList: [onlySkill], chartKind: 'line' };
     }
 
-    // Multi-skill snapshot mode: latest known XP per selected skill as a bar chart.
-    if (groupChartMode === 'bars') {
-        const activeOrdered = SKILLS.filter(s => selectedSkills.has(s));
-        const barPoints = activeOrdered.map((skill, idx) => {
-            const skillEntries = getXpEntriesForSkill(skill, allXpEntries);
-            const latest = skillEntries[skillEntries.length - 1];
-            if (!latest) return null;
-            return {
-                x: skill,
-                y: latest.xp,
-                label: `${skill}: ${latest.xp.toLocaleString()} XP`,
-                backgroundColor: SKILL_LINE_COLORS[idx % SKILL_LINE_COLORS.length],
-                borderColor: SKILL_LINE_COLORS[idx % SKILL_LINE_COLORS.length]
-            };
-        }).filter(Boolean);
-        return {
-            datasets: [{
-                label: 'Latest XP',
-                data: barPoints,
-                type: 'bar',
-                backgroundColor: barPoints.map(p => p.backgroundColor),
-                borderColor: barPoints.map(p => p.borderColor),
-                borderWidth: 1,
-                parsing: { xAxisKey: 'x', yAxisKey: 'y' }
-            }],
-            title: 'XP Snapshot — Selected Skills',
-            hasPets: false,
-            skillList: activeOrdered,
-            chartKind: 'bar'
-        };
-    }
-
     // Multi-skill selection: one line per skill, colored from the multi-line palette.
     // We sort the active skills the same way SKILLS is ordered for stable colors.
     const activeOrdered = SKILLS.filter(s => selectedSkills.has(s));
@@ -1984,10 +2009,9 @@ function updateXpChart() {
 
     const wrap = document.getElementById('xp-chart-canvas-wrap');
     document.getElementById('xp-chart-title').textContent = title;
+    groupChartMode = 'stacked';
     const modeBtns = document.getElementById('chart-mode-btns');
-    if (modeBtns) modeBtns.classList.toggle('visible', selectedSkills.size > 1);
-    document.getElementById('cmode-stacked')?.classList.toggle('active', groupChartMode === 'stacked');
-    document.getElementById('cmode-bars')?.classList.toggle('active', groupChartMode === 'bars');
+    if (modeBtns) modeBtns.classList.remove('visible');
 
     const hasData = datasets.some(d => d.data && d.data.length > 0);
     if (!hasData) {
