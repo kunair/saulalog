@@ -1451,11 +1451,11 @@ function renderHeatmap(cat) {
     const palKey = (cat && HEATMAP_PALETTES[theme][cat]) ? cat : 'all';
     const palette = HEATMAP_PALETTES[theme][palKey];
 
-    // Count entries by day, filtered by active category + date range
-    // Also track most-recent activity date so we can anchor the heatmap window there
-    // (otherwise stale categories like clues show an empty year)
+    // Count entries by day, filtered by active category + the global date range.
+    // Important: the grid itself always stays on the same last-365-days timeline.
+    // The range buttons only decide which tiles are allowed to receive color;
+    // out-of-range days remain visible as empty/base cells instead of disappearing.
     const counts = {};
-    let mostRecent = null;
     for (const e of parsed) {
         if (cat && cat !== 'all' && e.super !== cat) continue;
         const d = parseTs(e.ts);
@@ -1464,7 +1464,6 @@ function renderHeatmap(cat) {
         if (dateTo && d > dateTo) continue;
         const key = d.toISOString().slice(0, 10);
         counts[key] = (counts[key] || 0) + 1;
-        if (!mostRecent || d > mostRecent) mostRecent = d;
     }
 
     // Update legend swatches
@@ -1481,16 +1480,10 @@ function renderHeatmap(cat) {
         return palette[4];
     }
 
-    // Anchor: today if there is recent activity, otherwise the most-recent activity date.
+    // Always render a stable 53-week grid ending today. Range presets should
+    // color fewer/more cells, not resize or cut off the heatmap.
     const today = new Date(); today.setHours(0, 0, 0, 0);
-    let anchor = today;
-    if (mostRecent) {
-        const ageDays = (today - mostRecent) / (1000 * 60 * 60 * 24);
-        if (ageDays > 30) {  // category is stale → window ends at most-recent
-            anchor = new Date(mostRecent);
-            anchor.setHours(0, 0, 0, 0);
-        }
-    }
+    const anchor = new Date(today);
     const startDate = new Date(anchor);
     startDate.setDate(startDate.getDate() - 364);
     startDate.setDate(startDate.getDate() - startDate.getDay());
@@ -1535,9 +1528,8 @@ function renderHeatmap(cat) {
 
     // Year label: shows the actual range covered by the heatmap
     const startYear = startDate.getFullYear(), endYear = anchor.getFullYear();
-    const isStale = anchor.getTime() !== today.getTime();
     const yearText = startYear === endYear ? String(startYear) : `${startYear}–${endYear}`;
-    document.getElementById('heatmap-year').textContent = isStale ? `${yearText} (most recent activity)` : yearText;
+    document.getElementById('heatmap-year').textContent = yearText;
     const catLabel = cat && cat !== 'all' ? cat.charAt(0).toUpperCase() + cat.slice(1) + ' · ' : '';
     document.getElementById('heatmap-title').textContent = `${catLabel}Activity Heatmap`;
 }
