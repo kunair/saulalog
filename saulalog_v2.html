@@ -623,7 +623,7 @@ body.dark-mode .clue-loot-count { color: #121212; }
 const BOSS_LIST = [
     "Araxxi", "Araxzor", "Arch-Glacor", "Beastmaster Durzag", "Black Stone Dragon", "Chaos Elemental", 
     "Corporeal Beast", "Croesus", "Dagannoth Prime", "Dagannoth Rex", "Dagannoth Supreme", 
-    "General Graardor", "Gregorovic", "Helwyr", "Hermit", "Ivar, King of Bones", "Kalphite King", 
+    "General Graardor", "Gregorovic", "Helwyr", "Hermit", "Hermod, the Spirit of War", "Ivar, King of Bones", "Kalphite King", 
     "Kalphite Queen", "Kerapac", "King Black Dragon", "K'ril Tsutsaroth", "Kree'arra", 
     "Legio Primus", "Legio Secundus", "Legio Tertius", "Legio Quartus", "Legio Quintus", "Legio Sextus", 
     "Magister", "Nex", "Nex: Angel of Death", "Osseous", "Rathis", "Raksha", 
@@ -655,6 +655,8 @@ const BOSS_ALIASES = [
     { match: /\bSeiryus?\b/i, canonical: 'Seiryu the Azure Serpent' },
     { match: /\bHar['’]Aken\b/i, canonical: 'Har-Aken' },
     { match: /\bFight Kiln\b/i, canonical: 'Har-Aken' },
+    { match: /\bHermods?,\s*Spirits? of War\b/i, canonical: 'Hermod, the Spirit of War' },
+    { match: /phantom born from the God Wars:\s*Hermod,\s*the Spirit of War\b/i, canonical: 'Hermod, the Spirit of War' },
     // Add more grouped-boss aliases here as they come up.
 ];
 
