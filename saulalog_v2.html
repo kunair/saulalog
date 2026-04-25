@@ -114,7 +114,7 @@ body.dark-mode .b-pill.pill-combat.active { color: #121212; }
     border-radius: 8px; background: var(--color-bg-sub);
     color: var(--color-text-dim); font-size: 11px; line-height: 1.4; font-weight: 600;
 }
-.kc-disclaimer::before { content: "𝒊"; color: var(--color-combat); font-weight: 900; }
+.kc-disclaimer::before { content: "𝒊"; color: var(--color-combat); font-weight: 900; font-family: Georgia, serif; }
 
 .loot-name { flex: 1; padding-right: 15px; display: flex; align-items: center; }
 .loot-count { font-weight: 800; margin-right: 10px; color: var(--color-combat); font-size: 13px; }
@@ -1256,18 +1256,31 @@ const BOSS_LIST = [
     "Legio Primus", "Legio Secundus", "Legio Tertius", "Legio Quartus", "Legio Quintus", "Legio Sextus", 
     "Magister", "Nex", "Nex: Angel of Death", "Osseous", "Rathis", "Raksha", 
     "Rasial", "Solak", "Telos", "Twin Furies", "Vindicta", "Vorago", "Yakamaru", "Zamorak", 
-    "Zuk", "Rex Matriarchs", "Pthentraken", "Commander Zilyana", "Orikalka", "Astellarn", 
-    "Verak Lith", "Queen Black Dragon", "Giant mole"
+    "Zuk", "Pthentraken", "Commander Zilyana", "Orikalka", "Astellarn", 
+    "Verak Lith", "Queen Black Dragon", "Giant mole", "Silverquill, the Dreadhog", "Clawdia", 
+    "Flesh-hatcher Mhekarnahz", "Seiryu the Azure Serpent", "Barrows", "Rise of the Six", "Har-Aken"
 ].sort((a, b) => b.length - a.length); // longest first so "Rathis" wins over any partial
 
 // Boss aliases — phrase fragments that should resolve to a canonical BOSS_LIST name.
 // Order matters: more-specific phrases must come before less-specific ones.
-// Each entry: { match: string-or-regex, canonical: string-from-BOSS_LIST }
+// Each entry: { match: regex, canonical: string-from-BOSS_LIST OR string[] for shared kill-count aliases }
 const BOSS_ALIASES = [
-    // Ancient experimental dinosaurs are listed as "Rex Matriarchs" in the log,
-    // but the actual boss is Osseous. Match the fully-qualified phrase before
-    // the bare "Rex Matriarchs" alias below.
+    // Specific Rex Matriarchs activity from Ancient experimental dinosaurs is Osseous.
+    // Keep this before the generic Rex Matriarch alias below.
     { match: /Ancient experimental dinosaurs:\s*Rex Matriarchs/i, canonical: 'Osseous' },
+
+    // Generic Rex Matriarch kill-count logs apply to the three original Rex Matriarchs.
+    // They share kill counts, so one matching log row is expanded to all three bosses.
+    { match: /\bRex Matriarchs?\b/i, canonical: ['Rathis', 'Orikalka', 'Pthentraken'] },
+
+    // Generic Dagannoth King kill-count logs apply to all three Dagannoth Kings.
+    // Specific names like Dagannoth Rex/Prime/Supreme still match their own canonical boss first.
+    { match: /\bDagannoth Kings?\b/i, canonical: ['Dagannoth Supreme', 'Dagannoth Rex', 'Dagannoth Prime'] },
+
+    // Boss naming aliases from log wording.
+    { match: /\bShadow Realm\b/i, canonical: 'Rise of the Six' },
+    { match: /\bAvaryss\b/i, canonical: 'Twin Furies' },
+    { match: /\bSeiryu\b/i, canonical: 'Seiryu the Azure Serpent' },
     // Add more grouped-boss aliases here as they come up.
 ];
 
@@ -1552,9 +1565,20 @@ function makeMonsterMatcher(monsterName) {
         : new RegExp('\\b(?:' + escaped + '|' + pluralEsc + ')\\b', 'i');
 }
 
-function extractApproxKillCount(rowText, monsterName, hasItemDrop = false) {
+function matcherMatches(rowText, matcher) {
+    if (!matcher) return false;
+    if (matcher instanceof RegExp) {
+        matcher.lastIndex = 0;
+        return matcher.test(rowText);
+    }
+    return makeMonsterMatcher(String(matcher)).test(rowText);
+}
+
+function extractApproxKillCount(rowText, monsterName, hasItemDrop = false, alternateMatcher = null) {
     if (!rowText || !monsterName) return 0;
-    if (!makeMonsterMatcher(monsterName).test(rowText)) return 0;
+
+    const monsterMatches = makeMonsterMatcher(monsterName).test(rowText) || matcherMatches(rowText, alternateMatcher);
+    if (!monsterMatches) return 0;
 
     // Mirrors the Google Sheets approach: match the monster row, count "killed many"
     // with no explicit digits as 100, otherwise use the first numeric value on the row.
@@ -1566,9 +1590,8 @@ function extractApproxKillCount(rowText, monsterName, hasItemDrop = false) {
     // Singular kill-only entries usually read like "I killed a Glacor..." and do not
     // include a number. Count those as 1, but ONLY when this row did not also parse
     // an item/drop, so loot rows are not inflated by an implicit kill.
-    if (!hasItemDrop) {
-        const singularKillRe = new RegExp('\\bkilled\\s+(?:a|an|the)\\s+' + makeMonsterMatcher(monsterName).source, 'i');
-        if (singularKillRe.test(rowText)) return 1;
+    if (!hasItemDrop && /\bkilled\s+(?:a|an|the)\s+/i.test(rowText)) {
+        return 1;
     }
 
     return 0;
@@ -1620,13 +1643,18 @@ function processData(csvText) {
         if (/killed|dropped|looted|found|surviving|defeating|battling|freeing|diving|exploring|plundering|hibernation/i.test(details) && !details.toLowerCase().includes('quest')) {
             let monsterName = null;
             let isBoss = false;
+            let sharedBosses = null;
+            let killCountMatcher = null;
 
             // Step 0: Alias scan — fully-qualified phrases that map to a canonical boss.
             // Runs FIRST so e.g. "Ancient experimental dinosaurs: Rex Matriarchs" wins over
             // a bare "Rex Matriarchs" word-boundary match below.
             for (const alias of BOSS_ALIASES) {
+                alias.match.lastIndex = 0;
                 if (alias.match.test(details)) {
-                    monsterName = alias.canonical;
+                    sharedBosses = Array.isArray(alias.canonical) ? alias.canonical : null;
+                    monsterName = sharedBosses ? sharedBosses[0] : alias.canonical;
+                    killCountMatcher = alias.match;
                     isBoss = true;
                     break;
                 }
@@ -1669,9 +1697,9 @@ function processData(csvText) {
                     /While looting a ([^,.]+)(?:,|$)/i,
                     /While battling shades in ([^,.]+)(?:,|$)/i,
                     // Singular kill-only fallback, e.g. "I killed a Glacor and its glacytes."
-                    /(?:^|\s)killed (?:a|an|the)\s+(.+?)(?:\.|,|$)/i,
+                    /(?:^|\s)killed\s+(?:a|an|the)\s+(.+?)(?:\.|,|$)/i,
                     // Kill-count fallback when nothing else matched
-                    /(?:^|\s)killed (?:\d+|many|some|a few|several)\s+(.+?)(?:\.|,|$)/i,
+                    /(?:^|\s)killed\s+(?:\d+|many|some|a few|several)\s+(.+?)(?:\.|,|$)/i,
                 ];
                 for (const re of monsterRegexes) {
                     const m = details.match(re);
@@ -1679,9 +1707,12 @@ function processData(csvText) {
                         let name = m[1].trim();
                         name = name.replace(/^(?:a|an|the)\s+/i, '').trim();
                         name = name.replace(/^\d+\s+/, '').trim();
+                        // Strip companions/context from kill-only text, e.g. "glacors and many glacytes" → "glacors".
                         name = name.replace(/\s+and\s+(?:its|their|his|her)\b.*$/i, '').trim();
+                        name = name.replace(/\s+and\s+many\b.*$/i, '').trim();
+                        name = name.replace(/\s+and\b.*$/i, '').trim();
                         name = name.replace(/\s+with\b.*$/i, '').trim();
-                        name = name.replace(/([^s])s$/i, '$1');  // conservative singularize
+                        if (!/(?:ss|us)$/i.test(name)) name = name.replace(/([^s])s$/i, '$1');  // conservative singularize; keep -us names like Capsarius
                         if (name) monsterName = name.charAt(0).toUpperCase() + name.slice(1);
                         break;
                     }
@@ -1691,6 +1722,8 @@ function processData(csvText) {
             if (monsterName) {
                 d.super = 'combat';
                 d.monster = monsterName;
+                if (sharedBosses) d.sharedBosses = sharedBosses;
+                if (killCountMatcher) d.killCountMatcher = killCountMatcher;
                 d.sub = isBoss ? 'boss' : 'slayer';
 
                 // Step 3: Item extraction — apply drop regexes in priority order.
@@ -1714,7 +1747,7 @@ function processData(csvText) {
                 // This intentionally follows the Google Sheets-style tally:
                 // if the log row mentions the monster, use the first explicit number;
                 // if it says "killed many" with no digits, count it as 100; otherwise 0.
-                const approxKC = extractApproxKillCount(d.rawText, monsterName, !!d.item);
+                const approxKC = extractApproxKillCount(d.rawText, monsterName, !!d.item, killCountMatcher);
                 if (approxKC > 0) d.killCount = approxKC;
 
                 return d;
@@ -1737,7 +1770,15 @@ function processData(csvText) {
         }
 
         return d;
-    }).filter(Boolean);
+    }).filter(Boolean).flatMap(e => {
+        if (!Array.isArray(e.sharedBosses) || !e.sharedBosses.length) return [e];
+        return e.sharedBosses.map(monster => {
+            const clone = { ...e, monster };
+            delete clone.sharedBosses;
+            delete clone.killCountMatcher;
+            return clone;
+        });
+    });
 
     // Killcounts are intentionally not deduped here; extractApproxKillCount() mirrors the row-level Sheets tally.
 
@@ -2067,10 +2108,17 @@ function renderCombatSide(type, entries) {
         return;
     }
 
-    // Default view: grouped loot only (kc moved to the pill badge)
+    // Default view: grouped loot, plus a killcount entry button so dropdown-only monsters can open their kill log.
+    const selectedKC = killTotals[currentMonster] || 0;
+    const kcSummaryHtml = selectedKC > 0 ? `
+        <div class="loot-row clickable kc-summary-row" onclick="toggleKillcountDrill('${type}')" title="View killcount entries">
+            <span class="loot-name"><span class="loot-count">${selectedKC.toLocaleString()}x</span>Approx. killcount</span>
+            <span class="loot-ts">View Entries</span>
+        </div>` : '';
+
     const drops = monsterEntries.filter(e => e.item);
     if (!drops.length) {
-        lootListEl.innerHTML = '<div style="color:var(--color-text-light); text-align:center; padding-top:40px;">No drops recorded</div>';
+        lootListEl.innerHTML = kcSummaryHtml + '<div style="color:var(--color-text-light); text-align:center; padding-top:40px;">No drops recorded</div>';
         return;
     }
     const grouped = drops.reduce((acc, curr) => {
