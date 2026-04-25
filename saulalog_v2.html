@@ -107,7 +107,14 @@ body.dark-mode .b-pill.pill-combat.active { color: #121212; }
 .loot-row.clickable:hover { background: var(--color-bg-sub); padding-left: 10px; }
 .loot-row.clickable:active { transform: scale(0.99); }
 .loot-row.back-btn { font-weight: bold; color: var(--color-combat); margin-bottom: 8px; border-bottom: 2px solid var(--color-border); }
-
+.kc-disclaimer {
+    display: flex; align-items: flex-start; gap: 7px;
+    margin: 0 0 10px; padding: 9px 10px;
+    border: 1px solid var(--color-border); border-left: 3px solid var(--color-combat);
+    border-radius: 8px; background: var(--color-bg-sub);
+    color: var(--color-text-dim); font-size: 11px; line-height: 1.4; font-weight: 600;
+}
+.kc-disclaimer::before { content: "🛈"; color: var(--color-combat); font-weight: 900; }
 
 .loot-name { flex: 1; padding-right: 15px; display: flex; align-items: center; }
 .loot-count { font-weight: 800; margin-right: 10px; color: var(--color-combat); font-size: 13px; }
@@ -147,51 +154,40 @@ body.dark-mode .skill-all-btn { color: #121212; }
 .xp-pet-note { font-size: 10px; color: var(--color-text-light); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
 
 .skill-flat-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-.skill-grouped-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
-.skill-group-block {
-    display: flex; flex-direction: column; gap: 6px;
-    background: var(--color-surface); border: 1px solid var(--color-border);
-    border-radius: 8px; padding: 10px 12px;
-}
-.skill-group-label {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px;
-    font-weight: 800; padding: 3px 10px 3px 4px;
-    border-radius: 8px; cursor: pointer; user-select: none;
-    border: 1px solid transparent; transition: all 0.1s;
-    width: fit-content;
-}
-.skill-group-label:hover { opacity: 1; transform: translateY(-1px); }
-.skill-group-label:active { transform: scale(0.97); }
-.skill-group-label[data-group="Combat"]    { color: #d32f2f; }
-.skill-group-label[data-group="Artisan"]   { color: #ef6c00; }
-.skill-group-label[data-group="Gathering"] { color: #1565c0; }
-.skill-group-label[data-group="Support"]   { color: #7b1fa2; }
-.skill-group-label.active[data-group="Combat"]    { background: #d32f2f18; border-color: #d32f2f55; }
-.skill-group-label.active[data-group="Artisan"]   { background: #ef6c0018; border-color: #ef6c0055; }
-.skill-group-label.active[data-group="Gathering"] { background: #1565c018; border-color: #1565c055; }
-.skill-group-label.active[data-group="Support"]   { background: #7b1fa218; border-color: #7b1fa255; }
-body.dark-mode .skill-group-label[data-group="Combat"]    { color: #e57373; }
-body.dark-mode .skill-group-label[data-group="Artisan"]   { color: #ffd54f; }
-body.dark-mode .skill-group-label[data-group="Gathering"] { color: #64b5f6; }
-body.dark-mode .skill-group-label[data-group="Support"]   { color: #ba68c8; }
-body.dark-mode .skill-group-label.active[data-group="Combat"]    { background: #e5737322; border-color: #e5737366; }
-body.dark-mode .skill-group-label.active[data-group="Artisan"]   { background: #ffd54f22; border-color: #ffd54f66; }
-body.dark-mode .skill-group-label.active[data-group="Gathering"] { background: #64b5f622; border-color: #64b5f666; }
-body.dark-mode .skill-group-label.active[data-group="Support"]   { background: #ba68c822; border-color: #ba68c866; }
-.skill-group-label-arrow { font-size: 9px; opacity: 0.5; }
-.skill-group-pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-.skill-group-pills .sk-btn { text-align: center; padding: 5px 4px; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-@media (max-width: 720px) {
-    .skill-grouped-list { grid-template-columns: 1fr; }
-    .skill-group-pills  { grid-template-columns: repeat(3, 1fr); }
-}
-
-.sk-btn { padding: 4px 11px; border-radius: 11px; border: 1px solid var(--color-border); font-size: 11px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); transition: all 0.1s; font-weight: 600; user-select: none; }
+.skill-picker-top { padding-bottom: 8px; border-bottom: 1px solid var(--color-border); }
+.skill-grouped-list { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
+.skill-group-pill { text-transform: capitalize; letter-spacing: 0; }
+.skill-group-pill[data-group="Combat"]    { color: #d32f2f; }
+.skill-group-pill[data-group="Artisan"]   { color: #ef6c00; }
+.skill-group-pill[data-group="Gathering"] { color: #1565c0; }
+.skill-group-pill[data-group="Support"]   { color: #7b1fa2; }
+.skill-group-pill.active[data-group="Combat"]    { background: #d32f2f; border-color: #d32f2f; color: #fff; }
+.skill-group-pill.active[data-group="Artisan"]   { background: #ef6c00; border-color: #ef6c00; color: #fff; }
+.skill-group-pill.active[data-group="Gathering"] { background: #1565c0; border-color: #1565c0; color: #fff; }
+.skill-group-pill.active[data-group="Support"]   { background: #7b1fa2; border-color: #7b1fa2; color: #fff; }
+body.dark-mode .skill-group-pill[data-group="Combat"]    { color: #e57373; }
+body.dark-mode .skill-group-pill[data-group="Artisan"]   { color: #ffd54f; }
+body.dark-mode .skill-group-pill[data-group="Gathering"] { color: #64b5f6; }
+body.dark-mode .skill-group-pill[data-group="Support"]   { color: #ba68c8; }
+body.dark-mode .skill-group-pill.active[data-group="Combat"]    { background: #e57373; border-color: #e57373; color: #121212; }
+body.dark-mode .skill-group-pill.active[data-group="Artisan"]   { background: #ffd54f; border-color: #ffd54f; color: #121212; }
+body.dark-mode .skill-group-pill.active[data-group="Gathering"] { background: #64b5f6; border-color: #64b5f6; color: #121212; }
+body.dark-mode .skill-group-pill.active[data-group="Support"]   { background: #ba68c8; border-color: #ba68c8; color: #121212; }
+.skill-group-pill .b-pill-count { margin-left: 6px; }
+.skill-skills-row { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; align-items: center; }
+.sk-btn { padding: 5px 11px; border-radius: 11px; border: 1px solid var(--color-border); font-size: 11px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); transition: all 0.1s; font-weight: 600; user-select: none; }
 .sk-btn:hover { border-color: var(--color-skill); color: var(--color-skill); transform: translateY(-1px); }
 .sk-btn:active { transform: scale(0.94); }
 .sk-btn.active { background: var(--color-skill); border-color: var(--color-skill); color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+.sk-btn[data-group="Combat"].active { background: #d32f2f; border-color: #d32f2f; }
+.sk-btn[data-group="Artisan"].active { background: #ef6c00; border-color: #ef6c00; }
+.sk-btn[data-group="Gathering"].active { background: #1565c0; border-color: #1565c0; }
+.sk-btn[data-group="Support"].active { background: #7b1fa2; border-color: #7b1fa2; }
 body.dark-mode .sk-btn.active { color: #121212; }
+body.dark-mode .sk-btn[data-group="Combat"].active { background: #e57373; border-color: #e57373; }
+body.dark-mode .sk-btn[data-group="Artisan"].active { background: #ffd54f; border-color: #ffd54f; }
+body.dark-mode .sk-btn[data-group="Gathering"].active { background: #64b5f6; border-color: #64b5f6; }
+body.dark-mode .sk-btn[data-group="Support"].active { background: #ba68c8; border-color: #ba68c8; }
 
 /* XP Chart */
 .xp-chart-wrap { width: 100%; margin-top: 10px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 14px 16px 10px; }
@@ -256,6 +252,9 @@ body.dark-mode .dp-btn.active { color: #121212; }
     width: 100%; background: var(--color-surface); border: 1px solid var(--color-border);
     border-radius: 10px; padding: 15px; box-sizing: border-box;
 }
+#heatmap-default-slot { width: 100%; }
+#heatmap-svg-wrap { width: 100%; overflow: visible; }
+#heatmap-svg-wrap svg { display: block; width: 100%; }
 .heatmap-header { display: flex; align-items: center; margin-bottom: 10px; gap: 8px; }
 .heatmap-title { font-size: 11px; font-weight: 700; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px; flex: 1; }
 .heatmap-year { font-size: 10px; color: var(--color-text-light); font-weight: 600; }
@@ -535,14 +534,12 @@ body.dark-mode .clue-loot-count { color: #121212; }
       <div class="dual-col">
         <div class="dual-col-header">
           <span>Clues Completed</span>
-          <span class="col-count" id="clue-completion-count"></span>
         </div>
         <div class="dual-col-body" id="clue-completion-list"></div>
       </div>
       <div class="dual-col">
         <div class="dual-col-header">
           <span>Notable Loot</span>
-          <span class="col-count" id="clue-loot-count"></span>
         </div>
         <div class="dual-col-body" id="clue-loot-list"></div>
       </div>
@@ -1443,10 +1440,13 @@ function renderHeatmap(cat) {
     startDate.setDate(startDate.getDate() - startDate.getDay());
 
     const WEEKS = 53, DAYS = 7;
-    const cs = 11, gap = 2, step = cs + gap;
-    const padLeft = 20, padTop = 18;
-    const svgW = padLeft + WEEKS * step;
-    const svgH = padTop + DAYS * step;
+    const availableW = Math.max(520, wrap.getBoundingClientRect().width || wrap.parentElement?.clientWidth || 740);
+    const padLeft = 24, padTop = 18, padRight = 4;
+    const gap = availableW < 720 ? 2 : 3;
+    const cs = Math.max(8, Math.floor((availableW - padLeft - padRight - ((WEEKS - 1) * gap)) / WEEKS));
+    const step = cs + gap;
+    const svgW = padLeft + (WEEKS * cs) + ((WEEKS - 1) * gap) + padRight;
+    const svgH = padTop + (DAYS * cs) + ((DAYS - 1) * gap);
 
     const textColor = isDark ? '#8b949e' : '#767676';
     let cells = '', monthLabels = '';
@@ -1475,7 +1475,7 @@ function renderHeatmap(cat) {
         : ''
     ).join('');
 
-    wrap.innerHTML = `<svg width="100%" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" style="overflow:visible;display:block;">${monthLabels}${dayLabels}${cells}</svg>`;
+    wrap.innerHTML = `<svg width="100%" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMinYMin meet" style="overflow:visible;display:block;">${monthLabels}${dayLabels}${cells}</svg>`;
 
     // Year label: shows the actual range covered by the heatmap
     const startYear = startDate.getFullYear(), endYear = anchor.getFullYear();
@@ -1535,6 +1535,43 @@ async function fetchGoogleSheetData() {
     }
 }
 
+function escapeRegexLiteral(value) {
+    const specials = new Set(['.', '*', '+', '?', '^', '$', '{', '}', '(', ')', '|', '[', ']', '\\']);
+    return String(value).split('').map(ch => specials.has(ch) ? '\\' + ch : ch).join('');
+}
+
+function makeMonsterMatcher(monsterName) {
+    const escaped = escapeRegexLiteral(monsterName);
+    let pluralForm = monsterName;
+    if (/y$/i.test(monsterName))      pluralForm = monsterName.slice(0, -1) + 'ies';
+    else if (!/s$/i.test(monsterName)) pluralForm = monsterName + 's';
+    const pluralEsc = escapeRegexLiteral(pluralForm);
+    return (monsterName === pluralForm)
+        ? new RegExp('\\b' + escaped + '\\b', 'i')
+        : new RegExp('\\b(?:' + escaped + '|' + pluralEsc + ')\\b', 'i');
+}
+
+function extractApproxKillCount(rowText, monsterName, hasItemDrop = false) {
+    if (!rowText || !monsterName) return 0;
+    if (!makeMonsterMatcher(monsterName).test(rowText)) return 0;
+
+    // Mirrors the Google Sheets approach: match the monster row, count "killed many"
+    // with no explicit digits as 100, otherwise use the first numeric value on the row.
+    if (/killed\s+many/i.test(rowText) && !/\d/.test(rowText)) return 100;
+
+    const n = rowText.match(/\d+/);
+    if (n) return parseInt(n[0], 10);
+
+    // Singular kill-only entries usually read like "I killed a Glacor..." and do not
+    // include a number. Count those as 1, but ONLY when this row did not also parse
+    // an item/drop, so loot rows are not inflated by an implicit kill.
+    if (!hasItemDrop) {
+        const singularKillRe = new RegExp('\\bkilled\\s+(?:a|an|the)\\s+' + makeMonsterMatcher(monsterName).source, 'i');
+        if (singularKillRe.test(rowText)) return 1;
+    }
+
+    return 0;
+}
 function processData(csvText) {
     const lines = csvText.split(/\r?\n/).slice(1); // skip header row
     parsed = lines.map(line => {
@@ -1544,7 +1581,7 @@ function processData(csvText) {
         const title   = parts[1].replace(/"/g, '').trim();
         const details = parts[2].replace(/"/g, '').trim();
         if (!ts || !title || !details) return null;
-        let d = { ts, title, details, super: 'misc', sub: 'misc', skill: null, monster: null, item: null };
+        let d = { ts, title, details, rawText: `${title} ${details}`, super: 'misc', sub: 'misc', skill: null, monster: null, item: null };
 
         // ── Clues ──
         if (details.toLowerCase().includes('treasure trail')) {
@@ -1630,6 +1667,8 @@ function processData(csvText) {
                     /While (?:diving|exploring|plundering) (?:in the |the |a )?([^,.]+)(?:,|$)/i,
                     /While looting a ([^,.]+)(?:,|$)/i,
                     /While battling shades in ([^,.]+)(?:,|$)/i,
+                    // Singular kill-only fallback, e.g. "I killed a Glacor and its glacytes."
+                    /(?:^|\s)killed (?:a|an|the)\s+(.+?)(?:\.|,|$)/i,
                     // Kill-count fallback when nothing else matched
                     /(?:^|\s)killed (?:\d+|many|some|a few|several)\s+(.+?)(?:\.|,|$)/i,
                 ];
@@ -1639,6 +1678,8 @@ function processData(csvText) {
                         let name = m[1].trim();
                         name = name.replace(/^(?:a|an|the)\s+/i, '').trim();
                         name = name.replace(/^\d+\s+/, '').trim();
+                        name = name.replace(/\s+and\s+(?:its|their|his|her)\b.*$/i, '').trim();
+                        name = name.replace(/\s+with\b.*$/i, '').trim();
                         name = name.replace(/([^s])s$/i, '$1');  // conservative singularize
                         if (name) monsterName = name.charAt(0).toUpperCase() + name.slice(1);
                         break;
@@ -1668,18 +1709,12 @@ function processData(csvText) {
                     }
                 }
 
-                // Step 4: Kill count extraction — only when an explicit count modifier is present.
-                // We deliberately DO NOT add a default killCount=1 when no modifier is given,
-                // because most "no-modifier" entries are drop logs ("X dropped Y"), and
-                // counting them as +1 kill on top of a paired count-only entry double-counts.
-                const countMatch = details.match(/killed\s+(\d+|many|some|a few|several)\s+/i);
-                if (countMatch) {
-                    const tok = countMatch[1].toLowerCase();
-                    if (/^\d+$/.test(tok))           d.killCount = parseInt(tok, 10);
-                    else if (tok === 'many')         d.killCount = 100;
-                    else if (tok === 'several')      d.killCount = 50;
-                    else                             d.killCount = 25;
-                }
+                // Step 4: Approximate kill count extraction.
+                // This intentionally follows the Google Sheets-style tally:
+                // if the log row mentions the monster, use the first explicit number;
+                // if it says "killed many" with no digits, count it as 100; otherwise 0.
+                const approxKC = extractApproxKillCount(d.rawText, monsterName, !!d.item);
+                if (approxKC > 0) d.killCount = approxKC;
 
                 return d;
             }
@@ -1703,20 +1738,7 @@ function processData(csvText) {
         return d;
     }).filter(Boolean);
 
-    // Dedup pass: when a drop entry and a kill-count entry land at the same timestamp
-    // for the same monster, the count entry double-counts the kill that's implicit in
-    // the drop. Strip the killCount from the drop's twin, leaving the drop intact.
-    const dropKeys = new Set();
-    parsed.forEach(e => {
-        if (e.super === 'combat' && e.monster && e.item) dropKeys.add(`${e.ts}|${e.monster}`);
-    });
-    parsed.forEach(e => {
-        if (e.super === 'combat' && e.monster && typeof e.killCount === 'number' && !e.item) {
-            if (dropKeys.has(`${e.ts}|${e.monster}`)) {
-                delete e.killCount; // paired with a drop — ignore for counting
-            }
-        }
-    });
+    // Killcounts are intentionally not deduped here; extractApproxKillCount() mirrors the row-level Sheets tally.
 
     selBoss   = parsed.find(e => e.sub === 'boss')?.monster   || null;
     selSlayer = parsed.find(e => e.sub === 'slayer')?.monster || null;
@@ -1844,7 +1866,7 @@ function renderCluePanel(allEntries) {
     const completionsRow = buttonRow(selClueType, 'selectClueType',
         type => allEntries.filter(e => e.sub === type).length);
     const logs = allEntries.filter(e => e.sub === selClueType);
-    leftCount.textContent = logs.length.toLocaleString();
+    if (leftCount) leftCount.textContent = logs.length.toLocaleString();
     leftEl.innerHTML = completionsRow +
         (logs.length ? logs.map(e => `
             <div class="loot-row">
@@ -1862,7 +1884,7 @@ function renderCluePanel(allEntries) {
         // Deepest drill: history for one item within the selected clue type
         const history = lootEntries.filter(e => e.sub === selClueLootType && e.item === selClueLootItem)
                                    .sort((a,b) => new Date(b.ts) - new Date(a.ts));
-        rightCount.textContent = history.length.toLocaleString();
+        if (rightCount) rightCount.textContent = history.length.toLocaleString();
         rightEl.innerHTML = lootRow +
             `<div class="dual-entry dual-drill-header">
                 <span class="dual-drill-back" onclick="clueLootBack()">← Back to ${selClueLootType.charAt(0).toUpperCase()+selClueLootType.slice(1)} loot</span>
@@ -1883,7 +1905,7 @@ function renderCluePanel(allEntries) {
             lootMap[e.item].count++;
         });
         const grouped = Object.values(lootMap).sort((a,b) => new Date(b.lastTs) - new Date(a.lastTs));
-        rightCount.textContent = grouped.length.toLocaleString();
+        if (rightCount) rightCount.textContent = grouped.length.toLocaleString();
         rightEl.innerHTML = lootRow +
             (grouped.length ? grouped.map(g => `
                 <div class="loot-row ${g.count > 1 ? 'clickable' : ''}" ${g.count > 1 ? `onclick="selectClueLootItem('${g.name.replace(/'/g,"\'")}')"` : ''}>
@@ -2025,10 +2047,11 @@ function renderCombatSide(type, entries) {
     if (kcDrill) {
         const sorted = killEntries.slice().sort((a, b) => new Date(b.ts) - new Date(a.ts));
         lootListEl.innerHTML = `
+            <div class="kc-disclaimer">Approximate values pulled from loaded log entries...</div>
             <div class="loot-row clickable back-btn" onclick="toggleKillcountDrill('${type}')">← Back to ${currentMonster}</div>
             ${sorted.length ? sorted.map(h => `
                 <div class="loot-row">
-                    <span class="loot-name">${h.details}</span>
+                    <span class="loot-name"><span class="loot-count">${h.killCount.toLocaleString()}x</span>${h.details}</span>
                     <span class="loot-ts">${h.ts}</span>
                 </div>`).join('') : '<div style="color:var(--color-text-light); text-align:center; padding:20px 0;">No kill-count entries recorded</div>'}`;
         return;
@@ -2090,26 +2113,30 @@ function getEffectiveSkillSet() {
     return selectedSkills.size === 0 ? new Set(SKILLS) : new Set(selectedSkills);
 }
 
-function buildSkillPicker() {
-    const groupedList = document.getElementById('skill-grouped-view');
-    groupedList.innerHTML = Object.entries(SKILL_GROUPS).map(([groupName, skills]) => {
-        const groupActive = isGroupFullySelected(groupName);
-        return `
-        <div class="skill-group-block">
-            <div class="skill-group-label ${groupActive ? 'active' : ''}" data-group="${groupName}"
-                 onclick="toggleSkillGroup('${groupName}')">
-                <span class="skill-group-label-arrow">▶</span>${groupName}
-            </div>
-            <div class="skill-group-pills">
-                ${skills.filter(s => SKILLS.includes(s)).map(s => {
-                    const active = selectedSkills.size > 0 && selectedSkills.has(s);
-                    return `<button class="sk-btn ${active ? 'active' : ''}" onclick="toggleSkill('${s}')">${s}</button>`;
-                }).join('')}
-            </div>
-        </div>`;
-    }).join('');
+function getSkillGroupName(skill) {
+    return Object.entries(SKILL_GROUPS).find(([, skills]) => skills.includes(skill))?.[0] || '';
+}
 
-    document.getElementById('skill-btn-all').classList.toggle('active', selectedSkills.size === 0);
+function buildSkillPicker() {
+    const top = document.querySelector('.skill-picker-top');
+    const groupedList = document.getElementById('skill-grouped-view');
+    top.innerHTML = `
+        <button class="skill-all-btn ${selectedSkills.size === 0 ? 'active' : ''}" id="skill-btn-all" onclick="clearSkillSelection()">All Skills</button>
+        ${Object.entries(SKILL_GROUPS).map(([groupName, skills]) => {
+            const active = isGroupFullySelected(groupName);
+            return `<div class="b-pill skill-group-pill ${active ? 'active' : ''}" data-group="${groupName}" onclick="toggleSkillGroup('${groupName}')">
+                ${groupName}<span class="b-pill-count">${skills.length}</span>
+            </div>`;
+        }).join('')}`;
+
+    groupedList.innerHTML = `<div class="skill-skills-row">
+        ${Object.entries(SKILL_GROUPS).flatMap(([groupName, skills]) =>
+            skills.filter(s => SKILLS.includes(s)).map(s => {
+                const active = selectedSkills.size === 0 || selectedSkills.has(s);
+                return `<button class="sk-btn ${active ? 'active' : ''}" data-group="${groupName}" title="${groupName}" onclick="toggleSkill('${s}')">${s}</button>`;
+            })
+        ).join('')}
+    </div>`;
 }
 
 function toggleSkill(skill) {
@@ -2123,11 +2150,9 @@ function toggleSkill(skill) {
 function toggleSkillGroup(groupName) {
     const groupSkills = (SKILL_GROUPS[groupName] || []).filter(s => SKILLS.includes(s));
     if (isGroupFullySelected(groupName)) {
-        // Already fully selected → deselect them all
-        groupSkills.forEach(s => selectedSkills.delete(s));
+        selectedSkills.clear(); // clicking the active group returns to All Skills
     } else {
-        // Add all group skills (without clearing other selections)
-        groupSkills.forEach(s => selectedSkills.add(s));
+        selectedSkills = new Set(groupSkills); // group behaves like a clean filter, not an additive toggle
     }
     buildSkillPicker();
     if (xpChart) { xpChart.destroy(); xpChart = null; }
@@ -2139,6 +2164,14 @@ function clearSkillSelection() {
     buildSkillPicker();
     if (xpChart) { xpChart.destroy(); xpChart = null; }
     render();
+}
+
+function setGroupChartMode(mode) {
+    groupChartMode = mode === 'bars' ? 'bars' : 'stacked';
+    document.getElementById('cmode-stacked')?.classList.toggle('active', groupChartMode === 'stacked');
+    document.getElementById('cmode-bars')?.classList.toggle('active', groupChartMode === 'bars');
+    if (xpChart) { xpChart.destroy(); xpChart = null; }
+    updateXpChart();
 }
 
 // Backward-compat shim — anything that still calls setSkillFilter routes through clear/toggle
@@ -2181,7 +2214,7 @@ function parseTs(tsStr) {
 
 // Returns all XP milestone entries for a skill, sorted oldest-first
 function getXpEntriesForSkill(skill, allXpEntries) {
-    return allXpEntries.filter(e => e.skill === skill);
+    return allXpEntries.filter(e => e.skill === skill).sort((a, b) => a.date - b.date);
 }
 
 // Returns pet entries for a skill
@@ -2326,7 +2359,7 @@ function getXpChartData() {
             tension: 0.35,
             parsing: { xAxisKey: 'x', yAxisKey: 'y' }
         };
-        return { datasets: [lineDataset], title: 'XP Progress — All Skills (Total)', hasPets: false, skillList: [] };
+        return { datasets: [lineDataset], title: 'XP Progress — All Skills (Total)', hasPets: false, skillList: [], chartKind: 'line' };
     }
 
     // Single-skill selection: render with the canonical skill color
@@ -2335,7 +2368,39 @@ function getXpChartData() {
         const { lineDataset, petDataset, hasPets } = buildDatasetForSkill(onlySkill, allXpEntries, skillColor, 0);
         const datasets = [lineDataset];
         if (petDataset) datasets.push(petDataset);
-        return { datasets, title: `XP Progress — ${onlySkill}`, hasPets, skillList: [onlySkill] };
+        return { datasets, title: `XP Progress — ${onlySkill}`, hasPets, skillList: [onlySkill], chartKind: 'line' };
+    }
+
+    // Multi-skill snapshot mode: latest known XP per selected skill as a bar chart.
+    if (groupChartMode === 'bars') {
+        const activeOrdered = SKILLS.filter(s => selectedSkills.has(s));
+        const barPoints = activeOrdered.map((skill, idx) => {
+            const skillEntries = getXpEntriesForSkill(skill, allXpEntries);
+            const latest = skillEntries[skillEntries.length - 1];
+            if (!latest) return null;
+            return {
+                x: skill,
+                y: latest.xp,
+                label: `${skill}: ${latest.xp.toLocaleString()} XP`,
+                backgroundColor: SKILL_LINE_COLORS[idx % SKILL_LINE_COLORS.length],
+                borderColor: SKILL_LINE_COLORS[idx % SKILL_LINE_COLORS.length]
+            };
+        }).filter(Boolean);
+        return {
+            datasets: [{
+                label: 'Latest XP',
+                data: barPoints,
+                type: 'bar',
+                backgroundColor: barPoints.map(p => p.backgroundColor),
+                borderColor: barPoints.map(p => p.borderColor),
+                borderWidth: 1,
+                parsing: { xAxisKey: 'x', yAxisKey: 'y' }
+            }],
+            title: 'XP Snapshot — Selected Skills',
+            hasPets: false,
+            skillList: activeOrdered,
+            chartKind: 'bar'
+        };
     }
 
     // Multi-skill selection: one line per skill, colored from the multi-line palette.
@@ -2360,7 +2425,7 @@ function getXpChartData() {
             break;
         }
     }
-    return { datasets, title, hasPets, skillList: activeOrdered };
+    return { datasets, title, hasPets, skillList: activeOrdered, chartKind: 'line' };
 }
 
 function formatXpAxis(val) {
@@ -2397,14 +2462,23 @@ function buildChartLegend(datasets, hasPets) {
 }
 
 function updateXpChart() {
+    if (typeof Chart === 'undefined') {
+        const wrap = document.getElementById('xp-chart-canvas-wrap');
+        if (wrap) wrap.innerHTML = '<div class="xp-no-data">XP graph could not load because Chart.js is unavailable.</div>';
+        return;
+    }
     const isDark = document.body.classList.contains('dark-mode');
     const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--color-border').trim();
     const textColor = getComputedStyle(document.documentElement).getPropertyValue('--color-text-dim').trim();
 
-    const { datasets, title, hasPets, skillList } = getXpChartData();
+    const { datasets, title, hasPets, skillList, chartKind = 'line' } = getXpChartData();
 
     const wrap = document.getElementById('xp-chart-canvas-wrap');
     document.getElementById('xp-chart-title').textContent = title;
+    const modeBtns = document.getElementById('chart-mode-btns');
+    if (modeBtns) modeBtns.classList.toggle('visible', selectedSkills.size > 1);
+    document.getElementById('cmode-stacked')?.classList.toggle('active', groupChartMode === 'stacked');
+    document.getElementById('cmode-bars')?.classList.toggle('active', groupChartMode === 'bars');
 
     const hasData = datasets.some(d => d.data && d.data.length > 0);
     if (!hasData) {
@@ -2426,7 +2500,7 @@ function updateXpChart() {
     if (xpChart) { xpChart.destroy(); xpChart = null; }
 
     xpChart = new Chart(ctx, {
-        type: 'line',
+        type: chartKind === 'bar' ? 'bar' : 'line',
         data: { datasets },
         options: {
             responsive: true,
@@ -2448,7 +2522,7 @@ function updateXpChart() {
                     callbacks: {
                         title: (items) => {
                             const d = items[0].raw;
-                            return formatDateLabel(d.x);
+                            return chartKind === 'bar' ? d.x : formatDateLabel(d.x);
                         },
                         label: (item) => {
                             const d = item.raw;
@@ -2476,7 +2550,12 @@ function updateXpChart() {
                 }
             },
             scales: {
-                x: {
+                x: chartKind === 'bar' ? {
+                    type: 'category',
+                    grid: { color: borderColor },
+                    ticks: { color: textColor, font: { size: 10 }, maxRotation: 45, minRotation: 0 },
+                    border: { color: borderColor }
+                } : {
                     type: 'time',
                     time: { unit: 'month', tooltipFormat: 'MMM yyyy', displayFormats: { month: 'MMM yy', year: 'yyyy' } },
                     grid: { color: borderColor },
@@ -2500,6 +2579,8 @@ function updateXpChart() {
 function resetXpChart() {
     if (xpChart) xpChart.resetZoom();
 }
+
+window.addEventListener('resize', () => renderHeatmap(activeFilter));
 
 // Init skill picker
 buildSkillPicker();
