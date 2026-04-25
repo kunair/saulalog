@@ -107,6 +107,7 @@ body.dark-mode .b-pill.pill-combat.active { color: #121212; }
 .loot-row.clickable:hover { background: var(--color-bg-sub); padding-left: 10px; }
 .loot-row.clickable:active { transform: scale(0.99); }
 .loot-row.back-btn { font-weight: bold; color: var(--color-combat); margin-bottom: 8px; border-bottom: 2px solid var(--color-border); }
+
 .kc-disclaimer {
     display: flex; align-items: flex-start; gap: 7px;
     margin: 0 0 10px; padding: 9px 10px;
@@ -1280,7 +1281,7 @@ const BOSS_ALIASES = [
     // Boss naming aliases from log wording.
     { match: /\bShadow Realm\b/i, canonical: 'Rise of the Six' },
     { match: /\bAvaryss\b/i, canonical: 'Twin Furies' },
-    { match: /\bSeiryu\b/i, canonical: 'Seiryu the Azure Serpent' },
+    { match: /\bSeiryus?\b/i, canonical: 'Seiryu the Azure Serpent' },
     // Add more grouped-boss aliases here as they come up.
 ];
 
@@ -1712,7 +1713,8 @@ function processData(csvText) {
                         name = name.replace(/\s+and\s+many\b.*$/i, '').trim();
                         name = name.replace(/\s+and\b.*$/i, '').trim();
                         name = name.replace(/\s+with\b.*$/i, '').trim();
-                        if (!/(?:ss|us)$/i.test(name)) name = name.replace(/([^s])s$/i, '$1');  // conservative singularize; keep -us names like Capsarius
+                        // Conservative singularize for plural captures; keep true singular -us names like Capsarius.
+                        if (!/^(Capsarius)$/i.test(name)) name = name.replace(/([^s])s$/i, '$1');
                         if (name) monsterName = name.charAt(0).toUpperCase() + name.slice(1);
                         break;
                     }
@@ -1782,8 +1784,10 @@ function processData(csvText) {
 
     // Killcounts are intentionally not deduped here; extractApproxKillCount() mirrors the row-level Sheets tally.
 
-    selBoss   = parsed.find(e => e.sub === 'boss')?.monster   || null;
-    selSlayer = parsed.find(e => e.sub === 'slayer')?.monster || null;
+    // Default combat selections should start on monsters that actually have loot/drop entries,
+    // so the prominent Boss/Slayer panes stay loot-focused rather than jumping to killcount-only logs.
+    selBoss   = parsed.find(e => e.sub === 'boss'   && e.item)?.monster || parsed.find(e => e.sub === 'boss')?.monster   || null;
+    selSlayer = parsed.find(e => e.sub === 'slayer' && e.item)?.monster || parsed.find(e => e.sub === 'slayer')?.monster || null;
     render();
 }
 
@@ -2042,17 +2046,21 @@ function loadMore() {
 }
 
 function renderCombatSide(type, entries) {
-    // Most-recent-kill ordering AND aggregated kill counts per monster
-    const lastSeen = {};
+    // Prominent monster pills are based on most-recent LOOT/DROP activity only.
+    // Killcount-only rows still contribute to badges/drilldowns, but they should not
+    // push a monster into the recent-5 loot shortcut row.
+    const lootLastSeen = {};
     const killTotals = {};
     entries.forEach(e => {
         const t = new Date(e.ts).getTime();
-        if (!lastSeen[e.monster] || t > lastSeen[e.monster]) lastSeen[e.monster] = t;
+        if (e.item && (!lootLastSeen[e.monster] || t > lootLastSeen[e.monster])) {
+            lootLastSeen[e.monster] = t;
+        }
         if (typeof e.killCount === 'number' && e.killCount > 0) {
             killTotals[e.monster] = (killTotals[e.monster] || 0) + e.killCount;
         }
     });
-    const names = Object.keys(lastSeen).sort((a, b) => lastSeen[b] - lastSeen[a]);
+    const names = Object.keys(lootLastSeen).sort((a, b) => lootLastSeen[b] - lootLastSeen[a]);
     const top5 = names.slice(0, 5);
     const currentMonster = (type === 'boss') ? selBoss : selSlayer;
     const currentDrill   = (type === 'boss') ? selBossLoot : selSlayerLoot;
@@ -2108,17 +2116,12 @@ function renderCombatSide(type, entries) {
         return;
     }
 
-    // Default view: grouped loot, plus a killcount entry button so dropdown-only monsters can open their kill log.
-    const selectedKC = killTotals[currentMonster] || 0;
-    const kcSummaryHtml = selectedKC > 0 ? `
-        <div class="loot-row clickable kc-summary-row" onclick="toggleKillcountDrill('${type}')" title="View killcount entries">
-            <span class="loot-name"><span class="loot-count">${selectedKC.toLocaleString()}x</span>Approx. killcount</span>
-            <span class="loot-ts">View Entries</span>
-        </div>` : '';
+    // Default view: grouped loot only. Killcount summaries are intentionally excluded
+    // from this pane so the loot area remains reserved for loot and drop history.
 
     const drops = monsterEntries.filter(e => e.item);
     if (!drops.length) {
-        lootListEl.innerHTML = kcSummaryHtml + '<div style="color:var(--color-text-light); text-align:center; padding-top:40px;">No drops recorded</div>';
+        lootListEl.innerHTML = '<div style="color:var(--color-text-light); text-align:center; padding-top:40px;">No drops recorded</div>';
         return;
     }
     const grouped = drops.reduce((acc, curr) => {
