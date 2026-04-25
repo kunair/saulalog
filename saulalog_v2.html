@@ -319,6 +319,17 @@ body.dark-mode .sort-btn.active { color: #121212; }
 .dual-entry-detail { color: var(--color-text-dim); font-size: 11px; margin-top: 2px; line-height: 1.4; }
 .dual-entry-ts { color: var(--color-text-light); font-family: 'Courier New', monospace; font-size: 10px; margin-top: 3px; }
 .dual-empty { text-align: center; padding: 40px 0; color: var(--color-text-light); font-size: 12px; }
+.skill-milestone-entry { position: relative; padding-left: 12px; }
+.skill-milestone-entry::before {
+    content: ""; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px;
+    border-radius: 3px; background: var(--color-skill);
+}
+.skill-milestone-badge {
+    display: inline-flex; align-items: center; width: fit-content;
+    margin-bottom: 4px; padding: 2px 8px; border-radius: 10px;
+    background: var(--color-bg-sub); color: var(--color-skill);
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.9px;
+}
 
 /* Clue type summary rows */
 .clue-type-row {
@@ -544,6 +555,24 @@ body.dark-mode .clue-loot-count { color: #121212; }
           <span>Notable Loot</span>
         </div>
         <div class="dual-col-body" id="clue-loot-list"></div>
+      </div>
+    </div>
+
+    <!-- Skills dual-column panel -->
+    <div class="dual-panel hidden" id="skill-view">
+      <div class="dual-col">
+        <div class="dual-col-header">
+          <span>Big Milestones</span>
+          <span class="col-count" id="skill-milestone-count"></span>
+        </div>
+        <div class="dual-col-body" id="skill-milestone-list"></div>
+      </div>
+      <div class="dual-col">
+        <div class="dual-col-header">
+          <span>Skill Log Entries</span>
+          <span class="col-count" id="skill-entry-count"></span>
+        </div>
+        <div class="dual-col-body" id="skill-entry-list"></div>
       </div>
     </div>
 
@@ -1623,11 +1652,17 @@ function processData(csvText) {
             return d;
         }
 
-        // ── Skills ──
-        // Master Max cape → skills/total (before other skill checks)
-        if (/Master Max cape|master quest cape/i.test(details)) {
+        // ── Skills / Quest one-offs ──
+        // Master Quest cape belongs with quest milestones, while Master Max cape is a skill milestone.
+        if (/master quest cape/i.test(details) || /master quest cape/i.test(title)) {
+            d.super = 'quests';
+            d.sub = 'milestone';
+            return d;
+        }
+        if (/Master Max cape/i.test(details) || /Master Max cape/i.test(title)) {
             d.super = 'skills';
             d.sub = 'total';
+            d.skill = null;
             return d;
         }
         if (/experience points in the|I levelled|level 99|While skilling|achieved at least level|total level of/i.test(details)) {
@@ -1868,6 +1903,101 @@ function renderListHeader(filtered) {
         </div>`;
 }
 
+function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>'"]/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    }[ch]));
+}
+
+function getSkillSelectionLabel() {
+    if (selectedSkills.size === 0) return 'All Skills';
+    const group = Object.keys(SKILL_GROUPS).find(g => isGroupFullySelected(g));
+    if (group) return group;
+    if (selectedSkills.size === 1) return [...selectedSkills][0];
+    return `${selectedSkills.size} selected skills`;
+}
+
+function skillEntryMatchesSelection(e) {
+    if (selectedSkills.size === 0) return true;
+    return !!e.skill && selectedSkills.has(e.skill);
+}
+
+function isSkillBigMilestone(e) {
+    const text = `${e.title || ''} ${e.details || ''}`;
+    if (e.sub === 'pet') return true;
+    if (/200\s*,?\s*000\s*,?\s*000\s+experience points/i.test(text)) return true;
+    if (/Master Max cape/i.test(text)) return selectedSkills.size === 0;
+    return false;
+}
+
+function getSkillMilestoneType(e) {
+    const text = `${e.title || ''} ${e.details || ''}`;
+    if (/Master Max cape/i.test(text)) return 'Master Max';
+    if (e.sub === 'pet') return 'Skilling Pet';
+    if (/200\s*,?\s*000\s*,?\s*000\s+experience points/i.test(text)) return '200M XP';
+    return 'Milestone';
+}
+
+function renderSkillPanel(entries) {
+    const selectionLabel = getSkillSelectionLabel();
+    const skillEntries = entries.filter(e => {
+        if (!skillEntryMatchesSelection(e)) return false;
+        if (!skillSubs[e.sub]) return false;
+        return true;
+    });
+
+    const milestones = skillEntries.filter(isSkillBigMilestone);
+    const regular = skillEntries.filter(e => !isSkillBigMilestone(e));
+
+    const sortEntries = arr => arr.slice().sort((a, b) => sortOrder === 'oldest'
+        ? new Date(a.ts) - new Date(b.ts)
+        : new Date(b.ts) - new Date(a.ts)
+    );
+
+    const milestoneEl = document.getElementById('skill-milestone-list');
+    const entryEl = document.getElementById('skill-entry-list');
+    const milestoneCount = document.getElementById('skill-milestone-count');
+    const entryCount = document.getElementById('skill-entry-count');
+
+    if (milestoneCount) milestoneCount.textContent = milestones.length.toLocaleString();
+    if (entryCount) entryCount.textContent = regular.length.toLocaleString();
+
+    const subFilterRow = `
+        <div class="bubble-wrap clue-btn-row">
+            ${[
+                { id: 'xp', label: 'XP Milestones' }, { id: 'level', label: 'Level Ups' },
+                { id: 'pet', label: 'Skilling Pets' }, { id: 'total', label: 'Total Level' }
+            ].map(s => `
+                <div class="b-pill pill-skill ${skillSubs[s.id] ? 'active' : ''}"
+                     onclick="toggleSubFilter('skills','${s.id}')">${s.label}</div>`).join('')}
+        </div>`;
+
+    const sortRow = `
+        <div class="dual-entry dual-drill-header">
+            <span style="color:var(--color-text-dim);font-size:11px;font-weight:700;">${escapeHtml(selectionLabel)}</span>
+            <span>
+                <button class="sort-btn ${sortOrder === 'newest' ? 'active' : ''}" onclick="setSortOrder('newest')">Newest</button>
+                <button class="sort-btn ${sortOrder === 'oldest' ? 'active' : ''}" onclick="setSortOrder('oldest')">Oldest</button>
+            </span>
+        </div>`;
+
+    const makeEntry = (e, milestone=false) => `
+        <div class="dual-entry ${milestone ? 'skill-milestone-entry' : ''}">
+            ${milestone ? `<div class="skill-milestone-badge">${escapeHtml(getSkillMilestoneType(e))}</div>` : ''}
+            <div class="dual-entry-title">${escapeHtml(e.title)}</div>
+            <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
+            <div class="dual-entry-ts">${escapeHtml(e.ts)}</div>
+        </div>`;
+
+    milestoneEl.innerHTML = sortRow + (milestones.length
+        ? sortEntries(milestones).map(e => makeEntry(e, true)).join('')
+        : `<div class="dual-empty">No big milestones found for ${escapeHtml(selectionLabel)}</div>`);
+
+    entryEl.innerHTML = subFilterRow + sortRow + (regular.length
+        ? sortEntries(regular).map(e => makeEntry(e, false)).join('')
+        : `<div class="dual-empty">No regular skill entries found for ${escapeHtml(selectionLabel)}</div>`);
+}
+
 function renderQuestPanel(entries) {
     // Left: only title starts with "Quest complete:"
     const completions = entries.filter(e => /^quest complete:/i.test(e.title));
@@ -1968,13 +2098,15 @@ function render() {
     const combatView = document.getElementById('combat-view');
     const questView  = document.getElementById('quest-view');
     const clueView   = document.getElementById('clue-view');
+    const skillView  = document.getElementById('skill-view');
 
     document.getElementById('skill-controls').classList.toggle('hidden', activeFilter !== 'skills');
     combatView.classList.toggle('hidden', activeFilter !== 'combat');
     questView.classList.toggle('hidden',  activeFilter !== 'quests');
     clueView.classList.toggle('hidden',   activeFilter !== 'clues');
+    if (skillView) skillView.classList.toggle('hidden', activeFilter !== 'skills');
 
-    const showList = !['combat','quests','clues'].includes(activeFilter);
+    const showList = !['combat','quests','clues','skills'].includes(activeFilter);
     list.classList.toggle('hidden', !showList);
     if (headerWrap) headerWrap.classList.toggle('hidden', !showList);
 
@@ -2002,7 +2134,9 @@ function render() {
         });
     }
 
-    if (activeFilter === 'combat') {
+    if (activeFilter === 'skills') {
+        renderSkillPanel(filtered);
+    } else if (activeFilter === 'combat') {
         renderCombatSide('boss',   filtered.filter(e => e.sub === 'boss'));
         renderCombatSide('slayer', filtered.filter(e => e.sub === 'slayer'));
     } else if (activeFilter === 'quests') {
