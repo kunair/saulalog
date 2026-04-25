@@ -368,6 +368,15 @@ body.dark-mode .sort-btn.active { color: #121212; }
 body.dark-mode .b-pill.active .b-pill-count {
     background: rgba(0,0,0,0.2); color: #121212;
 }
+
+.skill-xp-panel { align-items: stretch; }
+.skill-history-col .xp-chart-wrap { margin-top: 0; border: none; padding: 0; background: transparent; }
+.skill-history-col .xp-chart-canvas-wrap { height: 360px; }
+.skill-entry-toolbar { margin: -4px -2px 10px; border: 0; border-bottom: 1px solid var(--color-border); border-radius: 0; padding: 0 0 10px; }
+.skill-entry-toolbar .list-header-pills { flex: 1; }
+@media (max-width: 720px) {
+    .skill-history-col .xp-chart-canvas-wrap { height: 280px; }
+}
 .b-pill-count.kc-clickable { cursor: pointer; transition: transform 0.1s, filter 0.1s; }
 .b-pill-count.kc-clickable:hover { filter: brightness(1.15); transform: scale(1.08); }
 /* Drill navigation header inside a panel */
@@ -453,22 +462,6 @@ body.dark-mode .clue-loot-count { color: #121212; }
 </div>
 <div class="skill-grouped-list" id="skill-grouped-view"></div>
 </div>
-<div class="xp-chart-wrap" id="xp-chart-section">
-<div class="xp-chart-header">
-<span class="xp-chart-title" id="xp-chart-title">XP Progress</span>
-<div class="chart-mode-btns" id="chart-mode-btns">
-<button class="cmode-btn active" id="cmode-stacked" onclick="setGroupChartMode('stacked')">Stacked</button>
-<button class="cmode-btn" id="cmode-bars" onclick="setGroupChartMode('bars')">Snapshot</button>
-</div>
-<span class="xp-chart-hint" id="xp-chart-hint">Scroll to zoom · Drag to pan</span>
-<button class="xp-chart-reset" id="xp-chart-reset" onclick="resetXpChart()">Reset View</button>
-</div>
-<div class="xp-chart-legend" id="xp-chart-legend"></div>
-<div class="xp-chart-canvas-wrap" id="xp-chart-canvas-wrap">
-<canvas id="xp-chart"></canvas>
-</div>
-<div class="xp-pet-note" id="xp-pet-note" style="display:none;">⭐ = Skilling pet obtained</div>
-</div>
 </div>
 <div id="main-content" style="width: 100%;">
 <div class="combat-grid" id="combat-view">
@@ -550,20 +543,35 @@ body.dark-mode .clue-loot-count { color: #121212; }
 </div>
 </div>
 <!-- Skills dual-column panel -->
-<div class="dual-panel hidden" id="skill-view">
-<div class="dual-panel-toolbar" id="skill-panel-toolbar"></div>
-<div class="dual-col">
+<div class="dual-panel hidden skill-xp-panel" id="skill-view">
+<div class="dual-col skill-history-col">
 <div class="dual-col-header">
-<span>Big Milestones</span>
-<span class="col-count" id="skill-milestone-count"></span>
+<span>XP History</span>
+<span class="col-count" id="skill-history-label"></span>
 </div>
-<div class="dual-col-body" id="skill-milestone-list"></div>
+<div class="xp-chart-wrap" id="xp-chart-section">
+<div class="xp-chart-header">
+<span class="xp-chart-title" id="xp-chart-title">XP Progress</span>
+<div class="chart-mode-btns" id="chart-mode-btns">
+<button class="cmode-btn active" id="cmode-stacked" onclick="setGroupChartMode('stacked')">Stacked</button>
+<button class="cmode-btn" id="cmode-bars" onclick="setGroupChartMode('bars')">Snapshot</button>
 </div>
-<div class="dual-col">
+<span class="xp-chart-hint" id="xp-chart-hint">Scroll to zoom · Drag to pan</span>
+<button class="xp-chart-reset" id="xp-chart-reset" onclick="resetXpChart()">Reset View</button>
+</div>
+<div class="xp-chart-legend" id="xp-chart-legend"></div>
+<div class="xp-chart-canvas-wrap" id="xp-chart-canvas-wrap">
+<canvas id="xp-chart"></canvas>
+</div>
+<div class="xp-pet-note" id="xp-pet-note" style="display:none;">⭐ = Skilling pet obtained</div>
+</div>
+</div>
+<div class="dual-col skill-entries-col">
 <div class="dual-col-header">
-<span>Skill Log Entries</span>
+<span>Skill Entries</span>
 <span class="col-count" id="skill-entry-count"></span>
 </div>
+<div class="list-pane-header skill-entry-toolbar" id="skill-entry-toolbar"></div>
 <div class="dual-col-body" id="skill-entry-list"></div>
 </div>
 </div>
@@ -1259,28 +1267,21 @@ function getSkillMilestoneType(e) {
 
 function renderSkillPanel(entries) {
     const selectionLabel = getSkillSelectionLabel();
-    const skillEntries = entries.filter(e => {
-        if (!skillEntryMatchesSelection(e)) return false;
-        if (!skillEntryMatchesSubFilters(e)) return false;
-        return true;
-    });
-
-    const milestones = skillEntries.filter(isSkillBigMilestone);
-    const regular = skillEntries.filter(e => !isSkillBigMilestone(e));
+    const selectedBase = entries.filter(skillEntryMatchesSelection);
+    const skillEntries = selectedBase.filter(skillEntryMatchesSubFilters);
 
     const sortEntries = arr => arr.slice().sort((a, b) => sortOrder === 'oldest'
         ? new Date(a.ts) - new Date(b.ts)
         : new Date(b.ts) - new Date(a.ts)
     );
 
-    const toolbarEl = document.getElementById('skill-panel-toolbar');
-    const milestoneEl = document.getElementById('skill-milestone-list');
+    const toolbarEl = document.getElementById('skill-entry-toolbar');
     const entryEl = document.getElementById('skill-entry-list');
-    const milestoneCount = document.getElementById('skill-milestone-count');
     const entryCount = document.getElementById('skill-entry-count');
+    const historyLabel = document.getElementById('skill-history-label');
 
-    if (milestoneCount) milestoneCount.textContent = milestones.length.toLocaleString();
-    if (entryCount) entryCount.textContent = regular.length.toLocaleString();
+    if (entryCount) entryCount.textContent = skillEntries.length.toLocaleString();
+    if (historyLabel) historyLabel.textContent = selectionLabel;
 
     if (toolbarEl) {
         toolbarEl.innerHTML = `
@@ -1288,7 +1289,7 @@ function renderSkillPanel(entries) {
                 ${getSkillFilterOptions().map(s => `
                     <div class="b-pill pill-skill ${skillSubs[s.id] ? 'active' : ''}"
                          onclick="toggleSubFilter('skills','${s.id}')">
-                        ${s.label}<span class="b-pill-count">${getSkillSubFilterCount(entries.filter(skillEntryMatchesSelection), s.id).toLocaleString()}</span>
+                        ${s.label}<span class="b-pill-count">${getSkillSubFilterCount(selectedBase, s.id).toLocaleString()}</span>
                     </div>`).join('')}
             </div>
             <div class="list-header-right">
@@ -1296,25 +1297,19 @@ function renderSkillPanel(entries) {
                 <span class="sort-label">Sort</span>
                 <button class="sort-btn ${sortOrder === 'newest' ? 'active' : ''}" onclick="setSortOrder('newest')">Newest</button>
                 <button class="sort-btn ${sortOrder === 'oldest' ? 'active' : ''}" onclick="setSortOrder('oldest')">Oldest</button>
-                <span class="entry-count">${skillEntries.length.toLocaleString()} entries</span>
             </div>`;
     }
 
-    const makeEntry = (e, milestone=false) => `
-        <div class="dual-entry ${milestone ? 'skill-milestone-entry' : ''}">
-            ${milestone ? `<div class="skill-milestone-badge">${escapeHtml(getSkillMilestoneType(e))}</div>` : ''}
+    const makeEntry = e => `
+        <div class="dual-entry">
             <div class="dual-entry-title">${escapeHtml(e.title)}</div>
             <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
             <div class="dual-entry-ts">${escapeHtml(e.ts)}</div>
         </div>`;
 
-    milestoneEl.innerHTML = milestones.length
-        ? sortEntries(milestones).map(e => makeEntry(e, true)).join('')
-        : `<div class="dual-empty">No big milestones found for ${escapeHtml(selectionLabel)}</div>`;
-
-    entryEl.innerHTML = regular.length
-        ? sortEntries(regular).map(e => makeEntry(e, false)).join('')
-        : `<div class="dual-empty">No regular skill entries found for ${escapeHtml(selectionLabel)}</div>`;
+    entryEl.innerHTML = skillEntries.length
+        ? sortEntries(skillEntries).map(makeEntry).join('')
+        : `<div class="dual-empty">No skill entries found for ${escapeHtml(selectionLabel)}</div>`;
 }
 
 function renderQuestPanel(entries) {
@@ -1432,9 +1427,9 @@ function render() {
     combatView.classList.toggle('hidden', activeFilter !== 'combat');
     questView.classList.toggle('hidden',  activeFilter !== 'quests');
     clueView.classList.toggle('hidden',   activeFilter !== 'clues');
-    if (skillView) skillView.classList.add('hidden');
+    if (skillView) skillView.classList.toggle('hidden', activeFilter !== 'skills');
 
-    const showList = !['combat','quests','clues'].includes(activeFilter);
+    const showList = !['combat','quests','clues','skills'].includes(activeFilter);
     list.classList.toggle('hidden', !showList);
     if (headerWrap) headerWrap.classList.toggle('hidden', !showList);
 
@@ -1470,6 +1465,8 @@ function render() {
     } else if (activeFilter === 'clues') {
         const clueFiltered = filtered.filter(e => clueSubs[e.sub]);
         renderCluePanel(clueFiltered);
+    } else if (activeFilter === 'skills') {
+        renderSkillPanel(filtered);
     } else {
         let display = [...listFiltered];
         if (sortOrder === 'oldest') display.sort((a, b) => new Date(a.ts) - new Date(b.ts));
