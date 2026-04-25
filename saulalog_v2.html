@@ -108,6 +108,7 @@ body.dark-mode .b-pill.pill-combat.active { color: #121212; }
 .loot-row.clickable:active { transform: scale(0.99); }
 .loot-row.back-btn { font-weight: bold; color: var(--color-combat); margin-bottom: 8px; border-bottom: 2px solid var(--color-border); }
 
+
 .loot-name { flex: 1; padding-right: 15px; display: flex; align-items: center; }
 .loot-count { font-weight: 800; margin-right: 10px; color: var(--color-combat); font-size: 13px; }
 .loot-ts { color: var(--color-text-light); font-family: 'Courier New', Courier, monospace; font-size: 11px; white-space: nowrap; }
@@ -146,8 +147,12 @@ body.dark-mode .skill-all-btn { color: #121212; }
 .xp-pet-note { font-size: 10px; color: var(--color-text-light); margin-top: 4px; display: flex; align-items: center; gap: 4px; }
 
 .skill-flat-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-.skill-grouped-list { display: flex; flex-direction: column; gap: 8px; }
-.skill-group-block { display: flex; flex-direction: column; gap: 4px; }
+.skill-grouped-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; }
+.skill-group-block {
+    display: flex; flex-direction: column; gap: 6px;
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: 8px; padding: 10px 12px;
+}
 .skill-group-label {
     display: inline-flex; align-items: center; gap: 6px;
     font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px;
@@ -175,7 +180,12 @@ body.dark-mode .skill-group-label.active[data-group="Artisan"]   { background: #
 body.dark-mode .skill-group-label.active[data-group="Gathering"] { background: #64b5f622; border-color: #64b5f666; }
 body.dark-mode .skill-group-label.active[data-group="Support"]   { background: #ba68c822; border-color: #ba68c866; }
 .skill-group-label-arrow { font-size: 9px; opacity: 0.5; }
-.skill-group-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+.skill-group-pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.skill-group-pills .sk-btn { text-align: center; padding: 5px 4px; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 720px) {
+    .skill-grouped-list { grid-template-columns: 1fr; }
+    .skill-group-pills  { grid-template-columns: repeat(3, 1fr); }
+}
 
 .sk-btn { padding: 4px 11px; border-radius: 11px; border: 1px solid var(--color-border); font-size: 11px; cursor: pointer; background: var(--color-surface); color: var(--color-text-dim); transition: all 0.1s; font-weight: 600; user-select: none; }
 .sk-btn:hover { border-color: var(--color-skill); color: var(--color-skill); transform: translateY(-1px); }
@@ -244,7 +254,7 @@ body.dark-mode .dp-btn.active { color: #121212; }
 /* ── Activity Heatmap ── */
 .heatmap-wrap {
     width: 100%; background: var(--color-surface); border: 1px solid var(--color-border);
-    border-radius: 10px; padding: 14px 16px 10px; overflow-x: auto;
+    border-radius: 10px; padding: 15px; box-sizing: border-box;
 }
 .heatmap-header { display: flex; align-items: center; margin-bottom: 10px; gap: 8px; }
 .heatmap-title { font-size: 11px; font-weight: 700; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px; flex: 1; }
@@ -336,6 +346,8 @@ body.dark-mode .sort-btn.active { color: #121212; }
 body.dark-mode .b-pill.active .b-pill-count {
     background: rgba(0,0,0,0.2); color: #121212;
 }
+.b-pill-count.kc-clickable { cursor: pointer; transition: transform 0.1s, filter 0.1s; }
+.b-pill-count.kc-clickable:hover { filter: brightness(1.15); transform: scale(1.08); }
 /* Drill navigation header inside a panel */
 .dual-drill-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -402,7 +414,7 @@ body.dark-mode .clue-loot-count { color: #121212; }
   <div id="skill-controls" class="sub-controls skill-sec hidden">
     <div class="skill-picker" id="skill-picker">
       <div class="skill-picker-top">
-        <button class="skill-all-btn active" id="skill-btn-all" onclick="setSkillFilter('all')">All Skills</button>
+        <button class="skill-all-btn active" id="skill-btn-all" onclick="clearSkillSelection()">All Skills</button>
       </div>
       <div id="skill-grouped-view" class="skill-grouped-list"></div>
     </div>
@@ -425,7 +437,8 @@ body.dark-mode .clue-loot-count { color: #121212; }
   </div>
 
 
-  <!-- Activity Heatmap -->
+  <!-- Activity Heatmap (default location; moves into Skills tab when Skills is active) -->
+  <div id="heatmap-default-slot">
   <div class="heatmap-wrap" id="heatmap-wrap">
     <div class="heatmap-header">
       <span class="heatmap-title" id="heatmap-title">Activity Heatmap</span>
@@ -441,6 +454,7 @@ body.dark-mode .clue-loot-count { color: #121212; }
       </div>
     </div>
     <div id="heatmap-svg-wrap"></div>
+  </div>
   </div>
 
   <div id="main-content" style="width: 100%;">
@@ -1244,9 +1258,20 @@ const BOSS_LIST = [
     "Legio Primus", "Legio Secundus", "Legio Tertius", "Legio Quartus", "Legio Quintus", "Legio Sextus", 
     "Magister", "Nex", "Nex: Angel of Death", "Osseous", "Rathis", "Raksha", 
     "Rasial", "Solak", "Telos", "Twin Furies", "Vindicta", "Vorago", "Yakamaru", "Zamorak", 
-    "Zuk", "Pthentraken", "Commander Zilyana", "Orikalka", "Astellarn", 
-    "Verak Lith", "Queen Black Dragon", "Giant mole", "Silverquill, the Dreadhog"
+    "Zuk", "Rex Matriarchs", "Pthentraken", "Commander Zilyana", "Orikalka", "Astellarn", 
+    "Verak Lith", "Queen Black Dragon", "Giant mole"
 ].sort((a, b) => b.length - a.length); // longest first so "Rathis" wins over any partial
+
+// Boss aliases — phrase fragments that should resolve to a canonical BOSS_LIST name.
+// Order matters: more-specific phrases must come before less-specific ones.
+// Each entry: { match: string-or-regex, canonical: string-from-BOSS_LIST }
+const BOSS_ALIASES = [
+    // Ancient experimental dinosaurs are listed as "Rex Matriarchs" in the log,
+    // but the actual boss is Osseous. Match the fully-qualified phrase before
+    // the bare "Rex Matriarchs" alias below.
+    { match: /Ancient experimental dinosaurs:\s*Rex Matriarchs/i, canonical: 'Osseous' },
+    // Add more grouped-boss aliases here as they come up.
+];
 
 const SKILLS = ["Attack", "Strength", "Defence", "Ranged", "Prayer", "Magic", "Runecrafting", "Construction", "Constitution", "Agility", "Herblore", "Thieving", "Crafting", "Fletching", "Slayer", "Hunter", "Mining", "Smithing", "Fishing", "Cooking", "Firemaking", "Woodcutting", "Farming", "Summoning", "Dungeoneering", "Divination", "Invention", "Archaeology", "Necromancy"];
 
@@ -1254,9 +1279,10 @@ let parsed = [];
 let activeFilter = 'all';
 let selBoss = null; let selSlayer = null;
 let selBossLoot = null; let selSlayerLoot = null;
+let selBossKC = false; let selSlayerKC = false; // killcount drilldown flag
 let skillSubs = { xp: true, level: true, pet: true, total: true };
 let clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true };
-let skillFilter = 'all';
+let selectedSkills = new Set(); // empty = "All Skills"; otherwise the explicit set of selected skills
 let skillViewMode = 'flat';
 let xpChart = null;
 let groupChartMode = 'stacked'; // 'stacked' | 'bars'
@@ -1348,7 +1374,7 @@ function renderStatsBar(filteredForCount) {
 // ── Activity Heatmap ──
 const HEATMAP_PALETTES = {
     light: {
-        all:    ['#ebedf0', '#c6e48b', '#7bc96f', '#239a3b', '#196127'],
+        all:    ['#ebedf0', '#e1bee7', '#ba68c8', '#8e24aa', '#4a148c'],
         skills: ['#ebedf0', '#a5d6a7', '#66bb6a', '#2e7d32', '#1b5e20'],
         combat: ['#ebedf0', '#ef9a9a', '#e57373', '#c62828', '#7f0000'],
         clues:  ['#ebedf0', '#ffcc80', '#ffa726', '#e65100', '#bf360c'],
@@ -1356,7 +1382,7 @@ const HEATMAP_PALETTES = {
         misc:   ['#ebedf0', '#b0bec5', '#78909c', '#455a64', '#263238'],
     },
     dark: {
-        all:    ['#1e2533', '#0e4429', '#006d32', '#26a641', '#39d353'],
+        all:    ['#1e1a26', '#4a148c', '#7b1fa2', '#ab47bc', '#ce93d8'],
         skills: ['#1a2a1a', '#1b5e20', '#2e7d32', '#43a047', '#66bb6a'],
         combat: ['#2a1a1a', '#7f0000', '#c62828', '#e53935', '#ef9a9a'],
         clues:  ['#2a1e10', '#bf360c', '#e64a19', '#ff7043', '#ffab91'],
@@ -1373,19 +1399,19 @@ function renderHeatmap(cat) {
     const palette = HEATMAP_PALETTES[theme][palKey];
 
     // Count entries by day, filtered by active category + date range
+    // Also track most-recent activity date so we can anchor the heatmap window there
+    // (otherwise stale categories like clues show an empty year)
     const counts = {};
+    let mostRecent = null;
     for (const e of parsed) {
         if (cat && cat !== 'all' && e.super !== cat) continue;
-        if (dateFrom || dateTo) {
-            const d = parseTs(e.ts);
-            if (!d) continue;
-            if (dateFrom && d < dateFrom) continue;
-            if (dateTo && d > dateTo) continue;
-        }
         const d = parseTs(e.ts);
         if (!d) continue;
+        if (dateFrom && d < dateFrom) continue;
+        if (dateTo && d > dateTo) continue;
         const key = d.toISOString().slice(0, 10);
         counts[key] = (counts[key] || 0) + 1;
+        if (!mostRecent || d > mostRecent) mostRecent = d;
     }
 
     // Update legend swatches
@@ -1402,8 +1428,17 @@ function renderHeatmap(cat) {
         return palette[4];
     }
 
+    // Anchor: today if there is recent activity, otherwise the most-recent activity date.
     const today = new Date(); today.setHours(0, 0, 0, 0);
-    const startDate = new Date(today);
+    let anchor = today;
+    if (mostRecent) {
+        const ageDays = (today - mostRecent) / (1000 * 60 * 60 * 24);
+        if (ageDays > 30) {  // category is stale → window ends at most-recent
+            anchor = new Date(mostRecent);
+            anchor.setHours(0, 0, 0, 0);
+        }
+    }
+    const startDate = new Date(anchor);
     startDate.setDate(startDate.getDate() - 364);
     startDate.setDate(startDate.getDate() - startDate.getDay());
 
@@ -1423,7 +1458,7 @@ function renderHeatmap(cat) {
         for (let d = 0; d < DAYS; d++) {
             const date = new Date(startDate);
             date.setDate(date.getDate() + w * 7 + d);
-            if (date > today) continue;
+            if (date > anchor) continue;
             const key = date.toISOString().slice(0, 10);
             const count = counts[key] || 0;
             const x = padLeft + w * step;
@@ -1440,10 +1475,13 @@ function renderHeatmap(cat) {
         : ''
     ).join('');
 
-    wrap.innerHTML = `<svg width="100%" viewBox="0 0 ${svgW} ${svgH}" style="overflow:visible;min-width:${svgW}px">${monthLabels}${dayLabels}${cells}</svg>`;
+    wrap.innerHTML = `<svg width="100%" viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet" style="overflow:visible;display:block;">${monthLabels}${dayLabels}${cells}</svg>`;
 
-    const startYear = startDate.getFullYear(), endYear = today.getFullYear();
-    document.getElementById('heatmap-year').textContent = startYear === endYear ? startYear : `${startYear}–${endYear}`;
+    // Year label: shows the actual range covered by the heatmap
+    const startYear = startDate.getFullYear(), endYear = anchor.getFullYear();
+    const isStale = anchor.getTime() !== today.getTime();
+    const yearText = startYear === endYear ? String(startYear) : `${startYear}–${endYear}`;
+    document.getElementById('heatmap-year').textContent = isStale ? `${yearText} (most recent activity)` : yearText;
     const catLabel = cat && cat !== 'all' ? cat.charAt(0).toUpperCase() + cat.slice(1) + ' · ' : '';
     document.getElementById('heatmap-title').textContent = `${catLabel}Activity Heatmap`;
 }
@@ -1545,22 +1583,44 @@ function processData(csvText) {
             let monsterName = null;
             let isBoss = false;
 
-            // Step 1: Boss identification — BOSS_LIST canonical match via word boundary.
-            // Boss names always come from the BOSS_LIST constant, never inferred from log text.
-            for (const boss of BOSS_LIST) {
-                const escaped = boss.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                const re = new RegExp(`\\b${escaped}\\b`, 'i');
-                if (re.test(details)) {
-                    monsterName = boss;
+            // Step 0: Alias scan — fully-qualified phrases that map to a canonical boss.
+            // Runs FIRST so e.g. "Ancient experimental dinosaurs: Rex Matriarchs" wins over
+            // a bare "Rex Matriarchs" word-boundary match below.
+            for (const alias of BOSS_ALIASES) {
+                if (alias.match.test(details)) {
+                    monsterName = alias.canonical;
                     isBoss = true;
                     break;
+                }
+            }
+
+            // Step 1: Boss identification — BOSS_LIST canonical match via word boundary.
+            // Uses the canonical name AND a plural variant so kill-count entries
+            // ("I killed 3 Corporeal Beasts") resolve to the singular ("Corporeal Beast").
+            if (!monsterName) {
+                for (const boss of BOSS_LIST) {
+                    const escaped = boss.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    // Build singular + plural alternatives. Handles trailing "y" → "ies",
+                    // trailing "s" (already plural-like, leave it), and default "+s".
+                    let pluralForm = boss;
+                    if (/y$/i.test(boss))      pluralForm = boss.slice(0, -1) + 'ies';
+                    else if (!/s$/i.test(boss)) pluralForm = boss + 's';
+                    const pluralEsc = pluralForm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const re = (boss === pluralForm)
+                        ? new RegExp(`\\b${escaped}\\b`, 'i')
+                        : new RegExp(`\\b(?:${pluralEsc}|${escaped})\\b`, 'i');
+                    if (re.test(details)) {
+                        monsterName = boss;
+                        isBoss = true;
+                        break;
+                    }
                 }
             }
 
             // Step 2: Slayer fallback — apply monster regexes in priority order.
             if (!monsterName) {
                 const monsterRegexes = [
-                    /After killing\s+(.+?)(?:\s*,|\s+it dropped)/i,
+                    /After killing\s+(?:\d+|many|some|a few)?\s*(.+?)(?:\s*,|\s+it dropped)/i,
                     /After putting (.+?), back into hibernation/i,
                     /After surviving ([^']+)'s lair/i,
                     /While battling the ([^,]+),?/i,
@@ -1570,12 +1630,16 @@ function processData(csvText) {
                     /While (?:diving|exploring|plundering) (?:in the |the |a )?([^,.]+)(?:,|$)/i,
                     /While looting a ([^,.]+)(?:,|$)/i,
                     /While battling shades in ([^,.]+)(?:,|$)/i,
+                    // Kill-count fallback when nothing else matched
+                    /(?:^|\s)killed (?:\d+|many|some|a few|several)\s+(.+?)(?:\.|,|$)/i,
                 ];
                 for (const re of monsterRegexes) {
                     const m = details.match(re);
                     if (m && m[1]) {
                         let name = m[1].trim();
-                        name = name.replace(/^(?:a|an|the)\s+/i, '').trim();  // strip leading articles
+                        name = name.replace(/^(?:a|an|the)\s+/i, '').trim();
+                        name = name.replace(/^\d+\s+/, '').trim();
+                        name = name.replace(/([^s])s$/i, '$1');  // conservative singularize
                         if (name) monsterName = name.charAt(0).toUpperCase() + name.slice(1);
                         break;
                     }
@@ -1603,6 +1667,20 @@ function processData(csvText) {
                         break;
                     }
                 }
+
+                // Step 4: Kill count extraction — only when an explicit count modifier is present.
+                // We deliberately DO NOT add a default killCount=1 when no modifier is given,
+                // because most "no-modifier" entries are drop logs ("X dropped Y"), and
+                // counting them as +1 kill on top of a paired count-only entry double-counts.
+                const countMatch = details.match(/killed\s+(\d+|many|some|a few|several)\s+/i);
+                if (countMatch) {
+                    const tok = countMatch[1].toLowerCase();
+                    if (/^\d+$/.test(tok))           d.killCount = parseInt(tok, 10);
+                    else if (tok === 'many')         d.killCount = 100;
+                    else if (tok === 'several')      d.killCount = 50;
+                    else                             d.killCount = 25;
+                }
+
                 return d;
             }
             // No monster could be extracted — fall through to quest/misc
@@ -1624,6 +1702,21 @@ function processData(csvText) {
 
         return d;
     }).filter(Boolean);
+
+    // Dedup pass: when a drop entry and a kill-count entry land at the same timestamp
+    // for the same monster, the count entry double-counts the kill that's implicit in
+    // the drop. Strip the killCount from the drop's twin, leaving the drop intact.
+    const dropKeys = new Set();
+    parsed.forEach(e => {
+        if (e.super === 'combat' && e.monster && e.item) dropKeys.add(`${e.ts}|${e.monster}`);
+    });
+    parsed.forEach(e => {
+        if (e.super === 'combat' && e.monster && typeof e.killCount === 'number' && !e.item) {
+            if (dropKeys.has(`${e.ts}|${e.monster}`)) {
+                delete e.killCount; // paired with a drop — ignore for counting
+            }
+        }
+    });
 
     selBoss   = parsed.find(e => e.sub === 'boss')?.monster   || null;
     selSlayer = parsed.find(e => e.sub === 'slayer')?.monster || null;
@@ -1666,14 +1759,20 @@ function toggleSubFilter(cat, id) {
 }
 
 function selectMonster(type, name) {
-    if (type === 'boss') { selBoss = name; selBossLoot = null; }
-    else { selSlayer = name; selSlayerLoot = null; }
+    if (type === 'boss') { selBoss = name; selBossLoot = null; selBossKC = false; }
+    else { selSlayer = name; selSlayerLoot = null; selSlayerKC = false; }
     render();
 }
 
 function toggleLootDrilldown(type, itemName) {
-    if (type === 'boss') selBossLoot = itemName;
-    else selSlayerLoot = itemName;
+    if (type === 'boss') { selBossLoot = itemName; selBossKC = false; }
+    else { selSlayerLoot = itemName; selSlayerKC = false; }
+    render();
+}
+
+function toggleKillcountDrill(type) {
+    if (type === 'boss')   { selBossKC   = !selBossKC;   selBossLoot = null; }
+    else                   { selSlayerKC = !selSlayerKC; selSlayerLoot = null; }
     render();
 }
 
@@ -1829,14 +1928,7 @@ function render() {
     let listFiltered = filtered;
     if (activeFilter === 'skills') {
         listFiltered = filtered.filter(e => {
-            if (skillFilter !== 'all') {
-                if (skillFilter.startsWith('group:')) {
-                    const gName = skillFilter.slice(6);
-                    if (e.skill && !(SKILL_GROUPS[gName] || []).includes(e.skill)) return false;
-                } else {
-                    if (e.skill !== skillFilter) return false;
-                }
-            }
+            if (selectedSkills.size > 0 && (!e.skill || !selectedSkills.has(e.skill))) return false;
             if (!skillSubs[e.sub]) return false;
             return true;
         });
@@ -1886,56 +1978,87 @@ function loadMore() {
 }
 
 function renderCombatSide(type, entries) {
-    // 5 most recent distinct monsters, ordered by most-recent kill timestamp (newest first)
+    // Most-recent-kill ordering AND aggregated kill counts per monster
     const lastSeen = {};
+    const killTotals = {};
     entries.forEach(e => {
         const t = new Date(e.ts).getTime();
         if (!lastSeen[e.monster] || t > lastSeen[e.monster]) lastSeen[e.monster] = t;
+        if (typeof e.killCount === 'number' && e.killCount > 0) {
+            killTotals[e.monster] = (killTotals[e.monster] || 0) + e.killCount;
+        }
     });
     const names = Object.keys(lastSeen).sort((a, b) => lastSeen[b] - lastSeen[a]);
     const top5 = names.slice(0, 5);
     const currentMonster = (type === 'boss') ? selBoss : selSlayer;
-    const currentDrill = (type === 'boss') ? selBossLoot : selSlayerLoot;
+    const currentDrill   = (type === 'boss') ? selBossLoot : selSlayerLoot;
+    const kcDrill        = (type === 'boss') ? selBossKC   : selSlayerKC;
 
-    document.getElementById(`${type}-bubbles`).innerHTML = top5.map(n => `
-        <div class="b-pill pill-combat ${currentMonster === n ? 'active' : ''}" onclick="selectMonster('${type}', '${n.replace(/'/g, "\\'")}')">${n}</div>
-    `).join('');
+    // Render pills with embedded kill-count badge (matches clue button-count aesthetic).
+    // The badge itself is clickable to drill into the kill-log; clicking elsewhere on the
+    // pill selects the monster as before.
+    document.getElementById(`${type}-bubbles`).innerHTML = top5.map(n => {
+        const kc = killTotals[n] || 0;
+        const safeName = n.replace(/'/g, "\\'");
+        const isSelected = currentMonster === n;
+        const badge = kc > 0
+            ? `<span class="b-pill-count kc-clickable" title="View kill log" onclick="event.stopPropagation(); selectMonster('${type}', '${safeName}'); toggleKillcountDrill('${type}')">${kc.toLocaleString()}</span>`
+            : '';
+        return `<div class="b-pill pill-combat ${isSelected ? 'active' : ''}" onclick="selectMonster('${type}', '${safeName}')">${n}${badge}</div>`;
+    }).join('');
 
     const others = names.slice(5);
     document.getElementById(`${type}-more`).innerHTML = `<option value="">More...</option>` +
-        others.map(n => `<option value="${n}" ${currentMonster === n ? 'selected' : ''}>${n}</option>`).join('');
+        others.map(n => {
+            const kc = killTotals[n] || 0;
+            const label = kc > 0 ? `${n} (${kc.toLocaleString()})` : n;
+            return `<option value="${n}" ${currentMonster === n ? 'selected' : ''}>${label}</option>`;
+        }).join('');
 
     const lootListEl = document.getElementById(`${type}-loot-list`);
     if (!currentMonster) { lootListEl.innerHTML = '<div style="color:var(--color-text-light); text-align:center; padding-top:40px;">No Selection</div>'; return; }
 
-    // Only actual drops — exclude entries where no item was parsed
-    const history = entries.filter(e => e.monster === currentMonster && e.item);
+    const monsterEntries = entries.filter(e => e.monster === currentMonster);
+    const killEntries    = monsterEntries.filter(e => typeof e.killCount === 'number' && e.killCount > 0);
+
+    // Killcount drilldown (still triggered via the kc badge on the pill — see below)
+    if (kcDrill) {
+        const sorted = killEntries.slice().sort((a, b) => new Date(b.ts) - new Date(a.ts));
+        lootListEl.innerHTML = `
+            <div class="loot-row clickable back-btn" onclick="toggleKillcountDrill('${type}')">← Back to ${currentMonster}</div>
+            ${sorted.length ? sorted.map(h => `
+                <div class="loot-row">
+                    <span class="loot-name">${h.details}</span>
+                    <span class="loot-ts">${h.ts}</span>
+                </div>`).join('') : '<div style="color:var(--color-text-light); text-align:center; padding:20px 0;">No kill-count entries recorded</div>'}`;
+        return;
+    }
 
     if (currentDrill) {
-        const itemHistory = history.filter(h => h.item === currentDrill)
-                                   .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+        const itemHistory = monsterEntries.filter(h => h.item === currentDrill)
+                                          .sort((a, b) => new Date(b.ts) - new Date(a.ts));
         lootListEl.innerHTML = `
             <div class="loot-row clickable back-btn" onclick="toggleLootDrilldown('${type}', null)">← Back to ${currentMonster}</div>
             ${itemHistory.map(h => `<div class="loot-row"><span class="loot-name">${h.title}</span><span class="loot-ts">${h.ts}</span></div>`).join('')}`;
         return;
     }
 
-    if (!history.length) {
+    // Default view: grouped loot only (kc moved to the pill badge)
+    const drops = monsterEntries.filter(e => e.item);
+    if (!drops.length) {
         lootListEl.innerHTML = '<div style="color:var(--color-text-light); text-align:center; padding-top:40px;">No drops recorded</div>';
         return;
     }
-
-    // Group actual drops by item name, sorted by most-recent drop
-    const grouped = history.reduce((acc, curr) => {
+    const grouped = drops.reduce((acc, curr) => {
         const key = curr.item;
         if (!acc[key]) acc[key] = { count: 0, lastTs: curr.ts, name: key };
         acc[key].count++;
         if (new Date(curr.ts) > new Date(acc[key].lastTs)) acc[key].lastTs = curr.ts;
         return acc;
     }, {});
-    const sorted = Object.values(grouped).sort((a, b) => new Date(b.lastTs) - new Date(a.lastTs));
+    const sortedDrops = Object.values(grouped).sort((a, b) => new Date(b.lastTs) - new Date(a.lastTs));
 
-    lootListEl.innerHTML = sorted.map(g => `
+    lootListEl.innerHTML = sortedDrops.map(g => `
         <div class="loot-row clickable" onclick="toggleLootDrilldown('${type}', '${g.name.replace(/'/g, "\\'")}')">
             <span class="loot-name"><span class="loot-count">${g.count}x</span>${g.name}</span>
             <span class="loot-ts">${g.count > 1 ? 'View History' : g.lastTs}</span>
@@ -1951,30 +2074,79 @@ document.getElementById('pills').innerHTML = CATS.map(c => `
     </span>`).join('');
 
 // Build skill picker buttons (grouped-only, group headers are clickable)
+function isSkillSelected(skill) {
+    return selectedSkills.size === 0 || selectedSkills.has(skill);
+}
+
+function isGroupFullySelected(groupName) {
+    const groupSkills = (SKILL_GROUPS[groupName] || []).filter(s => SKILLS.includes(s));
+    if (!groupSkills.length) return false;
+    if (selectedSkills.size === 0) return false; // "all" mode is not equivalent to a group selection
+    return groupSkills.every(s => selectedSkills.has(s));
+}
+
+function getEffectiveSkillSet() {
+    // Returns the skills currently active for the chart. Empty Set → all SKILLS.
+    return selectedSkills.size === 0 ? new Set(SKILLS) : new Set(selectedSkills);
+}
+
 function buildSkillPicker() {
     const groupedList = document.getElementById('skill-grouped-view');
     groupedList.innerHTML = Object.entries(SKILL_GROUPS).map(([groupName, skills]) => {
-        const isGroupActive = skillFilter === 'group:' + groupName;
+        const groupActive = isGroupFullySelected(groupName);
         return `
         <div class="skill-group-block">
-            <div class="skill-group-label ${isGroupActive ? 'active' : ''}" data-group="${groupName}"
-                 onclick="setSkillFilter('group:${groupName}')">
+            <div class="skill-group-label ${groupActive ? 'active' : ''}" data-group="${groupName}"
+                 onclick="toggleSkillGroup('${groupName}')">
                 <span class="skill-group-label-arrow">▶</span>${groupName}
             </div>
             <div class="skill-group-pills">
-                ${skills.filter(s => SKILLS.includes(s)).map(s => `
-                    <button class="sk-btn ${skillFilter === s ? 'active' : ''}" onclick="setSkillFilter('${s}')">${s}</button>
-                `).join('')}
+                ${skills.filter(s => SKILLS.includes(s)).map(s => {
+                    const active = selectedSkills.size > 0 && selectedSkills.has(s);
+                    return `<button class="sk-btn ${active ? 'active' : ''}" onclick="toggleSkill('${s}')">${s}</button>`;
+                }).join('')}
             </div>
         </div>`;
     }).join('');
 
-    document.getElementById('skill-btn-all').classList.toggle('active', skillFilter === 'all');
+    document.getElementById('skill-btn-all').classList.toggle('active', selectedSkills.size === 0);
 }
 
-function setSkillFilter(skill) {
-    skillFilter = skill;
+function toggleSkill(skill) {
+    if (selectedSkills.has(skill)) selectedSkills.delete(skill);
+    else selectedSkills.add(skill);
     buildSkillPicker();
+    if (xpChart) { xpChart.destroy(); xpChart = null; }
+    render();
+}
+
+function toggleSkillGroup(groupName) {
+    const groupSkills = (SKILL_GROUPS[groupName] || []).filter(s => SKILLS.includes(s));
+    if (isGroupFullySelected(groupName)) {
+        // Already fully selected → deselect them all
+        groupSkills.forEach(s => selectedSkills.delete(s));
+    } else {
+        // Add all group skills (without clearing other selections)
+        groupSkills.forEach(s => selectedSkills.add(s));
+    }
+    buildSkillPicker();
+    if (xpChart) { xpChart.destroy(); xpChart = null; }
+    render();
+}
+
+function clearSkillSelection() {
+    selectedSkills.clear();
+    buildSkillPicker();
+    if (xpChart) { xpChart.destroy(); xpChart = null; }
+    render();
+}
+
+// Backward-compat shim — anything that still calls setSkillFilter routes through clear/toggle
+function setSkillFilter(skill) {
+    if (skill === 'all') return clearSkillSelection();
+    selectedSkills = new Set([skill]);
+    buildSkillPicker();
+    if (xpChart) { xpChart.destroy(); xpChart = null; }
     render();
 }
 
@@ -2035,6 +2207,7 @@ function buildDatasetForSkill(skill, allXpEntries, color, idx) {
     const skillEntries = getXpEntriesForSkill(skill, allXpEntries);
     const isDark = document.body.classList.contains('dark-mode');
     const surfaceColor = getComputedStyle(document.documentElement).getPropertyValue('--color-surface').trim();
+    const XP_CAP = 200_000_000;
 
     const xpPoints = skillEntries.map(e => ({
         x: e.date,
@@ -2042,6 +2215,25 @@ function buildDatasetForSkill(skill, allXpEntries, color, idx) {
         label: `${skill}: ${e.xp.toLocaleString()} XP`,
         isPet: false
     }));
+
+    // If the skill has reached 200M XP, extend the line flat at 200M up to today
+    // so the visualization shows the cap is held rather than the line just stopping mid-chart.
+    if (xpPoints.length > 0) {
+        const last = xpPoints[xpPoints.length - 1];
+        if (last.y >= XP_CAP) {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const cap = (dateTo && dateTo < today) ? dateTo : today;
+            if (cap > last.x) {
+                xpPoints.push({
+                    x: cap,
+                    y: XP_CAP,
+                    label: `${skill}: 200M (capped)`,
+                    isPet: false,
+                    isCapExtension: true
+                });
+            }
+        }
+    }
 
     // Pet markers — placed at the pet date, y = last known XP at that time
     const petEntries = getPetEntries(skill);
@@ -2055,15 +2247,15 @@ function buildDatasetForSkill(skill, allXpEntries, color, idx) {
         } : null;
     }).filter(Boolean);
 
-    // XP line dataset
+    // XP line dataset — hide the marker on the synthetic cap-extension point
     const lineDataset = {
         label: skill,
         data: xpPoints,
         borderColor: color,
         backgroundColor: color + '18',
         borderWidth: 2,
-        pointRadius: xpPoints.map(p => 3),
-        pointHoverRadius: 7,
+        pointRadius: xpPoints.map(p => p.isCapExtension ? 0 : 3),
+        pointHoverRadius: xpPoints.map(p => p.isCapExtension ? 0 : 7),
         pointBackgroundColor: xpPoints.map(p => color),
         pointBorderColor: xpPoints.map(p => surfaceColor),
         pointBorderWidth: 2,
@@ -2108,8 +2300,8 @@ function getXpChartData() {
         })
         .sort((a, b) => a.date - b.date);
 
-    if (skillFilter === 'all') {
-        // Running total XP across all skills
+    // Empty selection → render the All-Skills running total
+    if (selectedSkills.size === 0) {
         const lastKnownXp = {};
         const points = [];
         for (const entry of allXpEntries) {
@@ -2137,28 +2329,38 @@ function getXpChartData() {
         return { datasets: [lineDataset], title: 'XP Progress — All Skills (Total)', hasPets: false, skillList: [] };
     }
 
-    if (skillFilter.startsWith('group:')) {
-        const groupName = skillFilter.slice(6);
-        const groupSkills = (SKILL_GROUPS[groupName] || []).filter(s => SKILLS.includes(s));
-        const groupColor = GROUP_COLORS[groupName];
-        const datasets = [];
-        let hasPets = false;
-        groupSkills.forEach((skill, idx) => {
-            const color = SKILL_LINE_COLORS[idx % SKILL_LINE_COLORS.length];
-            const { lineDataset, petDataset, hasPets: hp } = buildDatasetForSkill(skill, allXpEntries, color, idx);
-            if (lineDataset.data.length > 0) datasets.push(lineDataset);
-            if (petDataset) { datasets.push(petDataset); hasPets = true; }
-            if (hp) hasPets = true;
-        });
-        return { datasets, title: `XP Progress — ${groupName} Skills`, hasPets, skillList: groupSkills };
+    // Single-skill selection: render with the canonical skill color
+    if (selectedSkills.size === 1) {
+        const onlySkill = [...selectedSkills][0];
+        const { lineDataset, petDataset, hasPets } = buildDatasetForSkill(onlySkill, allXpEntries, skillColor, 0);
+        const datasets = [lineDataset];
+        if (petDataset) datasets.push(petDataset);
+        return { datasets, title: `XP Progress — ${onlySkill}`, hasPets, skillList: [onlySkill] };
     }
 
-    // Single skill
-    const color = skillColor;
-    const { lineDataset, petDataset, hasPets } = buildDatasetForSkill(skillFilter, allXpEntries, color, 0);
-    const datasets = [lineDataset];
-    if (petDataset) datasets.push(petDataset);
-    return { datasets, title: `XP Progress — ${skillFilter}`, hasPets, skillList: [skillFilter] };
+    // Multi-skill selection: one line per skill, colored from the multi-line palette.
+    // We sort the active skills the same way SKILLS is ordered for stable colors.
+    const activeOrdered = SKILLS.filter(s => selectedSkills.has(s));
+    const datasets = [];
+    let hasPets = false;
+    activeOrdered.forEach((skill, idx) => {
+        const color = SKILL_LINE_COLORS[idx % SKILL_LINE_COLORS.length];
+        const { lineDataset, petDataset, hasPets: hp } = buildDatasetForSkill(skill, allXpEntries, color, idx);
+        if (lineDataset.data.length > 0) datasets.push(lineDataset);
+        if (petDataset) { datasets.push(petDataset); hasPets = true; }
+        if (hp) hasPets = true;
+    });
+
+    // Title: if the selection exactly matches a group, name it; otherwise show "Selected Skills"
+    let title = 'XP Progress — Selected Skills';
+    for (const [groupName, groupSkills] of Object.entries(SKILL_GROUPS)) {
+        const groupSet = new Set(groupSkills.filter(s => SKILLS.includes(s)));
+        if (groupSet.size === selectedSkills.size && [...groupSet].every(s => selectedSkills.has(s))) {
+            title = `XP Progress — ${groupName} Skills`;
+            break;
+        }
+    }
+    return { datasets, title, hasPets, skillList: activeOrdered };
 }
 
 function formatXpAxis(val) {
