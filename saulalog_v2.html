@@ -319,16 +319,27 @@ body.dark-mode .sort-btn.active { color: #121212; }
 .dual-entry-detail { color: var(--color-text-dim); font-size: 11px; margin-top: 2px; line-height: 1.4; }
 .dual-entry-ts { color: var(--color-text-light); font-family: 'Courier New', monospace; font-size: 10px; margin-top: 3px; }
 .dual-empty { text-align: center; padding: 40px 0; color: var(--color-text-light); font-size: 12px; }
-.skill-milestone-entry { position: relative; padding-left: 12px; }
-.skill-milestone-entry::before {
+.accent-entry { position: relative; padding-left: 12px; }
+.accent-entry::before {
     content: ""; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px;
-    border-radius: 3px; background: var(--color-skill);
+    border-radius: 3px; background: var(--entry-accent, var(--color-skill));
 }
+.skill-milestone-entry { padding: 8px 6px; }
+.quest-entry { --entry-accent: var(--color-quest); }
+.clue-entry { --entry-accent: var(--color-clue); }
+.dual-panel-toolbar {
+    grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    padding: 10px 14px; border: 1px solid var(--color-border); border-radius: 10px;
+    background: var(--color-surface);
+}
+.dual-panel-toolbar .list-header-pills { flex: 1; }
+.dual-entry.clickable { cursor: pointer; border-radius: 6px; transition: background 0.1s, padding-left 0.1s; }
+.dual-entry.clickable:hover { background: var(--color-bg-sub); padding-left: 18px; }
 .skill-milestone-badge {
     display: inline-flex; align-items: center; width: fit-content;
-    margin-bottom: 4px; padding: 2px 8px; border-radius: 10px;
+    margin-bottom: 3px; padding: 1px 7px; border-radius: 8px;
     background: var(--color-bg-sub); color: var(--color-skill);
-    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.9px;
+    font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.7px;
 }
 
 /* Clue type summary rows */
@@ -528,17 +539,17 @@ body.dark-mode .clue-loot-count { color: #121212; }
     <div class="dual-panel hidden" id="quest-view">
       <div class="dual-col">
         <div class="dual-col-header">
-          <span>Quest Completions</span>
-          <span class="col-count" id="quest-completion-count"></span>
-        </div>
-        <div class="dual-col-body" id="quest-completion-list"></div>
-      </div>
-      <div class="dual-col">
-        <div class="dual-col-header">
           <span>Milestones &amp; Songs</span>
           <span class="col-count" id="quest-milestone-count"></span>
         </div>
         <div class="dual-col-body" id="quest-milestone-list"></div>
+      </div>
+      <div class="dual-col">
+        <div class="dual-col-header">
+          <span>Quest Completions</span>
+          <span class="col-count" id="quest-completion-count"></span>
+        </div>
+        <div class="dual-col-body" id="quest-completion-list"></div>
       </div>
     </div>
 
@@ -546,20 +557,21 @@ body.dark-mode .clue-loot-count { color: #121212; }
     <div class="dual-panel hidden" id="clue-view">
       <div class="dual-col">
         <div class="dual-col-header">
-          <span>Clues Completed</span>
-        </div>
-        <div class="dual-col-body" id="clue-completion-list"></div>
-      </div>
-      <div class="dual-col">
-        <div class="dual-col-header">
           <span>Notable Loot</span>
         </div>
         <div class="dual-col-body" id="clue-loot-list"></div>
+      </div>
+      <div class="dual-col">
+        <div class="dual-col-header">
+          <span>Clues Completed</span>
+        </div>
+        <div class="dual-col-body" id="clue-completion-list"></div>
       </div>
     </div>
 
     <!-- Skills dual-column panel -->
     <div class="dual-panel hidden" id="skill-view">
+      <div class="dual-panel-toolbar" id="skill-panel-toolbar"></div>
       <div class="dual-col">
         <div class="dual-col-header">
           <span>Big Milestones</span>
@@ -1321,7 +1333,7 @@ let activeFilter = 'all';
 let selBoss = null; let selSlayer = null;
 let selBossLoot = null; let selSlayerLoot = null;
 let selBossKC = false; let selSlayerKC = false; // killcount drilldown flag
-let skillSubs = { xp: true, level: true, pet: true, total: true };
+let skillSubs = { xp: true, level: true, pet: true, total: true, m200: true };
 let clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true };
 let selectedSkills = new Set(); // empty = "All Skills"; otherwise the explicit set of selected skills
 let skillViewMode = 'flat';
@@ -1879,19 +1891,18 @@ function toggleKillcountDrill(type) {
     render();
 }
 
-function renderListHeader(filtered) {
+function renderListHeader(filtered, countBase = filtered) {
     const header = document.getElementById('list-pane-header');
     if (!header) return;
     // Only show sub-filter pills for all/skills — clues and quests now have dedicated panels
     let pillsHtml = '';
     if (activeFilter === 'skills') {
-        const subs = [
-            { id: 'xp', label: 'XP Milestones' }, { id: 'level', label: 'Level Ups' },
-            { id: 'pet', label: 'Skilling Pets' }, { id: 'total', label: 'Total Level' }
-        ];
-        pillsHtml = subs.map(s => `
+        const skillCountBase = countBase.filter(skillEntryMatchesSelection);
+        pillsHtml = getSkillFilterOptions().map(s => `
             <div class="b-pill pill-skill ${skillSubs[s.id] ? 'active' : ''}"
-                 onclick="toggleSubFilter('skills','${s.id}')">${s.label}</div>`).join('');
+                 onclick="toggleSubFilter('skills','${s.id}')">
+                ${s.label}<span class="b-pill-count">${getSkillSubFilterCount(skillCountBase, s.id).toLocaleString()}</span>
+            </div>`).join('');
     }
     header.innerHTML = `
         <div class="list-header-pills">${pillsHtml}</div>
@@ -1922,10 +1933,40 @@ function skillEntryMatchesSelection(e) {
     return !!e.skill && selectedSkills.has(e.skill);
 }
 
+function is200mXpEntry(e) {
+    const text = `${e.title || ''} ${e.details || ''}`;
+    return /200\s*,?\s*000\s*,?\s*000\s*(?:XP|experience points)?/i.test(text);
+}
+
+
+function getSkillFilterOptions() {
+    return [
+        { id: 'm200', label: '200m' },
+        { id: 'xp', label: 'XP Milestones' },
+        { id: 'pet', label: 'Skilling Pets' },
+        { id: 'level', label: 'Level Ups' },
+        { id: 'total', label: 'Total Level' }
+    ];
+}
+
+function getSkillSubFilterCount(entries, id) {
+    return entries.filter(e => {
+        if (id === 'm200') return is200mXpEntry(e);
+        if (id === 'xp') return e.sub === 'xp' && !is200mXpEntry(e);
+        return e.sub === id;
+    }).length;
+}
+
+function skillEntryMatchesSubFilters(e) {
+    if (is200mXpEntry(e)) return !!skillSubs.m200;
+    return !!skillSubs[e.sub];
+}
+
 function isSkillBigMilestone(e) {
     const text = `${e.title || ''} ${e.details || ''}`;
     if (e.sub === 'pet') return true;
-    if (/200\s*,?\s*000\s*,?\s*000\s+experience points/i.test(text)) return true;
+    if (e.sub === 'total') return true;
+    if (is200mXpEntry(e)) return true;
     if (/Master Max cape/i.test(text)) return selectedSkills.size === 0;
     return false;
 }
@@ -1933,8 +1974,9 @@ function isSkillBigMilestone(e) {
 function getSkillMilestoneType(e) {
     const text = `${e.title || ''} ${e.details || ''}`;
     if (/Master Max cape/i.test(text)) return 'Master Max';
+    if (e.sub === 'total') return 'Total Level';
     if (e.sub === 'pet') return 'Skilling Pet';
-    if (/200\s*,?\s*000\s*,?\s*000\s+experience points/i.test(text)) return '200M XP';
+    if (is200mXpEntry(e)) return '200M XP';
     return 'Milestone';
 }
 
@@ -1942,7 +1984,7 @@ function renderSkillPanel(entries) {
     const selectionLabel = getSkillSelectionLabel();
     const skillEntries = entries.filter(e => {
         if (!skillEntryMatchesSelection(e)) return false;
-        if (!skillSubs[e.sub]) return false;
+        if (!skillEntryMatchesSubFilters(e)) return false;
         return true;
     });
 
@@ -1954,6 +1996,7 @@ function renderSkillPanel(entries) {
         : new Date(b.ts) - new Date(a.ts)
     );
 
+    const toolbarEl = document.getElementById('skill-panel-toolbar');
     const milestoneEl = document.getElementById('skill-milestone-list');
     const entryEl = document.getElementById('skill-entry-list');
     const milestoneCount = document.getElementById('skill-milestone-count');
@@ -1962,24 +2005,23 @@ function renderSkillPanel(entries) {
     if (milestoneCount) milestoneCount.textContent = milestones.length.toLocaleString();
     if (entryCount) entryCount.textContent = regular.length.toLocaleString();
 
-    const subFilterRow = `
-        <div class="bubble-wrap clue-btn-row">
-            ${[
-                { id: 'xp', label: 'XP Milestones' }, { id: 'level', label: 'Level Ups' },
-                { id: 'pet', label: 'Skilling Pets' }, { id: 'total', label: 'Total Level' }
-            ].map(s => `
-                <div class="b-pill pill-skill ${skillSubs[s.id] ? 'active' : ''}"
-                     onclick="toggleSubFilter('skills','${s.id}')">${s.label}</div>`).join('')}
-        </div>`;
-
-    const sortRow = `
-        <div class="dual-entry dual-drill-header">
-            <span style="color:var(--color-text-dim);font-size:11px;font-weight:700;">${escapeHtml(selectionLabel)}</span>
-            <span>
+    if (toolbarEl) {
+        toolbarEl.innerHTML = `
+            <div class="list-header-pills">
+                ${getSkillFilterOptions().map(s => `
+                    <div class="b-pill pill-skill ${skillSubs[s.id] ? 'active' : ''}"
+                         onclick="toggleSubFilter('skills','${s.id}')">
+                        ${s.label}<span class="b-pill-count">${getSkillSubFilterCount(entries.filter(skillEntryMatchesSelection), s.id).toLocaleString()}</span>
+                    </div>`).join('')}
+            </div>
+            <div class="list-header-right">
+                <span style="color:var(--color-text-dim);font-size:11px;font-weight:700;">${escapeHtml(selectionLabel)}</span>
+                <span class="sort-label">Sort</span>
                 <button class="sort-btn ${sortOrder === 'newest' ? 'active' : ''}" onclick="setSortOrder('newest')">Newest</button>
                 <button class="sort-btn ${sortOrder === 'oldest' ? 'active' : ''}" onclick="setSortOrder('oldest')">Oldest</button>
-            </span>
-        </div>`;
+                <span class="entry-count">${skillEntries.length.toLocaleString()} entries</span>
+            </div>`;
+    }
 
     const makeEntry = (e, milestone=false) => `
         <div class="dual-entry ${milestone ? 'skill-milestone-entry' : ''}">
@@ -1989,35 +2031,42 @@ function renderSkillPanel(entries) {
             <div class="dual-entry-ts">${escapeHtml(e.ts)}</div>
         </div>`;
 
-    milestoneEl.innerHTML = sortRow + (milestones.length
+    milestoneEl.innerHTML = milestones.length
         ? sortEntries(milestones).map(e => makeEntry(e, true)).join('')
-        : `<div class="dual-empty">No big milestones found for ${escapeHtml(selectionLabel)}</div>`);
+        : `<div class="dual-empty">No big milestones found for ${escapeHtml(selectionLabel)}</div>`;
 
-    entryEl.innerHTML = subFilterRow + sortRow + (regular.length
+    entryEl.innerHTML = regular.length
         ? sortEntries(regular).map(e => makeEntry(e, false)).join('')
-        : `<div class="dual-empty">No regular skill entries found for ${escapeHtml(selectionLabel)}</div>`);
+        : `<div class="dual-empty">No regular skill entries found for ${escapeHtml(selectionLabel)}</div>`;
 }
 
 function renderQuestPanel(entries) {
-    // Left: only title starts with "Quest complete:"
+    // Right column: only title starts with "Quest complete:"
     const completions = entries.filter(e => /^quest complete:/i.test(e.title));
-    // Right: everything else (quest points, songs, other)
+    // Left column: quest points, songs, master quest cape, and other quest-related milestones
     const milestones  = entries.filter(e => !/^quest complete:/i.test(e.title));
 
-    document.getElementById('quest-completion-count').textContent = completions.length.toLocaleString();
-    document.getElementById('quest-milestone-count').textContent  = milestones.length.toLocaleString();
+    const completionCount = document.getElementById('quest-completion-count');
+    const milestoneCount  = document.getElementById('quest-milestone-count');
+    if (completionCount) completionCount.textContent = completions.length.toLocaleString();
+    if (milestoneCount)  milestoneCount.textContent  = milestones.length.toLocaleString();
+
+    const sortEntries = arr => arr.slice().sort((a, b) => sortOrder === 'oldest'
+        ? new Date(a.ts) - new Date(b.ts)
+        : new Date(b.ts) - new Date(a.ts)
+    );
 
     const makeEntry = e => `
         <div class="dual-entry">
-            <div class="dual-entry-title">${e.title}</div>
-            <div class="dual-entry-detail">${e.details}</div>
-            <div class="dual-entry-ts">${e.ts}</div>
+            <div class="dual-entry-title">${escapeHtml(e.title)}</div>
+            <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
+            <div class="dual-entry-ts">${escapeHtml(e.ts)}</div>
         </div>`;
 
-    document.getElementById('quest-completion-list').innerHTML =
-        completions.length ? completions.map(makeEntry).join('') : '<div class="dual-empty">No quest completions found</div>';
     document.getElementById('quest-milestone-list').innerHTML =
-        milestones.length ? milestones.map(makeEntry).join('') : '<div class="dual-empty">No milestones found</div>';
+        milestones.length ? sortEntries(milestones).map(makeEntry).join('') : '<div class="dual-empty">No milestones found</div>';
+    document.getElementById('quest-completion-list').innerHTML =
+        completions.length ? sortEntries(completions).map(makeEntry).join('') : '<div class="dual-empty">No quest completions found</div>';
 }
 
 const CLUE_TYPES = ['easy','medium','hard','elite','master'];
@@ -2036,23 +2085,25 @@ function renderCluePanel(allEntries) {
                 </div>`).join('')}
         </div>`;
 
-    // ── LEFT: completions ──
-    const leftEl    = document.getElementById('clue-completion-list');
-    const leftCount = document.getElementById('clue-completion-count');
+    const makeClueLogEntry = e => `
+        <div class="loot-row">
+            <span class="loot-name">${escapeHtml(e.details)}</span>
+            <span class="loot-ts">${escapeHtml(e.ts)}</span>
+        </div>`;
+
+    // ── RIGHT: completions ──
+    const completionEl    = document.getElementById('clue-completion-list');
+    const completionCount = document.getElementById('clue-completion-count');
     const completionsRow = buttonRow(selClueType, 'selectClueType',
         type => allEntries.filter(e => e.sub === type).length);
     const logs = allEntries.filter(e => e.sub === selClueType);
-    if (leftCount) leftCount.textContent = logs.length.toLocaleString();
-    leftEl.innerHTML = completionsRow +
-        (logs.length ? logs.map(e => `
-            <div class="loot-row">
-                <span class="loot-name">${e.details}</span>
-                <span class="loot-ts">${e.ts}</span>
-            </div>`).join('') : '<div class="dual-empty">No entries for this clue type</div>');
+    if (completionCount) completionCount.textContent = logs.length.toLocaleString();
+    completionEl.innerHTML = completionsRow +
+        (logs.length ? logs.map(makeClueLogEntry).join('') : '<div class="dual-empty">No entries for this clue type</div>');
 
-    // ── RIGHT: loot ──
-    const rightEl    = document.getElementById('clue-loot-list');
-    const rightCount = document.getElementById('clue-loot-count');
+    // ── LEFT: loot ──
+    const lootEl    = document.getElementById('clue-loot-list');
+    const lootCount = document.getElementById('clue-loot-count');
     const lootRow = buttonRow(selClueLootType, 'selectClueLootType',
         type => lootEntries.filter(e => e.sub === type).length);
 
@@ -2060,16 +2111,16 @@ function renderCluePanel(allEntries) {
         // Deepest drill: history for one item within the selected clue type
         const history = lootEntries.filter(e => e.sub === selClueLootType && e.item === selClueLootItem)
                                    .sort((a,b) => new Date(b.ts) - new Date(a.ts));
-        if (rightCount) rightCount.textContent = history.length.toLocaleString();
-        rightEl.innerHTML = lootRow +
+        if (lootCount) lootCount.textContent = history.length.toLocaleString();
+        lootEl.innerHTML = lootRow +
             `<div class="dual-entry dual-drill-header">
                 <span class="dual-drill-back" onclick="clueLootBack()">← Back to ${selClueLootType.charAt(0).toUpperCase()+selClueLootType.slice(1)} loot</span>
-                <span style="color:var(--color-text-dim);font-size:11px;">${selClueLootItem}</span>
+                <span style="color:var(--color-text-dim);font-size:11px;">${escapeHtml(selClueLootItem)}</span>
              </div>` +
             history.map(e => `
                 <div class="loot-row">
-                    <span class="loot-name">${e.item}</span>
-                    <span class="loot-ts">${e.ts}</span>
+                    <span class="loot-name">${escapeHtml(e.item)}</span>
+                    <span class="loot-ts">${escapeHtml(e.ts)}</span>
                 </div>`).join('');
     } else {
         // Grouped loot for selected clue type
@@ -2081,12 +2132,12 @@ function renderCluePanel(allEntries) {
             lootMap[e.item].count++;
         });
         const grouped = Object.values(lootMap).sort((a,b) => new Date(b.lastTs) - new Date(a.lastTs));
-        if (rightCount) rightCount.textContent = grouped.length.toLocaleString();
-        rightEl.innerHTML = lootRow +
+        if (lootCount) lootCount.textContent = grouped.length.toLocaleString();
+        lootEl.innerHTML = lootRow +
             (grouped.length ? grouped.map(g => `
-                <div class="loot-row ${g.count > 1 ? 'clickable' : ''}" ${g.count > 1 ? `onclick="selectClueLootItem('${g.name.replace(/'/g,"\'")}')"` : ''}>
-                    <span class="loot-name">${g.count > 1 ? `<span class="loot-count" style="color:var(--color-clue);">${g.count}x</span>` : ''}${g.name}</span>
-                    <span class="loot-ts">${g.count > 1 ? 'View History' : g.lastTs}</span>
+                <div class="loot-row ${g.count > 1 ? 'clickable' : ''}" ${g.count > 1 ? `onclick="selectClueLootItem('${g.name.replace(/'/g,"\\'")}')"` : ''}>
+                    <span class="loot-name">${g.count > 1 ? `<span class="loot-count" style="color:var(--color-clue);">${g.count}x</span>` : ''}${escapeHtml(g.name)}</span>
+                    <span class="loot-ts">${g.count > 1 ? 'View History' : escapeHtml(g.lastTs)}</span>
                 </div>`).join('') : '<div class="dual-empty">No loot recorded for this clue type</div>');
     }
 }
@@ -2104,9 +2155,9 @@ function render() {
     combatView.classList.toggle('hidden', activeFilter !== 'combat');
     questView.classList.toggle('hidden',  activeFilter !== 'quests');
     clueView.classList.toggle('hidden',   activeFilter !== 'clues');
-    if (skillView) skillView.classList.toggle('hidden', activeFilter !== 'skills');
+    if (skillView) skillView.classList.add('hidden');
 
-    const showList = !['combat','quests','clues','skills'].includes(activeFilter);
+    const showList = !['combat','quests','clues'].includes(activeFilter);
     list.classList.toggle('hidden', !showList);
     if (headerWrap) headerWrap.classList.toggle('hidden', !showList);
 
@@ -2129,14 +2180,12 @@ function render() {
     if (activeFilter === 'skills') {
         listFiltered = filtered.filter(e => {
             if (selectedSkills.size > 0 && (!e.skill || !selectedSkills.has(e.skill))) return false;
-            if (!skillSubs[e.sub]) return false;
+            if (!skillEntryMatchesSubFilters(e)) return false;
             return true;
         });
     }
 
-    if (activeFilter === 'skills') {
-        renderSkillPanel(filtered);
-    } else if (activeFilter === 'combat') {
+    if (activeFilter === 'combat') {
         renderCombatSide('boss',   filtered.filter(e => e.sub === 'boss'));
         renderCombatSide('slayer', filtered.filter(e => e.sub === 'slayer'));
     } else if (activeFilter === 'quests') {
@@ -2165,7 +2214,7 @@ function render() {
             </div>`).join('')
             + (hasMore ? `<button class="load-more-btn" onclick="loadMore()">Load more — showing ${visible.length.toLocaleString()} of ${display.length.toLocaleString()}</button>` : '');
 
-        renderListHeader(listFiltered);
+        renderListHeader(listFiltered, filtered);
     }
 
     document.getElementById('footer').textContent = '';
