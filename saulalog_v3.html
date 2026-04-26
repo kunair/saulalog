@@ -1430,86 +1430,6 @@
         color: #121212;
       }
 
-      .quest-filter-stack {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding-bottom: 10px;
-        margin-bottom: 8px;
-        border-bottom: 1px solid var(--color-bg-sub);
-      }
-      .quest-filter-row {
-        align-items: center;
-      }
-      .quest-filter-label {
-        font-size: 10px;
-        font-weight: 800;
-        color: var(--color-text-light);
-        text-transform: uppercase;
-        letter-spacing: 1.1px;
-        margin-right: 2px;
-      }
-      .quest-api-status {
-        border: 1px solid var(--color-border);
-        background: var(--color-bg-sub);
-        color: var(--color-text-dim);
-        border-radius: 8px;
-        padding: 8px 10px;
-        font-size: 11px;
-        line-height: 1.4;
-        margin-bottom: 8px;
-      }
-      .quest-api-status.error {
-        color: var(--color-combat);
-        border-color: color-mix(in srgb, var(--color-combat) 45%, var(--color-border));
-      }
-      .quest-card {
-        border-bottom: 1px solid var(--color-bg-sub);
-        padding: 10px 6px;
-        font-size: 12px;
-      }
-      .quest-card:last-child {
-        border-bottom: none;
-      }
-      .quest-card-title {
-        color: var(--color-text);
-        font-weight: 700;
-        line-height: 1.35;
-      }
-      .quest-card-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 5px;
-        margin-top: 5px;
-      }
-      .quest-tag {
-        display: inline-flex;
-        align-items: center;
-        padding: 2px 7px;
-        border-radius: 999px;
-        border: 1px solid var(--color-border);
-        background: var(--color-surface);
-        color: var(--color-text-dim);
-        font-size: 10px;
-        font-weight: 800;
-      }
-      .quest-tag.quest-tag-primary {
-        border-color: var(--color-quest);
-        color: var(--color-quest);
-      }
-      .quest-log-match {
-        color: var(--color-text-dim);
-        font-size: 11px;
-        line-height: 1.4;
-        margin-top: 6px;
-      }
-      .quest-log-ts {
-        color: var(--color-text-light);
-        font-family: "Courier New", monospace;
-        font-size: 10px;
-        margin-top: 3px;
-      }
-
       .skill-xp-panel {
         align-items: stretch;
       }
@@ -2279,29 +2199,6 @@
         milestone: true,
         completion: true,
       };
-      const QUEST_API_URL = "https://apps.runescape.com/runemetrics/quests?user=Saul";
-      const QUEST_DIFFICULTY_LABELS = {
-        0: "Novice",
-        1: "Intermediate",
-        2: "Experienced",
-        3: "Master",
-        4: "Grandmaster",
-        250: "Special",
-      };
-      const QUEST_DIFFICULTY_ORDER = [0, 1, 2, 3, 4, 250];
-      let questDifficultySubs = QUEST_DIFFICULTY_ORDER.reduce((acc, id) => {
-        acc[id] = true;
-        return acc;
-      }, {});
-      let questMemberSubs = {
-        members: true,
-        free: true,
-      }; // independent type toggles; both enabled means all quests
-      let runemetricsQuests = [];
-      let questApiStatus = {
-        state: "idle",
-        message: "RuneMetrics quest data has not loaded yet.",
-      };
       let selectedSkills = new Set(); // empty = "All Skills"; otherwise the explicit set of selected skills
       let skillViewMode = "flat";
       let xpChart = null;
@@ -2363,8 +2260,6 @@
           xpChart = null;
         }
         renderHeatmap(activeFilter);
-        buildParserWarnings();
-        updateDataHealth();
         render();
       }
 
@@ -2408,128 +2303,10 @@
       function getCurrentSearchQuery() { const input = document.getElementById("search"); return input ? input.value.trim() : ""; }
       function getSelectedSkillGroupLabel() { if (selectedSkills.size === 0) return "all"; const selected = [...selectedSkills].sort().join("|"); for (const [groupName, skills] of Object.entries(SKILL_GROUPS)) { if (selected === skills.filter((skill) => SKILLS.includes(skill)).sort().join("|")) return groupName; } return [...selectedSkills].join(","); }
       function applySkillSelectionFromState(value) { selectedSkills.clear(); if (!value || value === "all") return; if (SKILL_GROUPS[value]) { SKILL_GROUPS[value].forEach((skill) => selectedSkills.add(skill)); return; } value.split(",").map((skill) => skill.trim()).filter((skill) => SKILLS.includes(skill)).forEach((skill) => selectedSkills.add(skill)); }
-      function buildUrlStateParams() {
-        const params = new URLSearchParams();
-        params.set("section", activeFilter);
-        params.set("range", datePreset || "all");
-        const q = getCurrentSearchQuery();
-        if (q) params.set("q", q);
-        if (datePreset === "custom" && dateFrom) params.set("day", dateFrom.toISOString().slice(0, 10));
-        if (activeFilter === "skills") {
-          params.set("skills", getSelectedSkillGroupLabel());
-          params.set(
-            "skillFilters",
-            Object.entries(skillSubs)
-              .filter(([, enabled]) => enabled)
-              .map(([key]) => key)
-              .join(","),
-          );
-        }
-        if (activeFilter === "clues") {
-          params.set("clue", selClueType);
-          params.set("clueMode", clueViewMode);
-        }
-        if (activeFilter === "quests") {
-          params.set(
-            "questFilters",
-            Object.entries(questSubs)
-              .filter(([, enabled]) => enabled)
-              .map(([key]) => key)
-              .join(","),
-          );
-          params.set(
-            "questDifficulties",
-            Object.entries(questDifficultySubs)
-              .filter(([, enabled]) => enabled)
-              .map(([key]) => key)
-              .join(","),
-          );
-          params.set(
-            "questTypes",
-            Object.entries(questMemberSubs)
-              .filter(([, enabled]) => enabled)
-              .map(([key]) => key)
-              .join(","),
-          );
-        }
-        if (activeFilter === "combat") {
-          if (selBoss) params.set("boss", selBoss);
-          if (selSlayer) params.set("slayer", selSlayer);
-        }
-        return params;
-      }
+      function buildUrlStateParams() { const params = new URLSearchParams(); params.set("section", activeFilter); params.set("range", datePreset || "all"); const q = getCurrentSearchQuery(); if (q) params.set("q", q); if (datePreset === "custom" && dateFrom) params.set("day", dateFrom.toISOString().slice(0, 10)); if (activeFilter === "skills") { params.set("skills", getSelectedSkillGroupLabel()); params.set("skillFilters", Object.entries(skillSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); } if (activeFilter === "clues") { params.set("clue", selClueType); params.set("clueMode", clueViewMode); } if (activeFilter === "quests") params.set("questFilters", Object.entries(questSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); if (activeFilter === "combat") { if (selBoss) params.set("boss", selBoss); if (selSlayer) params.set("slayer", selSlayer); } return params; }
       function updateUrlState() { if (suppressUrlStateUpdate) return; const nextHash = "#" + buildUrlStateParams().toString(); if (window.location.hash !== nextHash) history.replaceState(null, "", nextHash); }
-      function applyUrlState() {
-        if (!window.location.hash) return;
-        const params = new URLSearchParams(window.location.hash.slice(1));
-        suppressUrlStateUpdate = true;
-        activeFilter = params.get("section") || activeFilter;
-        const search = document.getElementById("search");
-        if (search) search.value = params.get("q") || "";
-        const range = params.get("range") || "all";
-        if (range === "custom" && params.get("day")) setCustomDateRange(params.get("day"));
-        else setDatePreset(range);
-        applySkillSelectionFromState(params.get("skills"));
-        const skillFilters = params.get("skillFilters");
-        if (skillFilters !== null) {
-          const enabled = new Set(skillFilters.split(",").filter(Boolean));
-          Object.keys(skillSubs).forEach((key) => {
-            skillSubs[key] = enabled.has(key);
-          });
-        }
-        if (params.get("clue")) selClueType = params.get("clue");
-        if (params.get("clueMode")) clueViewMode = params.get("clueMode");
-        const questFilters = params.get("questFilters");
-        if (questFilters !== null) {
-          const enabled = new Set(questFilters.split(",").filter(Boolean));
-          Object.keys(questSubs).forEach((key) => {
-            questSubs[key] = enabled.has(key);
-          });
-        }
-        const questDifficulties = params.get("questDifficulties");
-        if (questDifficulties !== null) {
-          const enabled = new Set(questDifficulties.split(",").filter(Boolean));
-          Object.keys(questDifficultySubs).forEach((key) => {
-            questDifficultySubs[key] = enabled.has(key);
-          });
-        }
-        const questTypes = params.get("questTypes");
-        if (questTypes !== null) {
-          const enabled = new Set(questTypes.split(",").filter(Boolean));
-          Object.keys(questMemberSubs).forEach((key) => {
-            questMemberSubs[key] = enabled.has(key);
-          });
-        }
-        if (params.get("boss")) selBoss = params.get("boss");
-        if (params.get("slayer")) selSlayer = params.get("slayer");
-        suppressUrlStateUpdate = false;
-        render();
-      }
-      function resetAllFilters() {
-        suppressUrlStateUpdate = true;
-        activeFilter = "all";
-        currentPage = 0;
-        const search = document.getElementById("search");
-        if (search) search.value = "";
-        selectedSkills.clear();
-        skillSubs = { xp: true, level: true, pet: true, total: true, m200: true };
-        clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true };
-        questSubs = { milestone: true, completion: true };
-        questDifficultySubs = QUEST_DIFFICULTY_ORDER.reduce((acc, id) => {
-          acc[id] = true;
-          return acc;
-        }, {});
-        questMemberSubs = { members: true, free: true };
-        selClueType = "easy";
-        clueViewMode = "loot";
-        selClueLootItem = null;
-        selBossLoot = null;
-        selSlayerLoot = null;
-        selBossKC = false;
-        selSlayerKC = false;
-        suppressUrlStateUpdate = false;
-        setDatePreset("all");
-      }
+      function applyUrlState() { if (!window.location.hash) return; const params = new URLSearchParams(window.location.hash.slice(1)); suppressUrlStateUpdate = true; activeFilter = params.get("section") || activeFilter; const search = document.getElementById("search"); if (search) search.value = params.get("q") || ""; const range = params.get("range") || "all"; if (range === "custom" && params.get("day")) setCustomDateRange(params.get("day")); else setDatePreset(range); applySkillSelectionFromState(params.get("skills")); const skillFilters = params.get("skillFilters"); if (skillFilters !== null) { const enabled = new Set(skillFilters.split(",").filter(Boolean)); Object.keys(skillSubs).forEach((key) => { skillSubs[key] = enabled.has(key); }); } if (params.get("clue")) selClueType = params.get("clue"); if (params.get("clueMode")) clueViewMode = params.get("clueMode"); const questFilters = params.get("questFilters"); if (questFilters !== null) { const enabled = new Set(questFilters.split(",").filter(Boolean)); Object.keys(questSubs).forEach((key) => { questSubs[key] = enabled.has(key); }); } if (params.get("boss")) selBoss = params.get("boss"); if (params.get("slayer")) selSlayer = params.get("slayer"); suppressUrlStateUpdate = false; render(); }
+      function resetAllFilters() { suppressUrlStateUpdate = true; activeFilter = "all"; currentPage = 0; const search = document.getElementById("search"); if (search) search.value = ""; selectedSkills.clear(); skillSubs = { xp: true, level: true, pet: true, total: true, m200: true }; clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true }; questSubs = { milestone: true, completion: true }; selClueType = "easy"; clueViewMode = "loot"; selClueLootItem = null; selBossLoot = null; selSlayerLoot = null; selBossKC = false; selSlayerKC = false; suppressUrlStateUpdate = false; setDatePreset("all"); }
       function toggleDebugMode() {
         debugMode = !debugMode;
         if (!activeParserWarningType && parserWarnings.length) {
@@ -2583,8 +2360,6 @@
             "numeric loot": "Loot names contain numbers that were ignored for killcount extraction.",
             "inferred +1": "Singular kill-only rows counted as one kill.",
             "shared alias": "Rows expanded across shared boss aliases.",
-            "quest missing timestamp": "RuneMetrics-completed quests that have no matching Saulalog completion timestamp.",
-            "quest log unmatched API": "Saulalog quest-complete rows that did not match a completed RuneMetrics quest.",
           }[type] || "Parser diagnostics grouped by issue type."
         );
       }
@@ -2703,27 +2478,6 @@
             });
           }
         });
-        if (runemetricsQuests.length) {
-          const { cards, unmatchedLogs } = getMergedRunemetricsQuestCards();
-
-          cards.forEach((card) => {
-            if (card.hasTimestamp) return;
-            warnings.push({
-              type: "quest missing timestamp",
-              ts: "—",
-              message: "Completed RuneMetrics quest has no matching Saulalog timestamp: " + card.quest.title,
-            });
-          });
-
-          unmatchedLogs.forEach((entry) => {
-            warnings.push({
-              type: "quest log unmatched API",
-              ts: entry.ts,
-              message: "Saulalog quest completion did not match a completed RuneMetrics quest: " + extractQuestTitleFromLog(entry),
-            });
-          });
-        }
-
         parserWarnings = warnings;
       }
 
@@ -3092,155 +2846,6 @@
 
         return 0;
       }
-      function getQuestDifficultyLabel(value) {
-        return QUEST_DIFFICULTY_LABELS[value] || "Unknown";
-      }
-
-      function normalizeQuestTitle(value) {
-        return String(value || "")
-          .replace(/^quest complete:\s*/i, "")
-          .replace(/[.!?]+$/g, "")
-          .replace(/[’]/g, "'")
-          .replace(/\s+/g, " ")
-          .trim()
-          .toLowerCase();
-      }
-
-      function extractQuestTitleFromLog(entry) {
-        if (!entry) return "";
-        if (/^quest complete:/i.test(entry.title)) {
-          return entry.title.replace(/^quest complete:\s*/i, "").replace(/[.!?]+$/g, "").trim();
-        }
-        return entry.title || "";
-      }
-
-      function getQuestCompletionLogMap() {
-        const map = new Map();
-        parsed
-          .filter((entry) => entry.super === "quests" && entry.sub === "completion")
-          .forEach((entry) => {
-            const key = normalizeQuestTitle(extractQuestTitleFromLog(entry));
-            if (!key) return;
-            const current = map.get(key);
-            if (!current || new Date(entry.ts) > new Date(current.ts)) {
-              map.set(key, entry);
-            }
-          });
-        return map;
-      }
-
-      function simplifyQuestMatchKey(value) {
-        return normalizeQuestTitle(value)
-          .replace(/(?:the|a|an)/g, "")
-          .replace(/[^a-z0-9]+/g, "")
-          .trim();
-      }
-
-      function getQuestCompletionLogs() {
-        return parsed
-          .filter((entry) => entry.super === "quests" && entry.sub === "completion")
-          .map((entry) => ({
-            entry,
-            title: extractQuestTitleFromLog(entry),
-            normalizedTitle: normalizeQuestTitle(extractQuestTitleFromLog(entry)),
-            simpleTitle: simplifyQuestMatchKey(extractQuestTitleFromLog(entry)),
-          }))
-          .filter((item) => item.normalizedTitle)
-          .sort((a, b) => new Date(b.entry.ts) - new Date(a.entry.ts));
-      }
-
-      function findQuestCompletionLogForApiQuest(quest, logs = getQuestCompletionLogs()) {
-        if (!quest || !quest.normalizedTitle) return null;
-        const exact = logs.find((item) => item.normalizedTitle === quest.normalizedTitle);
-        if (exact) return exact.entry;
-
-        // Fallback matching handles small punctuation/article differences between
-        // RuneMetrics titles and Saulalog's "Quest complete:" log titles.
-        const simpleQuestTitle = simplifyQuestMatchKey(quest.title);
-        const fuzzy = logs.find((item) => item.simpleTitle && item.simpleTitle === simpleQuestTitle);
-        return fuzzy ? fuzzy.entry : null;
-      }
-
-      function getMergedRunemetricsQuestCards() {
-        const logs = getQuestCompletionLogs();
-        const matchedLogIndexes = new Set();
-        const cards = runemetricsQuests.map((quest) => {
-          const localLog = findQuestCompletionLogForApiQuest(quest, logs);
-          if (localLog) matchedLogIndexes.add(localLog.sourceIndex);
-          return {
-            type: "api",
-            quest,
-            localLog,
-            completionTs: localLog ? localLog.ts : null,
-            hasTimestamp: Boolean(localLog),
-          };
-        });
-
-        const unmatchedLogs = logs
-          .filter((item) => !matchedLogIndexes.has(item.entry.sourceIndex))
-          .map((item) => item.entry);
-
-        return { cards, unmatchedLogs };
-      }
-
-      async function fetchRunemetricsQuestData() {
-        questApiStatus = {
-          state: "loading",
-          message: "Loading RuneMetrics quest data...",
-        };
-        if (activeFilter === "quests") render();
-
-        try {
-          const response = await fetch(QUEST_API_URL);
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const data = await response.json();
-          const quests = Array.isArray(data.quests) ? data.quests : [];
-
-          // RuneMetrics has no completion timestamp, so these records are used as
-          // authoritative completion metadata and then enriched with matching local logs.
-          runemetricsQuests = quests
-            .filter((quest) => String(quest.status || "").toUpperCase() === "COMPLETED")
-            .map((quest) => ({
-              title: quest.title || "Untitled quest",
-              status: quest.status || "COMPLETED",
-              difficulty: Number(quest.difficulty),
-              difficultyLabel: getQuestDifficultyLabel(Number(quest.difficulty)),
-              members: Boolean(quest.members),
-              questPoints: Number(quest.questPoints || 0),
-              userEligible: Boolean(quest.userEligible),
-              normalizedTitle: normalizeQuestTitle(quest.title),
-            }))
-            .sort((a, b) => a.title.localeCompare(b.title));
-
-          questApiStatus = {
-            state: "loaded",
-            message: `${runemetricsQuests.length.toLocaleString()} completed quests loaded from RuneMetrics.`,
-          };
-        } catch (error) {
-          console.error("Failed to load RuneMetrics quest data:", error);
-          questApiStatus = {
-            state: "error",
-            message: "RuneMetrics quest data could not be loaded. Local Saulalog quest entries are still available.",
-          };
-          runemetricsQuests = [];
-        }
-
-        buildParserWarnings();
-        updateDataHealth();
-        render();
-      }
-
-      function toggleQuestDifficulty(id) {
-        questDifficultySubs[id] = !questDifficultySubs[id];
-        render();
-      }
-
-      function toggleQuestMember(id) {
-        if (!Object.prototype.hasOwnProperty.call(questMemberSubs, id)) return;
-        questMemberSubs[id] = !questMemberSubs[id];
-        render();
-      }
-
       function processData(csvText) {
         const lines = csvText.split(/\r?\n/).slice(1); // skip header row
         rawCsvLineCount = lines.filter((line) => line.trim()).length;
@@ -3783,184 +3388,54 @@
       function renderQuestPanel(entries) {
         const questTypes = [
           { id: "milestone", label: "Milestones" },
-          { id: "completion", label: "Completions" },
+          { id: "completion", label: "Quest completions" },
         ];
-        const searchQuery = getCurrentSearchQuery().toLowerCase();
-        const { cards: mergedQuestCards } = getMergedRunemetricsQuestCards();
 
-        function localLogIsInSelectedDateRange(localLog) {
-          // RuneMetrics exposes completion status, but not completion timestamps.
-          // When a Saulalog row exists, the global date range can filter by that row.
-          // Missing timestamps stay visible only in All Time because they cannot be
-          // assigned to 7d/30d/90d/1yr without inventing a date.
-          if (!dateFrom && !dateTo) return true;
-          if (!localLog) return false;
-          const d = parseTs(localLog.ts);
-          if (!d) return false;
-          if (dateFrom && d < dateFrom) return false;
-          if (dateTo && d > dateTo) return false;
-          return true;
-        }
+        // Counts respect global search/date filters, but ignore the quest toggles
+        // themselves so each badge remains useful when its category is hidden.
+        const countByType = (type) =>
+          entries.filter((e) => e.sub === type).length.toLocaleString();
 
-        function questMatchesSearch(card) {
-          if (!searchQuery) return true;
-          const localLog = card.localLog;
-          const localText = localLog ? (localLog.title + " " + localLog.details).toLowerCase() : "";
-          return card.quest.title.toLowerCase().includes(searchQuery) || localText.includes(searchQuery);
-        }
+        const buttonRow = `
+        <div class="bubble-wrap clue-btn-row sticky-filter-row">
+            ${questTypes
+              .map(
+                (type) => `
+                <div class="b-pill pill-quest ${questSubs[type.id] ? "active" : ""}"
+                     onclick="toggleSubFilter('quests','${type.id}')">
+                    ${type.label}
+                    <span class="b-pill-count">${countByType(type.id)}</span>
+                </div>`,
+              )
+              .join("")}
+        </div>`;
 
-        function questMatchesType(card) {
-          return card.quest.members ? questMemberSubs.members : questMemberSubs.free;
-        }
-
-        // RuneMetrics status === COMPLETED is the authoritative completion set.
-        // Saulalog quest rows enrich matching API quests with completion timestamps.
-        const baseCards = mergedQuestCards.filter(
-          (card) => questMatchesSearch(card) && localLogIsInSelectedDateRange(card.localLog),
-        );
-
-        const completionCards = baseCards
-          .filter((card) => questDifficultySubs[card.quest.difficulty])
-          .filter((card) => questMatchesType(card))
-          .sort((a, b) => {
-            const da = a.localLog ? parseTs(a.localLog.ts)?.getTime() || 0 : 0;
-            const db = b.localLog ? parseTs(b.localLog.ts)?.getTime() || 0 : 0;
-            if (db !== da) return db - da;
-            return a.quest.title.localeCompare(b.quest.title);
-          });
-
-        // If RuneMetrics fails, preserve a local fallback so the Quest tab still works.
-        const localFallbackCards = !runemetricsQuests.length
-          ? entries
-              .filter((entry) => entry.sub === "completion")
-              .map((entry) => ({ type: "local", entry }))
-          : [];
-
-        const visibleCompletionCards = questSubs.completion
-          ? completionCards.concat(localFallbackCards)
-          : [];
-
-        const milestoneEntries = entries.filter((entry) => entry.sub === "milestone");
-        const visibleMilestones = questSubs.milestone ? milestoneEntries : [];
-        const totalVisible = visibleMilestones.length + visibleCompletionCards.length;
-
-        const difficultyCount = (difficulty) =>
-          baseCards.filter((card) => card.quest.difficulty === difficulty && questMatchesType(card)).length;
-        const membershipCount = (mode) =>
-          baseCards.filter(
-            (card) =>
-              questDifficultySubs[card.quest.difficulty] &&
-              (mode === "members" ? card.quest.members : !card.quest.members),
-          ).length;
+        const visibleEntries = entries.filter((e) => questSubs[e.sub]);
+        const sortedEntries = visibleEntries
+          .slice()
+          .sort((a, b) => new Date(b.ts) - new Date(a.ts));
 
         const entryCount = document.getElementById("quest-entry-count");
-        if (entryCount) entryCount.textContent = totalVisible.toLocaleString() + " entries";
+        if (entryCount)
+          entryCount.textContent = `${visibleEntries.length.toLocaleString()} entries`;
 
-        const apiStatusClass = questApiStatus.state === "error" ? " error" : "";
-        const buttonRow = `
-        <div class="quest-filter-stack sticky-filter-row">
-            <div class="bubble-wrap quest-filter-row">
-                ${questTypes
-                  .map(
-                    (type) => `
-                    <div class="b-pill pill-quest ${questSubs[type.id] ? "active" : ""}"
-                         onclick="toggleSubFilter('quests','${type.id}')">
-                        ${type.label}
-                        <span class="b-pill-count">${type.id === "milestone" ? milestoneEntries.length.toLocaleString() : completionCards.length.toLocaleString()}</span>
-                    </div>`,
-                  )
-                  .join("")}
-            </div>
-            <div class="bubble-wrap quest-filter-row">
-                ${QUEST_DIFFICULTY_ORDER.map((id) => `
-                    <div class="b-pill pill-quest ${questDifficultySubs[id] ? "active" : ""}"
-                         onclick="toggleQuestDifficulty(${id})">
-                        ${getQuestDifficultyLabel(id)}
-                        <span class="b-pill-count">${difficultyCount(id).toLocaleString()}</span>
-                    </div>`).join("")}
-            </div>
-            <div class="bubble-wrap quest-filter-row">
-                ${[
-                  ["members", "Members"],
-                  ["free", "Free"],
-                ].map(([id, label]) => `
-                    <div class="b-pill pill-quest ${questMemberSubs[id] ? "active" : ""}"
-                         onclick="toggleQuestMember('${id}')">
-                        ${label}
-                        <span class="b-pill-count">${membershipCount(id).toLocaleString()}</span>
-                    </div>`).join("")}
-            </div>
-        </div>`;
-
-        const makeMilestoneEntry = (entry) => `
+        const makeEntry = (e) => `
         <div class="dual-entry">
-            <div class="dual-entry-title">${escapeHtml(entry.title)}</div>
-            <div class="dual-entry-detail">${escapeHtml(entry.details)}</div>
-            <div class="dual-entry-ts">${escapeHtml(entry.ts)}</div>
+            <div class="dual-entry-title">${escapeHtml(e.title)}</div>
+            <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
+            <div class="dual-entry-ts">${escapeHtml(e.ts)}</div>
         </div>`;
-
-        const makeQuestCard = (card) => {
-          if (card.type === "local") {
-            const title = extractQuestTitleFromLog(card.entry);
-            return `
-        <div class="quest-card">
-            <div class="quest-card-title">${escapeHtml(title)}</div>
-            <div class="quest-card-meta">
-                <span class="quest-tag quest-tag-primary">Local log</span>
-                <span class="quest-tag">RuneMetrics unavailable</span>
-            </div>
-            <div class="quest-log-match">${escapeHtml(card.entry.details)}</div>
-            <div class="quest-log-ts">${escapeHtml(card.entry.ts)}</div>
-        </div>`;
-          }
-
-          const { quest, localLog } = card;
-          return `
-        <div class="quest-card">
-            <div class="quest-card-title">${escapeHtml(quest.title)}</div>
-            <div class="quest-card-meta">
-                <span class="quest-tag quest-tag-primary">${escapeHtml(quest.difficultyLabel)}</span>
-                <span class="quest-tag">${quest.members ? "Members" : "Free"}</span>
-                <span class="quest-tag">${quest.questPoints.toLocaleString()} QP</span>
-                <span class="quest-tag">${escapeHtml(String(quest.status || "COMPLETED").toUpperCase())}</span>
-            </div>
-            ${localLog ? `
-            <div class="quest-log-match">Matched Saulalog entry: ${escapeHtml(localLog.details)}</div>
-            <div class="quest-log-ts">Completed: ${escapeHtml(localLog.ts)}</div>` : `
-            <div class="quest-log-match">No matching Saulalog completion timestamp found.</div>
-            <div class="quest-log-ts">Completed: —</div>`}
-        </div>`;
-        };
-
-        const completionStatus = runemetricsQuests.length
-          ? `<div class="quest-api-status${apiStatusClass}">${escapeHtml(questApiStatus.message)} Saulalog timestamps are merged when a quest-name match is found; missing timestamps are flagged in Debug mode.</div>`
-          : `<div class="quest-api-status${apiStatusClass}">${escapeHtml(questApiStatus.message)}</div>`;
-
-        const bodyHtml = [
-          visibleMilestones.length
-            ? `<div class="quest-api-status">Milestones from loaded Saulalog entries.</div>${visibleMilestones
-                .slice()
-                .sort((a, b) => new Date(b.ts) - new Date(a.ts))
-                .map(makeMilestoneEntry)
-                .join("")}`
-            : "",
-          questSubs.completion
-            ? completionStatus +
-              (visibleCompletionCards.length
-                ? visibleCompletionCards.map(makeQuestCard).join("")
-                : '<div class="dual-empty">No completed RuneMetrics quests match the selected filters</div>')
-            : "",
-        ].join("");
 
         document.getElementById("quest-list").innerHTML =
           buttonRow +
           '<div class="single-panel-scroll">' +
-          (bodyHtml || '<div class="dual-empty">No quest entries match the selected filters</div>') +
+          (sortedEntries.length
+            ? sortedEntries.map(makeEntry).join("")
+            : '<div class="dual-empty">No quest entries match the selected filters</div>') +
           "</div>";
       }
 
       const CLUE_TYPES = ["easy", "medium", "hard", "elite", "master"];
-
 
 
       function renderCluePanel(allEntries) {
@@ -4996,9 +4471,8 @@
         setFilter("all");
       }
       window.addEventListener("hashchange", applyUrlState);
-      // --- New Auto-Ingest Calls ---
+      // --- New Auto-Ingest Call ---
       fetchGoogleSheetData();
-      fetchRunemetricsQuestData();
     </script>
   </body>
 </html>
