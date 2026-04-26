@@ -74,16 +74,40 @@
 
       .header-row {
         width: 100%;
-        max-width: 500px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        justify-content: center;
+        gap: 8px;
+      }
+      .upload-wrap {
+        width: min(360px, calc(100% - 50px));
+      }
+      .toolbar-row {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(260px, 1fr) auto;
+        align-items: center;
+        gap: 16px;
       }
       .search-wrap {
-        flex-grow: 1;
+        min-width: 0;
+      }
+      .range-wrap {
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
         gap: 10px;
+        min-width: 0;
+      }
+      @media (max-width: 760px) {
+        .toolbar-row {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+        .range-wrap {
+          justify-content: flex-start;
+          flex-wrap: wrap;
+        }
       }
       input[type="text"],
       select {
@@ -104,15 +128,15 @@
 
       .theme-toggle {
         cursor: pointer;
-        padding: 10px;
-        border-radius: 6px;
+        padding: 0;
+        border-radius: 8px;
         border: 1px solid var(--color-border);
         background: var(--color-surface);
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 42px;
-        height: 42px;
+        width: 40px;
+        height: 40px;
         transition: 0.1s;
         font-size: 18px;
         user-select: none;
@@ -126,17 +150,21 @@
       }
 
       .upload-area {
-        border: 2px dashed var(--color-border);
-        padding: 20px;
+        border: 1.5px dashed var(--color-border);
+        padding: 0 14px;
         width: 100%;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
-        border-radius: 10px;
+        border-radius: 8px;
         background: var(--color-surface);
         cursor: pointer;
         color: var(--color-text-dim);
         transition: 0.1s;
-        font-size: 14px;
-        font-weight: 500;
+        font-size: 12px;
+        font-weight: 700;
         user-select: none;
       }
       .upload-area:hover {
@@ -829,6 +857,7 @@
       .date-row {
         display: flex;
         align-items: center;
+        justify-content: flex-end;
         gap: 10px;
         width: 100%;
       }
@@ -1025,7 +1054,8 @@
         gap: 15px;
         width: 100%;
       }
-      .quest-single-panel {
+      .quest-single-panel,
+      .clue-single-panel {
         grid-template-columns: 1fr;
       }
       .dual-col {
@@ -1063,6 +1093,27 @@
         flex: 1;
         overflow-y: auto;
         max-height: 480px;
+        margin: 0 -15px;
+        padding: 0 15px;
+      }
+      /* Single-pane Clue/Quest sections keep filters outside the scrollable area
+         so the scrollbar starts beside the entries, not beside the header. */
+      .quest-single-panel .dual-col-body,
+      .clue-single-panel .dual-col-body {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        max-height: none;
+        overflow: visible;
+        margin: 0;
+        padding: 0;
+      }
+      .single-panel-scroll {
+        flex: 1;
+        min-height: 0;
+        max-height: 480px;
+        overflow-y: auto;
         margin: 0 -15px;
         padding: 0 15px;
       }
@@ -1192,6 +1243,23 @@
         padding-bottom: 10px;
         margin-bottom: 8px;
         border-bottom: 1px solid var(--color-bg-sub);
+      }
+      .sticky-filter-row {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: var(--color-surface);
+        padding-top: 2px;
+      }
+      .b-pill-count.clue-count-action {
+        cursor: pointer;
+        transition:
+          transform 0.1s,
+          filter 0.1s;
+      }
+      .b-pill-count.clue-count-action:hover {
+        filter: brightness(1.15);
+        transform: scale(1.08);
       }
       .b-pill .b-pill-count {
         margin-left: 6px;
@@ -1371,24 +1439,15 @@
   <body>
     <div class="wrap">
       <div class="header-row">
-        <div class="search-wrap">
+        <div class="upload-wrap">
           <label class="upload-area" for="csv-file" id="upload-label"
-            >Click to upload a CSV (or wait for Google Sheets sync)</label
+            >CSV / Google Sheets</label
           >
           <input
             accept=".csv"
             id="csv-file"
             onchange="handleFileUpload(event)"
             type="file"
-          />
-          <input
-            id="search"
-            oninput="
-              currentPage = 0;
-              render();
-            "
-            placeholder="Search by title, monster, or drop..."
-            type="text"
           />
         </div>
         <div
@@ -1401,29 +1460,42 @@
       </div>
       <!-- Stats Bar -->
       <div class="stats-bar" id="stats-bar"></div>
-      <!-- Date Range -->
-      <div class="date-row">
-        <span class="date-label">Range</span>
-        <div class="date-presets" id="date-presets">
-          <button class="dp-btn" data-p="7d" onclick="setDatePreset('7d')">
-            7d
-          </button>
-          <button class="dp-btn" data-p="30d" onclick="setDatePreset('30d')">
-            30d
-          </button>
-          <button class="dp-btn" data-p="90d" onclick="setDatePreset('90d')">
-            90d
-          </button>
-          <button class="dp-btn" data-p="1y" onclick="setDatePreset('1y')">
-            1yr
-          </button>
-          <button
-            class="dp-btn active"
-            data-p="all"
-            onclick="setDatePreset('all')"
-          >
-            All Time
-          </button>
+      <!-- Search and global date range controls -->
+      <div class="toolbar-row">
+        <div class="search-wrap">
+          <input
+            id="search"
+            oninput="
+              currentPage = 0;
+              render();
+            "
+            placeholder="Search by title, monster, or drop..."
+            type="text"
+          />
+        </div>
+        <div class="range-wrap">
+          <span class="date-label">Range</span>
+          <div class="date-presets" id="date-presets">
+            <button class="dp-btn" data-p="7d" onclick="setDatePreset('7d')">
+              7d
+            </button>
+            <button class="dp-btn" data-p="30d" onclick="setDatePreset('30d')">
+              30d
+            </button>
+            <button class="dp-btn" data-p="90d" onclick="setDatePreset('90d')">
+              90d
+            </button>
+            <button class="dp-btn" data-p="1y" onclick="setDatePreset('1y')">
+              1yr
+            </button>
+            <button
+              class="dp-btn active"
+              data-p="all"
+              onclick="setDatePreset('all')"
+            >
+              All Time
+            </button>
+          </div>
         </div>
       </div>
       <!-- Activity Heatmap: directly below Range filters for every section, including Skills -->
@@ -1722,22 +1794,18 @@
             <div class="dual-col-body" id="quest-list"></div>
           </div>
         </div>
-        <!-- Clue dual-column panel -->
-        <div class="dual-panel hidden" id="clue-view">
+        <!-- Clue single-pane panel -->
+        <div class="dual-panel clue-single-panel hidden" id="clue-view">
           <div class="dual-col">
             <div class="dual-col-header">
-              <span>Notable Loot</span>
+              <span>Clue Log</span>
+              <span class="col-count" id="clue-entry-count"></span>
             </div>
-            <div class="dual-col-body" id="clue-loot-list"></div>
-          </div>
-          <div class="dual-col">
-            <div class="dual-col-header">
-              <span>Clues Completed</span>
-            </div>
-            <div class="dual-col-body" id="clue-completion-list"></div>
+            <div class="dual-col-body" id="clue-list"></div>
           </div>
         </div>
         <!-- Skills dual-column panel -->
+
         <div class="dual-panel hidden skill-xp-panel" id="skill-view">
           <div class="dual-col skill-history-col">
             <div class="dual-col-header">
@@ -1966,7 +2034,6 @@
       let questSubs = {
         milestone: true,
         completion: true,
-        songs: true,
       };
       let selectedSkills = new Set(); // empty = "All Skills"; otherwise the explicit set of selected skills
       let skillViewMode = "flat";
@@ -1979,9 +2046,9 @@
       let currentPage = 0;
       const PAGE_SIZE = 100;
       // Clue panel state
-      let selClueType = "easy"; // which clue tier's logs to show
-      let selClueLootType = "easy"; // which clue tier's loot to show
-      let selClueLootItem = null; // null=grouped list, 'itemname' = history for specific item
+      let selClueType = "easy"; // active clue tier for the single Clue pane
+      let clueViewMode = "loot"; // bubble click = loot, count click = completions
+      let selClueLootItem = null; // null=grouped loot list, otherwise item drilldown
 
       const SKILL_GROUPS = {
         Combat: [
@@ -2666,9 +2733,8 @@
             }
 
             // ── Quests ──
-            // Quest entries are rendered in one pane, but keep a small sub-type
-            // so the Milestones / Quest completions / Songs filter bubbles can
-            // count and toggle each category independently.
+            // Quest entries render in one pane, with songs bundled under Milestones
+            // so the filter bar stays simple: Milestones vs Quest completions.
             if (/^quest complete:/i.test(title)) {
               d.super = "quests";
               d.sub = "completion";
@@ -2676,7 +2742,7 @@
             }
             if (/unlocked a total of \d+ songs/i.test(details)) {
               d.super = "quests";
-              d.sub = "songs";
+              d.sub = "milestone";
               return d;
             }
             if (/quest points?/i.test(details) || /Quest Complete/.test(details)) {
@@ -2730,23 +2796,29 @@
 
       function selectClueType(type) {
         selClueType = type;
+        clueViewMode = "loot";
+        selClueLootItem = null;
         render();
       }
-      function selectClueLootType(type) {
-        selClueLootType = type;
+      function selectClueCompletions(type) {
+        selClueType = type;
+        clueViewMode = "completions";
         selClueLootItem = null;
         render();
       }
       function selectClueLootItem(item) {
+        clueViewMode = "loot";
         selClueLootItem = item;
         render();
       }
       function clueLootBack() {
         selClueLootItem = null;
+        clueViewMode = "loot";
         render();
       }
 
       function toggleSubFilter(cat, id) {
+
         const obj =
           cat === "skills" ? skillSubs : cat === "quests" ? questSubs : clueSubs;
         obj[id] = !obj[id];
@@ -2965,17 +3037,15 @@
         const questTypes = [
           { id: "milestone", label: "Milestones" },
           { id: "completion", label: "Quest completions" },
-          { id: "songs", label: "Songs" },
         ];
 
-        // Counts are based on the current global search/date filters, but not on
-        // the quest bubble toggles themselves. That keeps each badge informative
-        // even when its own category is temporarily hidden.
+        // Counts respect global search/date filters, but ignore the quest toggles
+        // themselves so each badge remains useful when its category is hidden.
         const countByType = (type) =>
           entries.filter((e) => e.sub === type).length.toLocaleString();
 
         const buttonRow = `
-        <div class="bubble-wrap clue-btn-row">
+        <div class="bubble-wrap clue-btn-row sticky-filter-row">
             ${questTypes
               .map(
                 (type) => `
@@ -3006,76 +3076,80 @@
 
         document.getElementById("quest-list").innerHTML =
           buttonRow +
+          '<div class="single-panel-scroll">' +
           (sortedEntries.length
             ? sortedEntries.map(makeEntry).join("")
-            : '<div class="dual-empty">No quest entries match the selected filters</div>');
+            : '<div class="dual-empty">No quest entries match the selected filters</div>') +
+          "</div>";
       }
 
       const CLUE_TYPES = ["easy", "medium", "hard", "elite", "master"];
 
+
       function renderCluePanel(allEntries) {
+        const listEl = document.getElementById("clue-list");
+        const entryCount = document.getElementById("clue-entry-count");
         const lootEntries = allEntries.filter((e) => e.item);
 
-        // Build button-row HTML for a column. typeCount(type) returns the number to display.
-        const buttonRow = (selected, onclickFn, typeCount) => `
-        <div class="bubble-wrap clue-btn-row">
-            ${CLUE_TYPES.map(
-              (type) => `
-                <div class="b-pill pill-clue ${selected === type ? "active" : ""}"
-                     onclick="${onclickFn}('${type}')">
-                    ${type.charAt(0).toUpperCase() + type.slice(1)}
-                    <span class="b-pill-count">${typeCount(type)}</span>
-                </div>`,
-            ).join("")}
+        // Clue bubbles have two click targets: the pill shows notable loot for
+        // that tier, while the count badge drills into completed clue logs.
+        const completionCount = (type) =>
+          allEntries.filter((e) => e.sub === type).length;
+        const buttonRow = `
+        <div class="bubble-wrap clue-btn-row sticky-filter-row">
+            ${CLUE_TYPES.map((type) => {
+              const label = type.charAt(0).toUpperCase() + type.slice(1);
+              return `
+                <div class="b-pill pill-clue ${selClueType === type ? "active" : ""}"
+                     onclick="selectClueType('${type}')"
+                     title="Show ${label} notable loot">
+                    ${label}
+                    <span class="b-pill-count clue-count-action"
+                          title="Show ${label} completions"
+                          onclick="event.stopPropagation(); selectClueCompletions('${type}')">${completionCount(type).toLocaleString()}</span>
+                </div>`;
+            }).join("")}
         </div>`;
 
-        const makeClueLogEntry = (e) => `
+        const selectedLabel =
+          selClueType.charAt(0).toUpperCase() + selClueType.slice(1);
+
+        if (clueViewMode === "completions") {
+          const logs = allEntries
+            .filter((e) => e.sub === selClueType)
+            .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+          if (entryCount)
+            entryCount.textContent = `${logs.length.toLocaleString()} ${selectedLabel} completions`;
+
+          const makeClueLogEntry = (e) => `
         <div class="loot-row">
             <span class="loot-name">${escapeHtml(e.details)}</span>
             <span class="loot-ts">${escapeHtml(e.ts)}</span>
         </div>`;
 
-        // ── RIGHT: completions ──
-        const completionEl = document.getElementById("clue-completion-list");
-        const completionCount = document.getElementById(
-          "clue-completion-count",
-        );
-        const completionsRow = buttonRow(
-          selClueType,
-          "selectClueType",
-          (type) => allEntries.filter((e) => e.sub === type).length,
-        );
-        const logs = allEntries.filter((e) => e.sub === selClueType);
-        if (completionCount)
-          completionCount.textContent = logs.length.toLocaleString();
-        completionEl.innerHTML =
-          completionsRow +
-          (logs.length
-            ? logs.map(makeClueLogEntry).join("")
-            : '<div class="dual-empty">No entries for this clue type</div>');
-
-        // ── LEFT: loot ──
-        const lootEl = document.getElementById("clue-loot-list");
-        const lootCount = document.getElementById("clue-loot-count");
-        const lootRow = buttonRow(
-          selClueLootType,
-          "selectClueLootType",
-          (type) => lootEntries.filter((e) => e.sub === type).length,
-        );
+          listEl.innerHTML =
+            buttonRow +
+            '<div class="single-panel-scroll">' +
+            (logs.length
+              ? logs.map(makeClueLogEntry).join("")
+              : `<div class="dual-empty">No ${escapeHtml(selectedLabel)} completions found</div>`) +
+            "</div>";
+          return;
+        }
 
         if (selClueLootItem) {
-          // Deepest drill: history for one item within the selected clue type
+          // Item drilldown stays within loot mode and lists every matching drop log.
           const history = lootEntries
-            .filter(
-              (e) => e.sub === selClueLootType && e.item === selClueLootItem,
-            )
+            .filter((e) => e.sub === selClueType && e.item === selClueLootItem)
             .sort((a, b) => new Date(b.ts) - new Date(a.ts));
-          if (lootCount)
-            lootCount.textContent = history.length.toLocaleString();
-          lootEl.innerHTML =
-            lootRow +
+          if (entryCount)
+            entryCount.textContent = `${history.length.toLocaleString()} ${selectedLabel} loot entries`;
+
+          listEl.innerHTML =
+            buttonRow +
+            '<div class="single-panel-scroll">' +
             `<div class="dual-entry dual-drill-header">
-                <span class="dual-drill-back" onclick="clueLootBack()">← Back to ${selClueLootType.charAt(0).toUpperCase() + selClueLootType.slice(1)} loot</span>
+                <span class="dual-drill-back" onclick="clueLootBack()">← Back to ${selectedLabel} loot</span>
                 <span style="color:var(--color-text-dim);font-size:11px;">${escapeHtml(selClueLootItem)}</span>
              </div>` +
             history
@@ -3086,40 +3160,46 @@
                     <span class="loot-ts">${escapeHtml(e.ts)}</span>
                 </div>`,
               )
-              .join("");
-        } else {
-          // Grouped loot for selected clue type
-          const typeLoot = lootEntries.filter((e) => e.sub === selClueLootType);
-          const lootMap = {};
-          typeLoot.forEach((e) => {
-            if (!lootMap[e.item])
-              lootMap[e.item] = { name: e.item, count: 0, lastTs: e.ts };
-            else if (new Date(e.ts) > new Date(lootMap[e.item].lastTs))
-              lootMap[e.item].lastTs = e.ts;
-            lootMap[e.item].count++;
-          });
-          const grouped = Object.values(lootMap).sort(
-            (a, b) => new Date(b.lastTs) - new Date(a.lastTs),
-          );
-          if (lootCount)
-            lootCount.textContent = grouped.length.toLocaleString();
-          lootEl.innerHTML =
-            lootRow +
-            (grouped.length
-              ? grouped
-                  .map(
-                    (g) => `
+              .join("") +
+            "</div>";
+          return;
+        }
+
+        // Default Clue view: grouped notable loot for the selected clue tier.
+        const typeLoot = lootEntries.filter((e) => e.sub === selClueType);
+        const lootMap = {};
+        typeLoot.forEach((e) => {
+          if (!lootMap[e.item])
+            lootMap[e.item] = { name: e.item, count: 0, lastTs: e.ts };
+          else if (new Date(e.ts) > new Date(lootMap[e.item].lastTs))
+            lootMap[e.item].lastTs = e.ts;
+          lootMap[e.item].count++;
+        });
+        const grouped = Object.values(lootMap).sort(
+          (a, b) => new Date(b.lastTs) - new Date(a.lastTs),
+        );
+        if (entryCount)
+          entryCount.textContent = `${grouped.length.toLocaleString()} ${selectedLabel} loot items`;
+
+        listEl.innerHTML =
+          buttonRow +
+          '<div class="single-panel-scroll">' +
+          (grouped.length
+            ? grouped
+                .map(
+                  (g) => `
                 <div class="loot-row ${g.count > 1 ? "clickable" : ""}" ${g.count > 1 ? `onclick="selectClueLootItem('${g.name.replace(/'/g, "\\'")}')"` : ""}>
                     <span class="loot-name">${g.count > 1 ? `<span class="loot-count" style="color:var(--color-clue);">${g.count}x</span>` : ""}${escapeHtml(g.name)}</span>
                     <span class="loot-ts">${g.count > 1 ? "View History" : escapeHtml(g.lastTs)}</span>
                 </div>`,
-                  )
-                  .join("")
-              : '<div class="dual-empty">No loot recorded for this clue type</div>');
-        }
+                )
+                .join("")
+            : `<div class="dual-empty">No notable loot recorded for ${escapeHtml(selectedLabel)} clues</div>`) +
+          "</div>";
       }
 
       function render() {
+
         const q = document.getElementById("search").value.toLowerCase();
         const list = document.getElementById("list");
         const headerWrap = document.getElementById("list-pane-header-wrap");
