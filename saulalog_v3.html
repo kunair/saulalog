@@ -96,7 +96,7 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: 6px;
+        gap: 10px;
         min-width: 0;
       }
       @media (max-width: 760px) {
@@ -112,12 +112,12 @@
       input[type="text"],
       select {
         width: 100%;
-        padding: 8px 11px;
-        border-radius: 10px;
+        padding: 10px;
+        border-radius: 6px;
         border: 1px solid var(--color-border);
         background: var(--color-surface);
         color: var(--color-text);
-        font-size: 13px;
+        font-size: 14px;
         outline: none;
         transition: 0.1s;
       }
@@ -133,6 +133,7 @@
         border-radius: 8px;
         border: 1px solid var(--color-border);
         background: var(--color-surface);
+        color: var(--color-text-dim);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -147,10 +148,16 @@
       .debug-toggle.active {
         border-color: var(--color-ui);
         background: var(--color-bg-sub);
+        color: var(--color-text);
       }
       .theme-toggle:active,
       .debug-toggle:active {
         transform: scale(0.92);
+      }
+      .debug-toggle span {
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 800;
+        line-height: 1;
       }
 
       .upload-area {
@@ -791,7 +798,7 @@
         font-size: 12px;
       }
 
-      /* -- Debug mode: hidden by default, toggled from the top toolbar. -- */
+      /* Debug mode keeps diagnostics out of the normal dashboard flow until requested. */
       .debug-pane {
         width: 100%;
         display: flex;
@@ -830,7 +837,7 @@
         background: var(--color-bg-sub);
         border: 1px solid var(--color-border);
         border-radius: 10px;
-        padding: 8px 10px;
+        padding: 9px 12px;
         min-width: 0;
       }
       .health-label {
@@ -859,18 +866,19 @@
         overflow: hidden;
       }
       .parser-summary-row {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 8px;
-        align-items: center;
         width: 100%;
         border: 0;
         border-bottom: 1px solid var(--color-bg-sub);
         background: transparent;
         color: var(--color-text-dim);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
         padding: 10px 12px;
         cursor: pointer;
         text-align: left;
+        transition: background 0.1s;
       }
       .parser-summary-row:hover,
       .parser-summary-row.active {
@@ -886,25 +894,23 @@
         font-size: 10px;
         font-weight: 900;
         text-transform: uppercase;
-        letter-spacing: 0.9px;
+        letter-spacing: 0.8px;
         color: var(--color-ui);
       }
       .parser-summary-desc {
         font-size: 11px;
         color: var(--color-text-light);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        line-height: 1.3;
       }
       .parser-summary-count {
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 900;
         color: var(--color-text);
+        white-space: nowrap;
       }
       .parser-warning-list {
-        max-height: 280px;
+        max-height: 260px;
         overflow-y: auto;
-        background: var(--color-surface);
       }
       .parser-warning-row {
         padding: 9px 12px;
@@ -921,31 +927,10 @@
       .parser-warning-text {
         color: var(--color-text-dim);
       }
-      .reset-btn {
-        padding: 4px 10px;
-        border-radius: 10px;
-        border: 1px solid var(--color-border);
-        font-size: 10px;
-        cursor: pointer;
-        background: var(--color-surface);
-        color: var(--color-text-dim);
-        font-weight: 800;
-        transition: all 0.1s;
-        user-select: none;
-      }
-      .reset-btn:hover {
-        border-color: var(--color-ui);
-        color: var(--color-ui);
-        background: var(--color-bg-sub);
-      }
-      .heatmap-cell-clickable {
-        cursor: pointer;
-      }
-      @media (max-width: 760px) {
-        .data-health-panel {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-      }
+      .reset-btn { padding:5px 13px; border-radius:12px; border:1px solid var(--color-border); font-size:11px; cursor:pointer; background:var(--color-surface); color:var(--color-text-dim); font-weight:800; transition:all .1s; user-select:none; }
+      .reset-btn:hover { border-color:var(--color-ui); color:var(--color-ui); background:var(--color-bg-sub); }
+      .heatmap-cell-clickable { cursor:pointer; }
+      @media (max-width: 760px) { .data-health-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
       /* ── Stats Bar ── */
       .stats-bar {
@@ -1035,10 +1020,10 @@
         flex-wrap: wrap;
       }
       .dp-btn {
-        padding: 4px 10px;
-        border-radius: 10px;
+        padding: 5px 13px;
+        border-radius: 12px;
         border: 1px solid var(--color-border);
-        font-size: 10px;
+        font-size: 11px;
         cursor: pointer;
         background: var(--color-surface);
         color: var(--color-text-dim);
@@ -1623,7 +1608,7 @@
           onclick="toggleDebugMode()"
           title="Toggle Debug Mode"
         >
-          <span id="debug-icon">🐞</span>
+          <span id="debug-icon">𝒊</span>
         </div>
       </div>
       <!-- Stats Bar -->
@@ -2188,10 +2173,10 @@
 
       let parsed = [];
       let parserWarnings = [];
-      let dataHealth = null;
-      let debugMode = false;
       let activeParserWarningType = null;
+      let dataHealth = null;
       let rawCsvLineCount = 0;
+      let debugMode = false;
       let suppressUrlStateUpdate = false;
       let activeFilter = "all";
       let selBoss = null;
@@ -2330,7 +2315,9 @@
       function resetAllFilters() { suppressUrlStateUpdate = true; activeFilter = "all"; currentPage = 0; const search = document.getElementById("search"); if (search) search.value = ""; selectedSkills.clear(); skillSubs = { xp: true, level: true, pet: true, total: true, m200: true }; clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true }; questSubs = { milestone: true, completion: true }; selClueType = "easy"; clueViewMode = "loot"; selClueLootItem = null; selBossLoot = null; selSlayerLoot = null; selBossKC = false; selSlayerKC = false; suppressUrlStateUpdate = false; setDatePreset("all"); }
       function toggleDebugMode() {
         debugMode = !debugMode;
-        activeParserWarningType = activeParserWarningType || parserWarnings[0]?.type || null;
+        if (!activeParserWarningType && parserWarnings.length) {
+          activeParserWarningType = parserWarnings[0].type;
+        }
         renderDebugPanel();
       }
 
@@ -2341,7 +2328,7 @@
         pane.classList.toggle("hidden", !debugMode);
         if (toggle) toggle.classList.toggle("active", debugMode);
         if (!debugMode) return;
-        renderDebugPanel();
+        renderDataHealth();
         renderParserPanel();
       }
 
@@ -2372,13 +2359,15 @@
       }
 
       function getParserWarningDescription(type) {
-        return {
-          "misc kill+loot": "Rows that mention both combat and loot/drop language but stayed in Misc.",
-          "misc combat-like": "Rows with kill, drop, loot, or boss wording that stayed in Misc.",
-          "numeric loot": "Loot names contain numbers that were ignored for killcount extraction.",
-          "inferred +1": "Singular kill-only rows counted as one kill.",
-          "shared alias": "Rows expanded across shared boss aliases.",
-        }[type] || "Parser diagnostics grouped by issue type.";
+        return (
+          {
+            "misc kill+loot": "Rows that mention combat and loot/drop language but stayed in Misc.",
+            "misc combat-like": "Rows with kill, drop, loot, or boss wording that stayed in Misc.",
+            "numeric loot": "Loot names contain numbers that were ignored for killcount extraction.",
+            "inferred +1": "Singular kill-only rows counted as one kill.",
+            "shared alias": "Rows expanded across shared boss aliases.",
+          }[type] || "Parser diagnostics grouped by issue type."
+        );
       }
 
       function groupParserWarnings() {
@@ -2431,7 +2420,7 @@
               '</div></div>',
           )
           .join("");
-        panel.innerHTML = summaryHtml + '<div class="parser-warning-list">' + detailHtml + '</div>';
+        panel.innerHTML = summaryHtml + '<div class="parser-warning-list">' + detailHtml + "</div>";
       }
 
       function toggleParserWarningGroup(type) {
@@ -2445,12 +2434,13 @@
           const text = entry.rawText || entry.title + " " + entry.details;
           const stayedMisc = entry.super === "misc";
           const looksLikeKillAndLoot =
-            /(?:killed|defeated|defeating|after killing)[sS]*(?:dropped|looted|found)/i.test(text) ||
-            /(?:dropped|looted|found)[sS]*(?:killed|defeated|defeating)/i.test(text);
-          const looksCombatLike = /(?:killed|killcount|dropped|looted|defeated|defeating|battling|surviving|lair|boss|phantom|demon|dragon|beast|glacor)/i.test(text);
+            /\b(?:killed|kill|defeated|defeating|after killing)\b[\s\S]*\b(?:dropped|looted|found)\b/i.test(text) ||
+            /\b(?:dropped|looted|found)\b[\s\S]*\b(?:killed|kill|defeated|defeating)\b/i.test(text);
+          const looksCombatLike =
+            /\b(?:killed|killcount|dropped|looted|defeated|defeating|battling|surviving|lair|boss|phantom|demon|dragon|beast|glacor|rex matriarch|dagannoth)\b/i.test(text);
 
-          // These are the most actionable warnings: they look like combat/drop rows,
-          // but no parser branch claimed them, so they are worth reviewing first.
+          // Most useful diagnostics first: rows that smell like combat/drop logs,
+          // but no parser branch claimed them, so they stayed in Misc.
           if (stayedMisc && looksLikeKillAndLoot) {
             warnings.push({
               type: "misc kill+loot",
@@ -2464,7 +2454,8 @@
               message: "Combat-looking row stayed in Misc: " + text,
             });
           }
-          if (entry.super === "combat" && entry.item && /d/.test(entry.item)) {
+
+          if (entry.super === "combat" && entry.item && /\d/.test(entry.item)) {
             warnings.push({
               type: "numeric loot",
               ts: entry.ts,
@@ -2474,8 +2465,8 @@
           if (
             entry.super === "combat" &&
             entry.killCount > 0 &&
-            /killeds+(?:a|an|the)s+/i.test(text) &&
-            !/d/.test(text)
+            /\bkilled\s+(?:a|an|the)\s+/i.test(text) &&
+            !/\d/.test(text)
           ) {
             warnings.push({
               type: "inferred +1",
@@ -2508,6 +2499,7 @@
         };
         renderDebugPanel();
       }
+
 
       // ── Stats Bar ──
       function renderStatsBar(filteredForCount) {
@@ -3261,17 +3253,728 @@
         );
       }
 
-      function escapeAttr(str) {
-        return String(str ?? "").replace(/[\'&<>"]/g, (ch) =>
-          ({
-            "\": "\\",
-            "'": "\'",
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-          })[ch],
+      function getSkillSelectionLabel() {
+        if (selectedSkills.size === 0) return "All Skills";
+        const group = Object.keys(SKILL_GROUPS).find((g) =>
+          isGroupFullySelected(g),
         );
+        if (group) return group;
+        if (selectedSkills.size === 1) return [...selectedSkills][0];
+        return selectedSkills.size + " selected skills";
+      }
+
+      function getActiveSkillGroupForColor() {
+        // Filter bubbles borrow the selected group's color only when the current
+        // selection maps cleanly to one group; mixed selections fall back to green.
+        if (selectedSkills.size === 0) return null; // All Skills uses the native green skill color
+        const exactGroup = Object.keys(SKILL_GROUPS).find((g) =>
+          isGroupFullySelected(g),
+        );
+        if (exactGroup) return exactGroup;
+        if (selectedSkills.size === 1)
+          return getSkillGroupName([...selectedSkills][0]) || null;
+        const groups = new Set(
+          [...selectedSkills].map(getSkillGroupName).filter(Boolean),
+        );
+        return groups.size === 1 ? [...groups][0] : null;
+      }
+
+      function getSkillFilterColorStyle() {
+        const group = getActiveSkillGroupForColor();
+        if (!group || !GROUP_COLORS[group]) {
+          return "--skill-filter-color: var(--color-skill);";
+        }
+        const isDark = document.body.classList.contains("dark-mode");
+        const color = GROUP_COLORS[group][isDark ? "dark" : "light"];
+        return "--skill-filter-color:" + color + ";";
+      }
+
+      function skillEntryMatchesSelection(e) {
+        if (selectedSkills.size === 0) return true;
+        return !!e.skill && selectedSkills.has(e.skill);
+      }
+
+      function is200mXpEntry(e) {
+        const text = `${e.title || ""} ${e.details || ""}`;
+        return /200\s*,?\s*000\s*,?\s*000\s*(?:XP|experience points)?/i.test(
+          text,
+        );
+      }
+
+      function getSkillFilterOptions() {
+        return [
+          { id: "m200", label: "200m" },
+          { id: "xp", label: "XP Milestones" },
+          { id: "pet", label: "Skilling Pets" },
+          { id: "level", label: "Level Ups" },
+          { id: "total", label: "Total Level" },
+        ];
+      }
+
+      function getSkillSubFilterCount(entries, id) {
+        return entries.filter((e) => {
+          if (id === "m200") return is200mXpEntry(e);
+          if (id === "xp") return e.sub === "xp" && !is200mXpEntry(e);
+          return e.sub === id;
+        }).length;
+      }
+
+      function skillEntryMatchesSubFilters(e) {
+        // 200m XP entries are split out from normal XP milestones so that the
+        // dedicated 200m bubble can be toggled independently.
+        if (is200mXpEntry(e)) return !!skillSubs.m200;
+        return !!skillSubs[e.sub];
+      }
+
+      function isSkillBigMilestone(e) {
+        const text = `${e.title || ""} ${e.details || ""}`;
+        if (e.sub === "pet") return true;
+        if (e.sub === "total") return true;
+        if (is200mXpEntry(e)) return true;
+        if (/Master Max cape/i.test(text)) return selectedSkills.size === 0;
+        return false;
+      }
+
+      function getSkillMilestoneType(e) {
+        const text = `${e.title || ""} ${e.details || ""}`;
+        if (/Master Max cape/i.test(text)) return "Master Max";
+        if (e.sub === "total") return "Total Level";
+        if (e.sub === "pet") return "Skilling Pet";
+        if (is200mXpEntry(e)) return "200M XP";
+        return "Milestone";
+      }
+
+      function renderSkillPanel(entries) {
+        const selectionLabel = getSkillSelectionLabel();
+        const selectedBase = entries.filter(skillEntryMatchesSelection);
+        const skillEntries = selectedBase.filter(skillEntryMatchesSubFilters);
+
+        const sortEntries = (arr) =>
+          arr.slice().sort((a, b) => new Date(b.ts) - new Date(a.ts));
+
+        const toolbarEl = document.getElementById("skill-entry-toolbar");
+        const entryEl = document.getElementById("skill-entry-list");
+        const entryCount = document.getElementById("skill-entry-count");
+        const historyLabel = document.getElementById("skill-history-label");
+
+        if (entryCount)
+          entryCount.textContent = `${skillEntries.length.toLocaleString()} entries`;
+        if (historyLabel) historyLabel.textContent = selectionLabel;
+
+        if (toolbarEl) {
+          toolbarEl.innerHTML = `
+            <div class="list-header-pills skill-filter-context" style="${getSkillFilterColorStyle()}">
+                ${getSkillFilterOptions()
+                  .map(
+                    (s) => `
+                    <div class="b-pill pill-skill ${skillSubs[s.id] ? "active" : ""}"
+                         onclick="toggleSubFilter('skills','${s.id}')">
+                        ${s.label}<span class="b-pill-count">${getSkillSubFilterCount(selectedBase, s.id).toLocaleString()}</span>
+                    </div>`,
+                  )
+                  .join("")}
+            </div>`;
+        }
+
+        const makeEntry = (e) => `
+        <div class="dual-entry">
+            <div class="dual-entry-title">${escapeHtml(e.title)}</div>
+            <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
+            <div class="dual-entry-ts">${escapeHtml(e.ts)}</div>
+        </div>`;
+
+        entryEl.innerHTML = skillEntries.length
+          ? sortEntries(skillEntries).map(makeEntry).join("")
+          : `<div class="dual-empty">No skill entries found for ${escapeHtml(selectionLabel)}</div>`;
+      }
+
+      function renderQuestPanel(entries) {
+        const questTypes = [
+          { id: "milestone", label: "Milestones" },
+          { id: "completion", label: "Quest completions" },
+        ];
+
+        // Counts respect global search/date filters, but ignore the quest toggles
+        // themselves so each badge remains useful when its category is hidden.
+        const countByType = (type) =>
+          entries.filter((e) => e.sub === type).length.toLocaleString();
+
+        const buttonRow = `
+        <div class="bubble-wrap clue-btn-row sticky-filter-row">
+            ${questTypes
+              .map(
+                (type) => `
+                <div class="b-pill pill-quest ${questSubs[type.id] ? "active" : ""}"
+                     onclick="toggleSubFilter('quests','${type.id}')">
+                    ${type.label}
+                    <span class="b-pill-count">${countByType(type.id)}</span>
+                </div>`,
+              )
+              .join("")}
+        </div>`;
+
+        const visibleEntries = entries.filter((e) => questSubs[e.sub]);
+        const sortedEntries = visibleEntries
+          .slice()
+          .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+
+        const entryCount = document.getElementById("quest-entry-count");
+        if (entryCount)
+          entryCount.textContent = `${visibleEntries.length.toLocaleString()} entries`;
+
+        const makeEntry = (e) => `
+        <div class="dual-entry">
+            <div class="dual-entry-title">${escapeHtml(e.title)}</div>
+            <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
+            <div class="dual-entry-ts">${escapeHtml(e.ts)}</div>
+        </div>`;
+
+        document.getElementById("quest-list").innerHTML =
+          buttonRow +
+          '<div class="single-panel-scroll">' +
+          (sortedEntries.length
+            ? sortedEntries.map(makeEntry).join("")
+            : '<div class="dual-empty">No quest entries match the selected filters</div>') +
+          "</div>";
+      }
+
+      const CLUE_TYPES = ["easy", "medium", "hard", "elite", "master"];
+
+
+      function renderCluePanel(allEntries) {
+        const listEl = document.getElementById("clue-list");
+        const entryCount = document.getElementById("clue-entry-count");
+        const lootEntries = allEntries.filter((e) => e.item);
+
+        // Clue bubbles have two click targets: the pill shows notable loot for
+        // that tier, while the count badge drills into completed clue logs.
+        const completionCount = (type) =>
+          allEntries.filter((e) => e.sub === type).length;
+        const buttonRow = `
+        <div class="bubble-wrap clue-btn-row sticky-filter-row">
+            ${CLUE_TYPES.map((type) => {
+              const label = type.charAt(0).toUpperCase() + type.slice(1);
+              return `
+                <div class="b-pill pill-clue ${selClueType === type ? "active" : ""}"
+                     onclick="selectClueType('${type}')"
+                     title="Show ${label} notable loot">
+                    ${label}
+                    <span class="b-pill-count clue-count-action"
+                          title="Show ${label} completions"
+                          onclick="event.stopPropagation(); selectClueCompletions('${type}')">${completionCount(type).toLocaleString()}</span>
+                </div>`;
+            }).join("")}
+        </div>`;
+
+        const selectedLabel =
+          selClueType.charAt(0).toUpperCase() + selClueType.slice(1);
+
+        if (clueViewMode === "completions") {
+          const logs = allEntries
+            .filter((e) => e.sub === selClueType)
+            .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+          if (entryCount)
+            entryCount.textContent = `${logs.length.toLocaleString()} ${selectedLabel} completions`;
+
+          const makeClueLogEntry = (e) => `
+        <div class="loot-row">
+            <span class="loot-name">${escapeHtml(e.details)}</span>
+            <span class="loot-ts">${escapeHtml(e.ts)}</span>
+        </div>`;
+
+          listEl.innerHTML =
+            buttonRow +
+            '<div class="single-panel-scroll">' +
+            (logs.length
+              ? logs.map(makeClueLogEntry).join("")
+              : `<div class="dual-empty">No ${escapeHtml(selectedLabel)} completions found</div>`) +
+            "</div>";
+          return;
+        }
+
+        if (selClueLootItem) {
+          // Item drilldown stays within loot mode and lists every matching drop log.
+          const history = lootEntries
+            .filter((e) => e.sub === selClueType && e.item === selClueLootItem)
+            .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+          if (entryCount)
+            entryCount.textContent = `${history.length.toLocaleString()} ${selectedLabel} loot entries`;
+
+          listEl.innerHTML =
+            buttonRow +
+            '<div class="single-panel-scroll">' +
+            `<div class="dual-entry dual-drill-header">
+                <span class="dual-drill-back" onclick="clueLootBack()">← Back to ${selectedLabel} loot</span>
+                <span style="color:var(--color-text-dim);font-size:11px;">${escapeHtml(selClueLootItem)}</span>
+             </div>` +
+            history
+              .map(
+                (e) => `
+                <div class="loot-row">
+                    <span class="loot-name">${escapeHtml(e.item)}</span>
+                    <span class="loot-ts">${escapeHtml(e.ts)}</span>
+                </div>`,
+              )
+              .join("") +
+            "</div>";
+          return;
+        }
+
+        // Default Clue view: grouped notable loot for the selected clue tier.
+        const typeLoot = lootEntries.filter((e) => e.sub === selClueType);
+        const lootMap = {};
+        typeLoot.forEach((e) => {
+          if (!lootMap[e.item])
+            lootMap[e.item] = { name: e.item, count: 0, lastTs: e.ts };
+          else if (new Date(e.ts) > new Date(lootMap[e.item].lastTs))
+            lootMap[e.item].lastTs = e.ts;
+          lootMap[e.item].count++;
+        });
+        const grouped = Object.values(lootMap).sort(
+          (a, b) => new Date(b.lastTs) - new Date(a.lastTs),
+        );
+        if (entryCount)
+          entryCount.textContent = `${grouped.length.toLocaleString()} ${selectedLabel} loot items`;
+
+        listEl.innerHTML =
+          buttonRow +
+          '<div class="single-panel-scroll">' +
+          (grouped.length
+            ? grouped
+                .map(
+                  (g) => `
+                <div class="loot-row ${g.count > 1 ? "clickable" : ""}" ${g.count > 1 ? `onclick="selectClueLootItem('${g.name.replace(/'/g, "\\'")}')"` : ""}>
+                    <span class="loot-name">${g.count > 1 ? `<span class="loot-count" style="color:var(--color-clue);">${g.count}x</span>` : ""}${escapeHtml(g.name)}</span>
+                    <span class="loot-ts">${g.count > 1 ? "View History" : escapeHtml(g.lastTs)}</span>
+                </div>`,
+                )
+                .join("")
+            : `<div class="dual-empty">No notable loot recorded for ${escapeHtml(selectedLabel)} clues</div>`) +
+          "</div>";
+      }
+
+      function render() {
+
+        const q = document.getElementById("search").value.toLowerCase();
+        const list = document.getElementById("list");
+        const headerWrap = document.getElementById("list-pane-header-wrap");
+        const combatView = document.getElementById("combat-view");
+        const questView = document.getElementById("quest-view");
+        const clueView = document.getElementById("clue-view");
+        const skillView = document.getElementById("skill-view");
+
+        document
+          .getElementById("skill-controls")
+          .classList.toggle("hidden", activeFilter !== "skills");
+        combatView.classList.toggle("hidden", activeFilter !== "combat");
+        questView.classList.toggle("hidden", activeFilter !== "quests");
+        clueView.classList.toggle("hidden", activeFilter !== "clues");
+        if (skillView)
+          skillView.classList.toggle("hidden", activeFilter !== "skills");
+
+        const showList = !["combat", "quests", "clues", "skills"].includes(
+          activeFilter,
+        );
+        list.classList.toggle("hidden", !showList);
+        if (headerWrap) headerWrap.classList.toggle("hidden", !showList);
+
+        // Base filter (category + search + date)
+        let filtered = parsed.filter((e) => {
+          const searchContent = (e.title + " " + e.details).toLowerCase();
+          if (activeFilter !== "all" && e.super !== activeFilter) return false;
+          if (q && !searchContent.includes(q)) return false;
+          if (dateFrom || dateTo) {
+            const d = parseTs(e.ts);
+            if (!d) return false;
+            if (dateFrom && d < dateFrom) return false;
+            if (dateTo && d > dateTo) return false;
+          }
+          return true;
+        });
+
+        // Additional sub-filtering only for skills in the list view
+        let listFiltered = filtered;
+        if (activeFilter === "skills") {
+          listFiltered = filtered.filter((e) => {
+            if (
+              selectedSkills.size > 0 &&
+              (!e.skill || !selectedSkills.has(e.skill))
+            )
+              return false;
+            if (!skillEntryMatchesSubFilters(e)) return false;
+            return true;
+          });
+        }
+
+        if (activeFilter === "combat") {
+          renderCombatSide(
+            "boss",
+            filtered.filter((e) => e.sub === "boss"),
+          );
+          renderCombatSide(
+            "slayer",
+            filtered.filter((e) => e.sub === "slayer"),
+          );
+        } else if (activeFilter === "quests") {
+          renderQuestPanel(filtered);
+        } else if (activeFilter === "clues") {
+          const clueFiltered = filtered.filter((e) => clueSubs[e.sub]);
+          renderCluePanel(clueFiltered);
+        } else if (activeFilter === "skills") {
+          renderSkillPanel(filtered);
+        } else {
+          let display = [...listFiltered];
+          if (sortOrder === "oldest")
+            display.sort((a, b) => new Date(a.ts) - new Date(b.ts));
+
+          const pageEnd = (currentPage + 1) * PAGE_SIZE;
+          const visible = display.slice(0, pageEnd);
+          const hasMore = display.length > pageEnd;
+
+          list.innerHTML =
+            visible
+              .map(
+                (e) => `
+            <div class="entry">
+                <div class="entry-content">
+                    <span class="cat-dot" style="background:${getColor(e.super)}"></span>
+                    <div class="entry-text-stack">
+                        <span class="entry-title">${e.title}</span>
+                        <span class="entry-details">${e.details}</span>
+                    </div>
+                </div>
+                <span class="entry-ts">${e.ts}</span>
+            </div>`,
+              )
+              .join("") +
+            (hasMore
+              ? `<button class="load-more-btn" onclick="loadMore()">Load more — showing ${visible.length.toLocaleString()} of ${display.length.toLocaleString()}</button>`
+              : "");
+
+          renderListHeader(listFiltered, filtered);
+        }
+
+        document.getElementById("footer").textContent = "";
+        renderStatsBar(filtered);
+        renderHeatmap(activeFilter);
+        renderDebugPanel();
+        if (activeFilter === "skills") updateXpChart();
+        updateUrlState();
+      }
+
+      function loadMore() {
+        currentPage++;
+        render();
+      }
+
+      function renderCombatSide(type, entries) {
+        // Prominent monster pills are based on most-recent LOOT/DROP activity only.
+        // Killcount-only rows still contribute to badges/drilldowns, but they should not
+        // push a monster into the recent-5 loot shortcut row.
+        const lootLastSeen = {};
+        const killTotals = {};
+        entries.forEach((e) => {
+          const t = new Date(e.ts).getTime();
+          if (
+            e.item &&
+            (!lootLastSeen[e.monster] || t > lootLastSeen[e.monster])
+          ) {
+            lootLastSeen[e.monster] = t;
+          }
+          if (typeof e.killCount === "number" && e.killCount > 0) {
+            killTotals[e.monster] = (killTotals[e.monster] || 0) + e.killCount;
+          }
+        });
+        const names = Object.keys(lootLastSeen).sort(
+          (a, b) => lootLastSeen[b] - lootLastSeen[a],
+        );
+        const top5 = names.slice(0, 5);
+        const currentMonster = type === "boss" ? selBoss : selSlayer;
+        const currentDrill = type === "boss" ? selBossLoot : selSlayerLoot;
+        const kcDrill = type === "boss" ? selBossKC : selSlayerKC;
+
+        // Render pills with embedded kill-count badge (matches clue button-count aesthetic).
+        // The badge itself is clickable to drill into the kill-log; clicking elsewhere on the
+        // pill selects the monster as before.
+        document.getElementById(`${type}-bubbles`).innerHTML = top5
+          .map((n) => {
+            const kc = killTotals[n] || 0;
+            const safeName = n.replace(/'/g, "\\'");
+            const isSelected = currentMonster === n;
+            const badge =
+              kc > 0
+                ? `<span class="b-pill-count kc-clickable" title="View kill log" onclick="event.stopPropagation(); selectMonster('${type}', '${safeName}'); toggleKillcountDrill('${type}')">${kc.toLocaleString()}</span>`
+                : "";
+            return `<div class="b-pill pill-combat ${isSelected ? "active" : ""}" onclick="selectMonster('${type}', '${safeName}')">${n}${badge}</div>`;
+          })
+          .join("");
+
+        const others = names.slice(5);
+        document.getElementById(`${type}-more`).innerHTML =
+          `<option value="">More...</option>` +
+          others
+            .map((n) => {
+              const kc = killTotals[n] || 0;
+              const label = kc > 0 ? `${n} (${kc.toLocaleString()})` : n;
+              return `<option value="${n}" ${currentMonster === n ? "selected" : ""}>${label}</option>`;
+            })
+            .join("");
+
+        const lootListEl = document.getElementById(`${type}-loot-list`);
+        if (!currentMonster) {
+          lootListEl.innerHTML =
+            '<div style="color:var(--color-text-light); text-align:center; padding-top:40px;">No Selection</div>';
+          return;
+        }
+
+        const monsterEntries = entries.filter(
+          (e) => e.monster === currentMonster,
+        );
+        const killEntries = monsterEntries.filter(
+          (e) => typeof e.killCount === "number" && e.killCount > 0,
+        );
+
+        // Killcount drilldown (still triggered via the kc badge on the pill — see below)
+        if (kcDrill) {
+          const sorted = killEntries
+            .slice()
+            .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+          lootListEl.innerHTML = `
+            <div class="kc-disclaimer">Approximate values pulled from loaded log entries...</div>
+            <div class="loot-row clickable back-btn" onclick="toggleKillcountDrill('${type}')">← Back to ${currentMonster}</div>
+            ${
+              sorted.length
+                ? sorted
+                    .map(
+                      (h) => `
+                <div class="loot-row">
+                    <span class="loot-name"><span class="loot-count">${h.killCount.toLocaleString()}x</span>${h.details}</span>
+                    <span class="loot-ts">${h.ts}</span>
+                </div>`,
+                    )
+                    .join("")
+                : '<div style="color:var(--color-text-light); text-align:center; padding:20px 0;">No kill-count entries recorded</div>'
+            }`;
+          return;
+        }
+
+        if (currentDrill) {
+          const itemHistory = monsterEntries
+            .filter((h) => h.item === currentDrill)
+            .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+          lootListEl.innerHTML = `
+            <div class="loot-row clickable back-btn" onclick="toggleLootDrilldown('${type}', null)">← Back to ${currentMonster}</div>
+            ${itemHistory.map((h) => `<div class="loot-row"><span class="loot-name">${h.title}</span><span class="loot-ts">${h.ts}</span></div>`).join("")}`;
+          return;
+        }
+
+        // Default view: grouped loot only. Killcount summaries are intentionally excluded
+        // from this pane so the loot area remains reserved for loot and drop history.
+
+        const drops = monsterEntries.filter((e) => e.item);
+        if (!drops.length) {
+          lootListEl.innerHTML =
+            '<div style="color:var(--color-text-light); text-align:center; padding-top:40px;">No drops recorded</div>';
+          return;
+        }
+        const grouped = drops.reduce((acc, curr) => {
+          const key = curr.item;
+          if (!acc[key]) acc[key] = { count: 0, lastTs: curr.ts, name: key };
+          acc[key].count++;
+          if (new Date(curr.ts) > new Date(acc[key].lastTs))
+            acc[key].lastTs = curr.ts;
+          return acc;
+        }, {});
+        const sortedDrops = Object.values(grouped).sort(
+          (a, b) => new Date(b.lastTs) - new Date(a.lastTs),
+        );
+
+        lootListEl.innerHTML = sortedDrops
+          .map(
+            (g) => `
+        <div class="loot-row clickable" onclick="toggleLootDrilldown('${type}', '${g.name.replace(/'/g, "\\'")}')">
+            <span class="loot-name"><span class="loot-count">${g.count}x</span>${g.name}</span>
+            <span class="loot-ts">${g.count > 1 ? "View History" : g.lastTs}</span>
+        </div>`,
+          )
+          .join("");
+      }
+
+      function getColor(cat) {
+        return {
+          skills: "var(--color-skill)",
+          combat: "var(--color-combat)",
+          quests: "var(--color-quest)",
+          clues: "var(--color-clue)",
+          misc: "var(--color-misc)",
+        }[cat];
+      }
+
+      const CATS = [
+        { id: "all", label: "All", color: "var(--color-all)" },
+        { id: "skills", label: "Skills", color: "var(--color-skill)" },
+        { id: "combat", label: "Combat", color: "var(--color-combat)" },
+        { id: "clues", label: "Clues", color: "var(--color-clue)" },
+        { id: "quests", label: "Quests", color: "var(--color-quest)" },
+        { id: "misc", label: "Misc", color: "var(--color-misc)" },
+      ];
+      document.getElementById("pills").innerHTML = CATS.map(
+        (c) => `
+    <span class="pill" id="pill-${c.id}" onclick="setFilter('${c.id}')" style="color:${c.color}">
+        <span class="dot" style="background:${c.color}"></span>${c.label}
+    </span>`,
+      ).join("");
+
+      // Build skill picker buttons (grouped-only, group headers are clickable)
+      function isSkillSelected(skill) {
+        return selectedSkills.size === 0 || selectedSkills.has(skill);
+      }
+
+      function isGroupFullySelected(groupName) {
+        const groupSkills = (SKILL_GROUPS[groupName] || []).filter((s) =>
+          SKILLS.includes(s),
+        );
+        if (!groupSkills.length) return false;
+        if (selectedSkills.size === 0) return false; // "all" mode is not equivalent to a group selection
+        return groupSkills.every((s) => selectedSkills.has(s));
+      }
+
+      function getEffectiveSkillSet() {
+        // Returns the skills currently active for the chart. Empty Set → all SKILLS.
+        return selectedSkills.size === 0
+          ? new Set(SKILLS)
+          : new Set(selectedSkills);
+      }
+
+      function getSkillGroupName(skill) {
+        return (
+          Object.entries(SKILL_GROUPS).find(([, skills]) =>
+            skills.includes(skill),
+          )?.[0] || ""
+        );
+      }
+
+      function buildSkillPicker() {
+        const top = document.querySelector(".skill-picker-top");
+        const groupedList = document.getElementById("skill-grouped-view");
+        top.innerHTML = `
+        <button class="skill-all-btn ${selectedSkills.size === 0 ? "active" : ""}" id="skill-btn-all" onclick="clearSkillSelection()">All Skills</button>
+        ${Object.entries(SKILL_GROUPS)
+          .map(([groupName, skills]) => {
+            const active = isGroupFullySelected(groupName);
+            return `<div class="b-pill skill-group-pill ${active ? "active" : ""}" data-group="${groupName}" onclick="toggleSkillGroup('${groupName}')">
+                ${groupName}<span class="b-pill-count">${skills.length}</span>
+            </div>`;
+          })
+          .join("")}`;
+
+        groupedList.innerHTML = `<div class="skill-skills-row">
+        ${Object.entries(SKILL_GROUPS)
+          .flatMap(([groupName, skills]) =>
+            skills
+              .filter((s) => SKILLS.includes(s))
+              .map((s) => {
+                const active =
+                  selectedSkills.size === 0 || selectedSkills.has(s);
+                return `<button class="sk-btn ${active ? "active" : ""}" data-group="${groupName}" title="${groupName}" onclick="toggleSkill('${s}')">${s}</button>`;
+              }),
+          )
+          .join("")}
+    </div>`;
+      }
+
+      function toggleSkill(skill) {
+        if (selectedSkills.has(skill)) selectedSkills.delete(skill);
+        else selectedSkills.add(skill);
+        buildSkillPicker();
+        if (xpChart) {
+          xpChart.destroy();
+          xpChart = null;
+        }
+        render();
+      }
+
+      function toggleSkillGroup(groupName) {
+        const groupSkills = (SKILL_GROUPS[groupName] || []).filter((s) =>
+          SKILLS.includes(s),
+        );
+        if (isGroupFullySelected(groupName)) {
+          selectedSkills.clear(); // clicking the active group returns to All Skills
+        } else {
+          selectedSkills = new Set(groupSkills); // group behaves like a clean filter, not an additive toggle
+        }
+        buildSkillPicker();
+        if (xpChart) {
+          xpChart.destroy();
+          xpChart = null;
+        }
+        render();
+      }
+
+      function clearSkillSelection() {
+        selectedSkills.clear();
+        buildSkillPicker();
+        if (xpChart) {
+          xpChart.destroy();
+          xpChart = null;
+        }
+        render();
+      }
+
+      function setGroupChartMode(mode) {
+        groupChartMode = "stacked";
+        if (xpChart) {
+          xpChart.destroy();
+          xpChart = null;
+        }
+        updateXpChart();
+      }
+
+      // Backward-compat shim — anything that still calls setSkillFilter routes through clear/toggle
+      function setSkillFilter(skill) {
+        if (skill === "all") return clearSkillSelection();
+        selectedSkills = new Set([skill]);
+        buildSkillPicker();
+        if (xpChart) {
+          xpChart.destroy();
+          xpChart = null;
+        }
+        render();
+      }
+
+      // ---- XP Chart Logic ----
+
+      // Color palette for multi-skill lines
+      const SKILL_LINE_COLORS = [
+        "#e53935",
+        "#8e24aa",
+        "#1e88e5",
+        "#43a047",
+        "#fb8c00",
+        "#00acc1",
+        "#f06292",
+        "#7cb342",
+        "#ffb300",
+        "#5e35b1",
+        "#039be5",
+        "#e67c13",
+        "#3949ab",
+        "#00897b",
+        "#c0ca33",
+      ];
+
+      // Group display colors
+      const GROUP_COLORS = {
+        Combat: { light: "#d32f2f", dark: "#e57373" },
+        Artisan: { light: "#ef6c00", dark: "#ffd54f" },
+        Gathering: { light: "#1565c0", dark: "#64b5f6" },
+        Support: { light: "#7b1fa2", dark: "#ba68c8" },
+      };
+
+      function parseXpFromDetails(details) {
+        const m = details.match(/([\d,]+)\s+experience points/i);
+        if (m) return parseInt(m[1].replace(/,/g, ""), 10);
+        return null;
       }
 
       function parseTs(tsStr) {
