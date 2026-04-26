@@ -927,9 +927,6 @@
       .parser-warning-text {
         color: var(--color-text-dim);
       }
-      .reset-btn { padding:5px 13px; border-radius:12px; border:1px solid var(--color-border); font-size:11px; cursor:pointer; background:var(--color-surface); color:var(--color-text-dim); font-weight:800; transition:all .1s; user-select:none; }
-      .reset-btn:hover { border-color:var(--color-ui); color:var(--color-ui); background:var(--color-bg-sub); }
-      .heatmap-cell-clickable { cursor:pointer; }
       @media (max-width: 760px) { .data-health-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
       /* ── Stats Bar ── */
@@ -1611,8 +1608,6 @@
           <span id="debug-icon">𝒊</span>
         </div>
       </div>
-      <!-- Stats Bar -->
-      <div class="stats-bar" id="stats-bar"></div>
       <!-- Search and global date range controls -->
       <div class="toolbar-row">
         <div class="search-wrap">
@@ -1649,9 +1644,10 @@
               All Time
             </button>
           </div>
-          <button class="reset-btn" onclick="resetAllFilters()">Reset</button>
         </div>
       </div>
+      <!-- Stats Bar -->
+      <div class="stats-bar" id="stats-bar"></div>
       <div class="debug-pane hidden" id="debug-pane">
         <div class="debug-title">
           <span>Debug mode</span>
@@ -2296,8 +2292,6 @@
         document.querySelectorAll(".dp-btn").forEach((b) => b.classList.remove("active"));
         render();
       }
-      function filterToHeatmapDate(dayKey) { setCustomDateRange(dayKey); }
-
       // ── Sort ──
       function setSortOrder(order) {
         sortOrder = order;
@@ -2318,7 +2312,7 @@
         if (!activeParserWarningType && parserWarnings.length) {
           activeParserWarningType = parserWarnings[0].type;
         }
-        renderDebugPanel();
+        render();
       }
 
       function renderDebugPanel() {
@@ -2390,13 +2384,15 @@
         if (!activeParserWarningType || !groups.some(([type]) => type === activeParserWarningType)) {
           activeParserWarningType = groups[0][0];
         }
-        const activeWarnings = groups.find(([type]) => type === activeParserWarningType)?.[1] || [];
-        const summaryHtml = groups
+
+        // Render the selected warning group's details directly beneath its row.
+        // This keeps the drilldown visually attached to the group being inspected.
+        panel.innerHTML = groups
           .map(([type, warnings]) => {
-            const active = type === activeParserWarningType ? " active" : "";
-            return (
+            const active = type === activeParserWarningType;
+            const summary =
               '<button class="parser-summary-row' +
-              active +
+              (active ? " active" : "") +
               '" data-type="' +
               escapeHtml(type) +
               '" onclick="toggleParserWarningGroup(this.dataset.type)"><span class="parser-summary-main"><span class="parser-summary-type">' +
@@ -2405,22 +2401,22 @@
               escapeHtml(getParserWarningDescription(type)) +
               '</span></span><span class="parser-summary-count">' +
               warnings.length.toLocaleString() +
-              '</span></button>'
-            );
+              '</span></button>';
+            if (!active) return summary;
+            const detailHtml = warnings
+              .slice(0, 250)
+              .map(
+                (warning) =>
+                  '<div class="parser-warning-row"><div class="parser-warning-ts">' +
+                  escapeHtml(warning.ts || "") +
+                  '</div><div class="parser-warning-text">' +
+                  escapeHtml(warning.message) +
+                  '</div></div>',
+              )
+              .join("");
+            return summary + '<div class="parser-warning-list">' + detailHtml + "</div>";
           })
           .join("");
-        const detailHtml = activeWarnings
-          .slice(0, 250)
-          .map(
-            (warning) =>
-              '<div class="parser-warning-row"><div class="parser-warning-ts">' +
-              escapeHtml(warning.ts || "") +
-              '</div><div class="parser-warning-text">' +
-              escapeHtml(warning.message) +
-              '</div></div>',
-          )
-          .join("");
-        panel.innerHTML = summaryHtml + '<div class="parser-warning-list">' + detailHtml + "</div>";
       }
 
       function toggleParserWarningGroup(type) {
@@ -2680,7 +2676,7 @@
             const count = counts[key] || 0;
             const x = padLeft + w * step;
             const y = padTop + d * step;
-            cells += `<rect class="heatmap-cell-clickable" x="${x}" y="${y}" width="${cs}" height="${cs}" rx="2" fill="${getCellColor(count)}" onclick="filterToHeatmapDate('${key}')"><title>${key}: ${count} event${count !== 1 ? "s" : ""}. Click to filter to this day.</title></rect>`;
+            cells += `<rect x="${x}" y="${y}" width="${cs}" height="${cs}" rx="2" fill="${getCellColor(count)}"><title>${key}: ${count} event${count !== 1 ? "s" : ""}</title></rect>`;
             if (d === 0 && date.getMonth() !== lastMonth) {
               lastMonth = date.getMonth();
               monthLabels += `<text x="${x}" y="${padTop - 5}" font-size="8" fill="${textColor}" font-family="-apple-system,BlinkMacSystemFont,sans-serif">${MONTHS[lastMonth]}</text>`;
@@ -3138,6 +3134,7 @@
       }
 
       function setFilter(id) {
+        debugMode = false;
         activeFilter = id;
         currentPage = 0;
         selClueLootItem = null; // reset only the drilldown; keep type selections
@@ -3562,10 +3559,32 @@
         const questView = document.getElementById("quest-view");
         const clueView = document.getElementById("clue-view");
         const skillView = document.getElementById("skill-view");
+        const skillControls = document.getElementById("skill-controls");
+        const statsBar = document.getElementById("stats-bar");
+        const heatmapSlot = document.getElementById("heatmap-default-slot");
 
-        document
-          .getElementById("skill-controls")
-          .classList.toggle("hidden", activeFilter !== "skills");
+        // Debug mode is a standalone diagnostics view. It hides the active
+        // category pane instead of stacking debug metrics above it.
+        if (debugMode) {
+          if (skillControls) skillControls.classList.add("hidden");
+          if (combatView) combatView.classList.add("hidden");
+          if (questView) questView.classList.add("hidden");
+          if (clueView) clueView.classList.add("hidden");
+          if (skillView) skillView.classList.add("hidden");
+          if (list) list.classList.add("hidden");
+          if (headerWrap) headerWrap.classList.add("hidden");
+          if (statsBar) statsBar.classList.add("hidden");
+          if (heatmapSlot) heatmapSlot.classList.add("hidden");
+          renderDebugPanel();
+          document.getElementById("footer").textContent = "";
+          updateUrlState();
+          return;
+        }
+
+        if (statsBar) statsBar.classList.remove("hidden");
+        if (heatmapSlot) heatmapSlot.classList.remove("hidden");
+
+        if (skillControls) skillControls.classList.toggle("hidden", activeFilter !== "skills");
         combatView.classList.toggle("hidden", activeFilter !== "combat");
         questView.classList.toggle("hidden", activeFilter !== "quests");
         clueView.classList.toggle("hidden", activeFilter !== "clues");
