@@ -646,6 +646,45 @@
         width: 100%;
         align-items: center;
       }
+      .skill-more-wrap {
+        min-width: 160px;
+        flex: 1 1 180px;
+        max-width: 260px;
+      }
+      .combat-more-wrap {
+        margin-top: 10px;
+        width: 100%;
+        max-width: 260px;
+      }
+      .skill-more-wrap select,
+      .combat-more-wrap select {
+        height: 29px;
+        padding: 4px 9px;
+        border-radius: 11px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .skill-all-btn .b-pill-count,
+      .sk-btn .b-pill-count {
+        display: inline-block;
+        margin-left: 6px;
+        padding: 1px 7px;
+        border-radius: 8px;
+        background: var(--color-bg-sub);
+        color: var(--color-text-dim);
+        font-size: 10px;
+        font-weight: 800;
+      }
+      .skill-all-btn.active .b-pill-count,
+      .sk-btn.active .b-pill-count {
+        background: rgba(255, 255, 255, 0.25);
+        color: #fff;
+      }
+      body.dark-mode .skill-all-btn.active .b-pill-count,
+      body.dark-mode .sk-btn.active .b-pill-count {
+        background: rgba(0, 0, 0, 0.2);
+        color: #121212;
+      }
       .sk-btn {
         padding: 5px 11px;
         border-radius: 11px;
@@ -820,6 +859,12 @@
         text-transform: uppercase;
         letter-spacing: 1px;
       }
+      .debug-title-main {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
       .debug-subtitle {
         font-size: 10px;
         color: var(--color-text-light);
@@ -827,7 +872,48 @@
         text-transform: none;
         letter-spacing: 0;
       }
-      .data-health-panel {
+      .debug-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .debug-action-btn {
+        padding: 4px 10px;
+        border-radius: 9px;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text-dim);
+        font-size: 10px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.1s;
+      }
+      .debug-action-btn:hover {
+        border-color: var(--color-ui);
+        color: var(--color-ui);
+        background: var(--color-bg-sub);
+      }
+      .debug-action-status {
+        min-width: 84px;
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 700;
+        text-align: right;
+        text-transform: none;
+        letter-spacing: 0;
+      }
+      .debug-section-title {
+        margin-top: 4px;
+        font-size: 10px;
+        font-weight: 900;
+        color: var(--color-text-light);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .data-health-panel,
+      .unclassified-panel {
         width: 100%;
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -864,6 +950,17 @@
         border: 1px solid var(--color-border);
         border-radius: 10px;
         overflow: hidden;
+      }
+      .hint-chip {
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 10px;
+        padding: 9px 12px;
+        min-width: 0;
+      }
+      .hint-chip.active {
+        border-color: var(--color-ui);
+        background: var(--color-ui-glow);
       }
       .parser-summary-row {
         width: 100%;
@@ -927,7 +1024,19 @@
       .parser-warning-text {
         color: var(--color-text-dim);
       }
-      @media (max-width: 760px) { .data-health-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      @media (max-width: 760px) {
+        .data-health-panel,
+        .unclassified-panel {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .debug-title {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .debug-actions {
+          justify-content: flex-start;
+        }
+      }
 
       /* ── Stats Bar ── */
       .stats-bar {
@@ -1650,10 +1759,25 @@
       <div class="stats-bar" id="stats-bar"></div>
       <div class="debug-pane hidden" id="debug-pane">
         <div class="debug-title">
-          <span>Debug mode</span>
-          <span class="debug-subtitle">Data health and parser diagnostics</span>
+          <span class="debug-title-main">
+            <span>Debug mode</span>
+            <span class="debug-subtitle">Data health and parser diagnostics</span>
+          </span>
+          <span class="debug-actions">
+            <button class="debug-action-btn" onclick="copyParserWarnings()">
+              Copy warnings
+            </button>
+            <button class="debug-action-btn" onclick="exportParserWarnings()">
+              Export CSV
+            </button>
+            <span class="debug-action-status" id="debug-action-status"></span>
+          </span>
         </div>
+        <div class="debug-section-title">Data health</div>
         <div class="data-health-panel" id="data-health-panel"></div>
+        <div class="debug-section-title">Unclassified Misc breakdown</div>
+        <div class="unclassified-panel" id="unclassified-panel"></div>
+        <div class="debug-section-title">Parser warnings</div>
         <div class="parser-panel" id="parser-panel"></div>
       </div>
       <!-- Activity Heatmap: directly below Range filters for every section, including Skills -->
@@ -1726,7 +1850,7 @@
                 Kalphite Queen
               </div>
             </div>
-            <div style="margin-top: 10px">
+            <div class="combat-more-wrap">
               <select
                 id="boss-more"
                 onchange="selectMonster('boss', this.value)"
@@ -1816,7 +1940,7 @@
                 Nodon enforcer
               </div>
             </div>
-            <div style="margin-top: 10px">
+            <div class="combat-more-wrap">
               <select
                 id="slayer-more"
                 onchange="selectMonster('slayer', this.value)"
@@ -2171,6 +2295,7 @@
       let parserWarnings = [];
       let activeParserWarningType = null;
       let dataHealth = null;
+      let unclassifiedBreakdown = null;
       let rawCsvLineCount = 0;
       let debugMode = false;
       let suppressUrlStateUpdate = false;
@@ -2249,6 +2374,112 @@
         Support: ["Agility", "Dungeoneering", "Slayer", "Thieving"],
       };
 
+      // ── Parser configuration ─────────────────────────────────────────────
+      // Keep the repeated regexes and warning metadata in named blocks so future
+      // parser fixes can be made in one place without hunting through processData().
+      const CLUE_LOOT_RE =
+        /(?:I got|received|found) (?:a |an |some )?(.+?)(?:\s+out of it|\.|$)/i;
+      const SKILL_EVENT_RE =
+        /experience points in the|I levelled|level 99|While skilling|achieved at least level|total level of/i;
+      const COMBAT_TRIGGER_RE =
+        /killed|dropped|looted|found|surviving|defeating|battling|freeing|diving|exploring|plundering|hibernation/i;
+      const QUEST_MILESTONE_RE = /quest points?|Quest Complete/i;
+      const SONG_UNLOCK_RE = /unlocked a total of \d+ songs/i;
+
+      const KILL_AND_LOOT_RE =
+        /\b(?:killed|kill|defeated|defeating|after killing)\b[\s\S]*\b(?:dropped|looted|found)\b|\b(?:dropped|looted|found)\b[\s\S]*\b(?:killed|kill|defeated|defeating)\b/i;
+      const COMBAT_LOOKING_RE =
+        /\b(?:killed|killcount|dropped|looted|defeated|defeating|battling|surviving|lair|boss|phantom|demon|dragon|beast|glacor|rex matriarch|dagannoth)\b/i;
+      const QUEST_LOOKING_RE =
+        /\b(?:quest complete|quest points?|master quest cape|unlocked a total of \d+ songs)\b/i;
+      const CLUE_LOOKING_RE =
+        /\b(?:treasure trail|clue scroll|easy clue|medium clue|hard clue|elite clue|master clue)\b/i;
+      const SKILL_LOOKING_RE =
+        /\b(?:experience points|levelled|level 99|total level|while skilling|master max cape)\b/i;
+
+      const SLAYER_MONSTER_PATTERNS = [
+        /After killing\s+(?:\d+|many|some|a few)?\s*(.+?)(?:\s*,|\s+it dropped)/i,
+        /After putting (.+?), back into hibernation/i,
+        /After surviving ([^']+)'s lair/i,
+        /While battling the ([^,]+),?/i,
+        /After defeating wights of the ([^,.]+)(?:,|$)/i,
+        /After defeating ([^,.]+)(?:,|$)/i,
+        /After freeing ([^,.]+)(?: from|$)/i,
+        /While (?:diving|exploring|plundering) (?:in the |the |a )?([^,.]+)(?:,|$)/i,
+        /While looting a ([^,.]+)(?:,|$)/i,
+        /While battling shades in ([^,.]+)(?:,|$)/i,
+        // Singular kill-only fallback, e.g. "I killed a Glacor and its glacytes."
+        /(?:^|\s)killed\s+(?:a|an|the)\s+(.+?)(?:\.|,|$)/i,
+        // Kill-count fallback when nothing else matched.
+        /(?:^|\s)killed\s+(?:\d+|many|some|a few|several)\s+(.+?)(?:\.|,|$)/i,
+      ];
+
+      const COMBAT_ITEM_PATTERNS = [
+        /dropped (?:a pair of|some|an|a) ([^.,!]+)/i,
+        /After putting .+?, back into hibernation.+?I found (?:a pair of |some |an |a )?([^.!]+)/i,
+        /After surviving [^']+?'s lair.+?I found (?:a pair of |some |an |a )?([^.!]+)/i,
+        /After defeating .+?, I found (?:a pair of |some |an |a )?([^.!]+)/i,
+        /I looted (?:a pair of |some |an |a )?([^.!]+)/i,
+      ];
+
+      const UNCLASSIFIED_HINT_RULES = [
+        {
+          id: "combat-like",
+          label: "Combat-like",
+          test: (text) => COMBAT_LOOKING_RE.test(text),
+        },
+        {
+          id: "quest-like",
+          label: "Quest-like",
+          test: (text) => QUEST_LOOKING_RE.test(text),
+        },
+        {
+          id: "clue-like",
+          label: "Clue-like",
+          test: (text) => CLUE_LOOKING_RE.test(text),
+        },
+        {
+          id: "skill-like",
+          label: "Skill-like",
+          test: (text) => SKILL_LOOKING_RE.test(text),
+        },
+      ];
+
+      const DEBUG_WARNING_DEFINITIONS = {
+        "misc-kill-loot": {
+          label: "Misc: kill + loot",
+          description: "Rows that mention combat and loot/drop language but stayed in Misc.",
+        },
+        "misc-combat-like": {
+          label: "Misc: combat-like",
+          description: "Rows with kill, boss, monster, or combat wording that stayed in Misc.",
+        },
+        "misc-quest-like": {
+          label: "Misc: quest-like",
+          description: "Rows with quest wording that stayed in Misc.",
+        },
+        "misc-clue-like": {
+          label: "Misc: clue-like",
+          description: "Rows with clue or treasure-trail wording that stayed in Misc.",
+        },
+        "misc-skill-like": {
+          label: "Misc: skill-like",
+          description: "Rows with skill, XP, pet, or level wording that stayed in Misc.",
+        },
+        "numeric-loot": {
+          label: "Numeric loot ignored",
+          description: "Loot names contain numbers that were ignored for killcount extraction.",
+        },
+        "inferred-kill": {
+          label: "Inferred +1 kill",
+          description: "Singular kill-only rows counted as one kill.",
+        },
+        "shared-alias": {
+          label: "Shared boss alias",
+          description: "Rows expanded across shared boss aliases.",
+        },
+      };
+
       function toggleDarkMode() {
         const isDark = document.body.classList.toggle("dark-mode");
         document.getElementById("theme-icon").textContent = isDark
@@ -2323,6 +2554,7 @@
         if (toggle) toggle.classList.toggle("active", debugMode);
         if (!debugMode) return;
         renderDataHealth();
+        renderUnclassifiedPanel();
         renderParserPanel();
       }
 
@@ -2330,14 +2562,21 @@
         const panel = document.getElementById("data-health-panel");
         if (!panel) return;
         if (!dataHealth) {
-          panel.innerHTML = '<div class="health-chip"><span class="health-label">Loaded</span><span class="health-value">No data yet</span></div>';
+          panel.innerHTML =
+            '<div class="health-chip"><span class="health-label">Loaded</span><span class="health-value">No data yet</span></div>';
           return;
         }
         const healthItems = [
           ["Loaded", dataHealth.loadedRows.toLocaleString() + " entries"],
-          ["Latest", dataHealth.latestTs ? formatShortDate(dataHealth.latestTs) : "—"],
-          ["Oldest", dataHealth.oldestTs ? formatShortDate(dataHealth.oldestTs) : "—"],
-          ["Unclassified", dataHealth.unclassified.toLocaleString()],
+          ["Source", dataHealth.sourceRows.toLocaleString() + " rows"],
+          [
+            "Latest",
+            dataHealth.latestTs ? formatShortDate(dataHealth.latestTs) : "—",
+          ],
+          [
+            "Oldest",
+            dataHealth.oldestTs ? formatShortDate(dataHealth.oldestTs) : "—",
+          ],
           ["Warnings", parserWarnings.length.toLocaleString()],
         ];
         panel.innerHTML = healthItems
@@ -2352,15 +2591,61 @@
           .join("");
       }
 
-      function getParserWarningDescription(type) {
+      function getUnclassifiedHint(entry) {
+        if (!entry || entry.super !== "misc") return null;
+        const text = entry.rawText || entry.title + " " + entry.details;
+        const rule = UNCLASSIFIED_HINT_RULES.find((item) => item.test(text));
+        return rule ? rule.id : "other";
+      }
+
+      function buildUnclassifiedBreakdown() {
+        const counts = {
+          "combat-like": 0,
+          "quest-like": 0,
+          "clue-like": 0,
+          "skill-like": 0,
+          other: 0,
+        };
+        parsed.forEach((entry) => {
+          const hint = getUnclassifiedHint(entry);
+          if (hint) counts[hint] = (counts[hint] || 0) + 1;
+        });
+        return counts;
+      }
+
+      function renderUnclassifiedPanel() {
+        const panel = document.getElementById("unclassified-panel");
+        if (!panel) return;
+        const counts = unclassifiedBreakdown || buildUnclassifiedBreakdown();
+        const hintMeta = [
+          ["combat-like", "Combat-like"],
+          ["quest-like", "Quest-like"],
+          ["clue-like", "Clue-like"],
+          ["skill-like", "Skill-like"],
+          ["other", "Other"],
+        ];
+        panel.innerHTML = hintMeta
+          .map(([id, label]) => {
+            const count = counts[id] || 0;
+            return (
+              '<div class="hint-chip' +
+              (count ? " active" : "") +
+              '"><span class="health-label">' +
+              label +
+              '</span><span class="health-value">' +
+              count.toLocaleString() +
+              "</span></div>"
+            );
+          })
+          .join("");
+      }
+
+      function getParserWarningDefinition(type) {
         return (
-          {
-            "misc kill+loot": "Rows that mention combat and loot/drop language but stayed in Misc.",
-            "misc combat-like": "Rows with kill, drop, loot, or boss wording that stayed in Misc.",
-            "numeric loot": "Loot names contain numbers that were ignored for killcount extraction.",
-            "inferred +1": "Singular kill-only rows counted as one kill.",
-            "shared alias": "Rows expanded across shared boss aliases.",
-          }[type] || "Parser diagnostics grouped by issue type."
+          DEBUG_WARNING_DEFINITIONS[type] || {
+            label: type,
+            description: "Parser diagnostics grouped by issue type.",
+          }
         );
       }
 
@@ -2378,10 +2663,14 @@
         if (!panel) return;
         const groups = groupParserWarnings();
         if (!groups.length) {
-          panel.innerHTML = '<div class="parser-warning-row"><div class="parser-warning-text">No parser warnings found.</div></div>';
+          panel.innerHTML =
+            '<div class="parser-warning-row"><div class="parser-warning-text">No parser warnings found.</div></div>';
           return;
         }
-        if (!activeParserWarningType || !groups.some(([type]) => type === activeParserWarningType)) {
+        if (
+          !activeParserWarningType ||
+          !groups.some(([type]) => type === activeParserWarningType)
+        ) {
           activeParserWarningType = groups[0][0];
         }
 
@@ -2390,18 +2679,19 @@
         panel.innerHTML = groups
           .map(([type, warnings]) => {
             const active = type === activeParserWarningType;
+            const def = getParserWarningDefinition(type);
             const summary =
               '<button class="parser-summary-row' +
               (active ? " active" : "") +
               '" data-type="' +
               escapeHtml(type) +
               '" onclick="toggleParserWarningGroup(this.dataset.type)"><span class="parser-summary-main"><span class="parser-summary-type">' +
-              escapeHtml(type) +
+              escapeHtml(def.label) +
               '</span><span class="parser-summary-desc">' +
-              escapeHtml(getParserWarningDescription(type)) +
+              escapeHtml(def.description) +
               '</span></span><span class="parser-summary-count">' +
               warnings.length.toLocaleString() +
-              '</span></button>';
+              "</span></button>";
             if (!active) return summary;
             const detailHtml = warnings
               .slice(0, 250)
@@ -2411,10 +2701,22 @@
                   escapeHtml(warning.ts || "") +
                   '</div><div class="parser-warning-text">' +
                   escapeHtml(warning.message) +
-                  '</div></div>',
+                  "</div></div>",
               )
               .join("");
-            return summary + '<div class="parser-warning-list">' + detailHtml + "</div>";
+            const clipped =
+              warnings.length > 250
+                ? '<div class="parser-warning-row"><div class="parser-warning-text">Showing first 250 of ' +
+                  warnings.length.toLocaleString() +
+                  " warnings. Export CSV for the full list.</div></div>"
+                : "";
+            return (
+              summary +
+              '<div class="parser-warning-list">' +
+              detailHtml +
+              clipped +
+              "</div>"
+            );
           })
           .join("");
       }
@@ -2424,39 +2726,53 @@
         renderParserPanel();
       }
 
+      function addParserWarning(warnings, type, entry, message) {
+        warnings.push({
+          type,
+          ts: entry.ts,
+          title: entry.title,
+          details: entry.details,
+          message,
+        });
+      }
+
       function buildParserWarnings() {
         const warnings = [];
         parsed.forEach((entry) => {
           const text = entry.rawText || entry.title + " " + entry.details;
           const stayedMisc = entry.super === "misc";
-          const looksLikeKillAndLoot =
-            /\b(?:killed|kill|defeated|defeating|after killing)\b[\s\S]*\b(?:dropped|looted|found)\b/i.test(text) ||
-            /\b(?:dropped|looted|found)\b[\s\S]*\b(?:killed|kill|defeated|defeating)\b/i.test(text);
-          const looksCombatLike =
-            /\b(?:killed|killcount|dropped|looted|defeated|defeating|battling|surviving|lair|boss|phantom|demon|dragon|beast|glacor|rex matriarch|dagannoth)\b/i.test(text);
 
           // Most useful diagnostics first: rows that smell like combat/drop logs,
           // but no parser branch claimed them, so they stayed in Misc.
-          if (stayedMisc && looksLikeKillAndLoot) {
-            warnings.push({
-              type: "misc kill+loot",
-              ts: entry.ts,
-              message: "Kill/drop-oriented row stayed in Misc: " + text,
-            });
-          } else if (stayedMisc && looksCombatLike) {
-            warnings.push({
-              type: "misc combat-like",
-              ts: entry.ts,
-              message: "Combat-looking row stayed in Misc: " + text,
-            });
+          if (stayedMisc && KILL_AND_LOOT_RE.test(text)) {
+            addParserWarning(
+              warnings,
+              "misc-kill-loot",
+              entry,
+              "Kill/drop-oriented row stayed in Misc: " + text,
+            );
+          } else if (stayedMisc) {
+            const hint = getUnclassifiedHint(entry);
+            if (hint && hint !== "other") {
+              addParserWarning(
+                warnings,
+                "misc-" + hint,
+                entry,
+                "Potential " + hint.replace("-", " ") + " row stayed in Misc: " + text,
+              );
+            }
           }
 
           if (entry.super === "combat" && entry.item && /\d/.test(entry.item)) {
-            warnings.push({
-              type: "numeric loot",
-              ts: entry.ts,
-              message: "Ignored numeric loot item for killcount: " + entry.monster + " / " + entry.item,
-            });
+            addParserWarning(
+              warnings,
+              "numeric-loot",
+              entry,
+              "Ignored numeric loot item for killcount: " +
+                entry.monster +
+                " / " +
+                entry.item,
+            );
           }
           if (
             entry.super === "combat" &&
@@ -2464,21 +2780,81 @@
             /\bkilled\s+(?:a|an|the)\s+/i.test(text) &&
             !/\d/.test(text)
           ) {
-            warnings.push({
-              type: "inferred +1",
-              ts: entry.ts,
-              message: "Singular kill-only row counted as +1 for " + entry.monster + ".",
-            });
+            addParserWarning(
+              warnings,
+              "inferred-kill",
+              entry,
+              "Singular kill-only row counted as +1 for " + entry.monster + ".",
+            );
           }
           if (entry.super === "combat" && entry.sharedFromAlias) {
-            warnings.push({
-              type: "shared alias",
-              ts: entry.ts,
-              message: "Shared boss alias expanded this row to " + entry.monster + ".",
-            });
+            addParserWarning(
+              warnings,
+              "shared-alias",
+              entry,
+              "Shared boss alias expanded this row to " + entry.monster + ".",
+            );
           }
         });
         parserWarnings = warnings;
+      }
+
+      function escapeCsv(value) {
+        return '"' + String(value ?? "").replace(/"/g, '""') + '"';
+      }
+
+      function getParserWarningsCsv() {
+        const rows = [
+          ["type", "label", "timestamp", "title", "details", "message"],
+          ...parserWarnings.map((warning) => {
+            const def = getParserWarningDefinition(warning.type);
+            return [
+              warning.type,
+              def.label,
+              warning.ts || "",
+              warning.title || "",
+              warning.details || "",
+              warning.message || "",
+            ];
+          }),
+        ];
+        return rows.map((row) => row.map(escapeCsv).join(",")).join("\n");
+      }
+
+      function setDebugActionStatus(message) {
+        const el = document.getElementById("debug-action-status");
+        if (!el) return;
+        el.textContent = message;
+        window.clearTimeout(setDebugActionStatus._timer);
+        setDebugActionStatus._timer = window.setTimeout(() => {
+          el.textContent = "";
+        }, 1800);
+      }
+
+      async function copyParserWarnings() {
+        const csv = getParserWarningsCsv();
+        try {
+          await navigator.clipboard.writeText(csv);
+          setDebugActionStatus("Copied");
+        } catch (err) {
+          console.warn("Clipboard copy failed", err);
+          setDebugActionStatus("Copy failed");
+        }
+      }
+
+      function exportParserWarnings() {
+        const blob = new Blob([getParserWarningsCsv()], {
+          type: "text/csv;charset=utf-8",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "saulalog_parser_warnings.csv";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        setDebugActionStatus("Exported");
       }
 
       function updateDataHealth() {
@@ -2486,6 +2862,7 @@
           .map((entry) => parseTs(entry.ts))
           .filter(Boolean)
           .sort((a, b) => a - b);
+        unclassifiedBreakdown = buildUnclassifiedBreakdown();
         dataHealth = {
           loadedRows: parsed.length,
           sourceRows: rawCsvLineCount,
@@ -2495,7 +2872,6 @@
         };
         renderDebugPanel();
       }
-
 
       // ── Stats Bar ──
       function renderStatsBar(filteredForCount) {
@@ -2910,11 +3286,7 @@
               d.skill = null;
               return d;
             }
-            if (
-              /experience points in the|I levelled|level 99|While skilling|achieved at least level|total level of/i.test(
-                details,
-              )
-            ) {
+            if (SKILL_EVENT_RE.test(details)) {
               d.super = "skills";
               SKILLS.forEach((s) => {
                 if (details.includes(s)) d.skill = s;
@@ -2942,9 +3314,7 @@
 
             // ── Combat ──
             if (
-              /killed|dropped|looted|found|surviving|defeating|battling|freeing|diving|exploring|plundering|hibernation/i.test(
-                details,
-              ) &&
+              COMBAT_TRIGGER_RE.test(details) &&
               !details.toLowerCase().includes("quest")
             ) {
               let monsterName = null;
@@ -2999,22 +3369,7 @@
 
               // Step 2: Slayer fallback — apply monster regexes in priority order.
               if (!monsterName) {
-                const monsterRegexes = [
-                  /After killing\s+(?:\d+|many|some|a few)?\s*(.+?)(?:\s*,|\s+it dropped)/i,
-                  /After putting (.+?), back into hibernation/i,
-                  /After surviving ([^']+)'s lair/i,
-                  /While battling the ([^,]+),?/i,
-                  /After defeating wights of the ([^,.]+)(?:,|$)/i,
-                  /After defeating ([^,.]+)(?:,|$)/i,
-                  /After freeing ([^,.]+)(?: from|$)/i,
-                  /While (?:diving|exploring|plundering) (?:in the |the |a )?([^,.]+)(?:,|$)/i,
-                  /While looting a ([^,.]+)(?:,|$)/i,
-                  /While battling shades in ([^,.]+)(?:,|$)/i,
-                  // Singular kill-only fallback, e.g. "I killed a Glacor and its glacytes."
-                  /(?:^|\s)killed\s+(?:a|an|the)\s+(.+?)(?:\.|,|$)/i,
-                  // Kill-count fallback when nothing else matched
-                  /(?:^|\s)killed\s+(?:\d+|many|some|a few|several)\s+(.+?)(?:\.|,|$)/i,
-                ];
+                const monsterRegexes = SLAYER_MONSTER_PATTERNS;
                 for (const re of monsterRegexes) {
                   const m = details.match(re);
                   if (m && m[1]) {
@@ -3047,13 +3402,7 @@
                 d.sub = isBoss ? "boss" : "slayer";
 
                 // Step 3: Item extraction — apply drop regexes in priority order.
-                const itemRegexes = [
-                  /dropped (?:a pair of|some|an|a) ([^.,!]+)/i,
-                  /After putting .+?, back into hibernation.+?I found (?:a pair of |some |an |a )?([^.!]+)/i,
-                  /After surviving [^']+?'s lair.+?I found (?:a pair of |some |an |a )?([^.!]+)/i,
-                  /After defeating .+?, I found (?:a pair of |some |an |a )?([^.!]+)/i,
-                  /I looted (?:a pair of |some |an |a )?([^.!]+)/i,
-                ];
+                const itemRegexes = COMBAT_ITEM_PATTERNS;
                 for (const re of itemRegexes) {
                   const m = details.match(re);
                   if (m && m[1]) {
@@ -3094,7 +3443,7 @@
               d.sub = "milestone";
               return d;
             }
-            if (/quest points?/i.test(details) || /Quest Complete/.test(details)) {
+            if (QUEST_MILESTONE_RE.test(details)) {
               d.super = "quests";
               d.sub = "milestone";
               return d;
@@ -3119,6 +3468,7 @@
         // Killcounts are intentionally not deduped here; extractApproxKillCount() mirrors the row-level Sheets tally.
         buildParserWarnings();
         updateDataHealth();
+        buildSkillPicker();
 
         // Default combat selections should start on monsters that actually have loot/drop entries,
         // so the prominent Boss/Slayer panes stay loot-focused rather than jumping to killcount-only logs.
@@ -3304,7 +3654,6 @@
           { id: "xp", label: "XP Milestones" },
           { id: "pet", label: "Skilling Pets" },
           { id: "level", label: "Level Ups" },
-          { id: "total", label: "Total Level" },
         ];
       }
 
@@ -3316,10 +3665,95 @@
         }).length;
       }
 
+      function entryMatchesGlobalSearchAndDate(e) {
+        const q = getCurrentSearchQuery().toLowerCase();
+        const searchContent = `${e.title || ""} ${e.details || ""}`.toLowerCase();
+        if (q && !searchContent.includes(q)) return false;
+        if (dateFrom || dateTo) {
+          const d = parseTs(e.ts);
+          if (!d) return false;
+          if (dateFrom && d < dateFrom) return false;
+          if (dateTo && d > dateTo) return false;
+        }
+        return true;
+      }
+
+      function getSkillPickerEntries(contextEntries = null) {
+        // The skill selector mirrors the Combat recent-5 behavior: it ranks
+        // skills by the latest matching log entry while still showing counts
+        // for every log in the current search/date context.
+        const source = Array.isArray(contextEntries)
+          ? contextEntries
+          : parsed.filter((e) => e.super === "skills" && entryMatchesGlobalSearchAndDate(e));
+        return source.filter((e) => e.skill && SKILLS.includes(e.skill));
+      }
+
+      function summarizeSkillLogs(entries) {
+        const summary = {};
+        SKILLS.forEach((skill) => {
+          summary[skill] = { count: 0, lastTs: null, lastTime: -Infinity };
+        });
+        getSkillPickerEntries(entries).forEach((e) => {
+          const d = parseTs(e.ts);
+          const t = d ? d.getTime() : -Infinity;
+          const row = summary[e.skill];
+          row.count++;
+          if (t > row.lastTime) {
+            row.lastTime = t;
+            row.lastTs = e.ts;
+          }
+        });
+        return summary;
+      }
+
+      function getSkillPickerScopeSkills() {
+        // Full skill-group selections narrow the quick picker to that group.
+        // All Skills and single-skill selections keep the full picker available.
+        const exactGroup = Object.keys(SKILL_GROUPS).find((groupName) =>
+          isGroupFullySelected(groupName),
+        );
+        return exactGroup
+          ? SKILL_GROUPS[exactGroup].filter((skill) => SKILLS.includes(skill))
+          : SKILLS.slice();
+      }
+
+      function getSkillGroupEntryCount(summary, groupName) {
+        return (SKILL_GROUPS[groupName] || [])
+          .filter((skill) => SKILLS.includes(skill))
+          .reduce((total, skill) => total + (summary[skill]?.count || 0), 0);
+      }
+
+      function getRecentSkillRows(entries = null) {
+        const summary = summarizeSkillLogs(entries);
+        const scopeSkills = getSkillPickerScopeSkills();
+        const ordered = scopeSkills
+          .map((skill) => ({
+            skill,
+            groupName: getSkillGroupName(skill),
+            count: summary[skill]?.count || 0,
+            lastTime: summary[skill]?.lastTime ?? -Infinity,
+          }))
+          .sort((a, b) => {
+            if (b.lastTime !== a.lastTime) return b.lastTime - a.lastTime;
+            if (b.count !== a.count) return b.count - a.count;
+            return SKILLS.indexOf(a.skill) - SKILLS.indexOf(b.skill);
+          });
+        return {
+          top: ordered.slice(0, 5),
+          rest: ordered.slice(5),
+          summary,
+        };
+      }
+
       function skillEntryMatchesSubFilters(e) {
         // 200m XP entries are split out from normal XP milestones so that the
         // dedicated 200m bubble can be toggled independently.
         if (is200mXpEntry(e)) return !!skillSubs.m200;
+
+        // Total-level entries no longer have their own visible filter bubble;
+        // keep them included whenever the selected skill/group matches.
+        if (e.sub === "total") return true;
+
         return !!skillSubs[e.sub];
       }
 
@@ -3437,6 +3871,26 @@
 
       const CLUE_TYPES = ["easy", "medium", "hard", "elite", "master"];
 
+      function getClueTypesByRecentLoot(lootEntries) {
+        // Clue tier bubbles follow the same idea as Combat's recent loot row:
+        // tiers with the freshest notable loot appear first, while tiers with
+        // no loot stay available at the end in their natural order.
+        const lastLootTime = {};
+        lootEntries.forEach((e) => {
+          if (!CLUE_TYPES.includes(e.sub)) return;
+          const d = parseTs(e.ts);
+          const t = d ? d.getTime() : -Infinity;
+          if (!lastLootTime[e.sub] || t > lastLootTime[e.sub]) {
+            lastLootTime[e.sub] = t;
+          }
+        });
+        return CLUE_TYPES.slice().sort((a, b) => {
+          const aTime = lastLootTime[a] ?? -Infinity;
+          const bTime = lastLootTime[b] ?? -Infinity;
+          if (bTime !== aTime) return bTime - aTime;
+          return CLUE_TYPES.indexOf(a) - CLUE_TYPES.indexOf(b);
+        });
+      }
 
       function renderCluePanel(allEntries) {
         const listEl = document.getElementById("clue-list");
@@ -3447,9 +3901,10 @@
         // that tier, while the count badge drills into completed clue logs.
         const completionCount = (type) =>
           allEntries.filter((e) => e.sub === type).length;
+        const orderedClueTypes = getClueTypesByRecentLoot(lootEntries);
         const buttonRow = `
         <div class="bubble-wrap clue-btn-row sticky-filter-row">
-            ${CLUE_TYPES.map((type) => {
+            ${orderedClueTypes.map((type) => {
               const label = type.charAt(0).toUpperCase() + type.slice(1);
               return `
                 <div class="b-pill pill-clue ${selClueType === type ? "active" : ""}"
@@ -3640,6 +4095,7 @@
           const clueFiltered = filtered.filter((e) => clueSubs[e.sub]);
           renderCluePanel(clueFiltered);
         } else if (activeFilter === "skills") {
+          buildSkillPicker(filtered);
           renderSkillPanel(filtered);
         } else {
           let display = [...listFiltered];
@@ -3873,32 +4329,54 @@
         );
       }
 
-      function buildSkillPicker() {
+      function buildSkillPicker(contextEntries = null) {
         const top = document.querySelector(".skill-picker-top");
         const groupedList = document.getElementById("skill-grouped-view");
+        const { top: recentSkills, rest: otherSkills, summary } =
+          getRecentSkillRows(contextEntries);
+        const allSkillLogCount = SKILLS.reduce(
+          (total, skill) => total + (summary[skill]?.count || 0),
+          0,
+        );
+
         top.innerHTML = `
-        <button class="skill-all-btn ${selectedSkills.size === 0 ? "active" : ""}" id="skill-btn-all" onclick="clearSkillSelection()">All Skills</button>
+        <button class="skill-all-btn ${selectedSkills.size === 0 ? "active" : ""}" id="skill-btn-all" onclick="clearSkillSelection()">
+            All Skills<span class="b-pill-count">${allSkillLogCount.toLocaleString()}</span>
+        </button>
         ${Object.entries(SKILL_GROUPS)
-          .map(([groupName, skills]) => {
+          .map(([groupName]) => {
             const active = isGroupFullySelected(groupName);
+            const count = getSkillGroupEntryCount(summary, groupName);
             return `<div class="b-pill skill-group-pill ${active ? "active" : ""}" data-group="${groupName}" onclick="toggleSkillGroup('${groupName}')">
-                ${groupName}<span class="b-pill-count">${skills.length}</span>
+                ${groupName}<span class="b-pill-count">${count.toLocaleString()}</span>
             </div>`;
           })
           .join("")}`;
 
+        const skillButton = ({ skill, groupName, count }) => {
+          const active = selectedSkills.size === 0 || selectedSkills.has(skill);
+          return `<button class="sk-btn ${active ? "active" : ""}" data-group="${groupName}" title="${groupName}" onclick="toggleSkill('${skill}')">
+                ${skill}<span class="b-pill-count">${count.toLocaleString()}</span>
+            </button>`;
+        };
+
+        const moreSelect = otherSkills.length
+          ? `<div class="skill-more-wrap">
+                <select id="skill-more" onchange="if (this.value) setSkillFilter(this.value)">
+                    <option value="">More skills...</option>
+                    ${otherSkills
+                      .map(
+                        ({ skill, count }) =>
+                          `<option value="${skill}" ${selectedSkills.size === 1 && selectedSkills.has(skill) ? "selected" : ""}>${skill} (${count.toLocaleString()})</option>`,
+                      )
+                      .join("")}
+                </select>
+            </div>`
+          : "";
+
         groupedList.innerHTML = `<div class="skill-skills-row">
-        ${Object.entries(SKILL_GROUPS)
-          .flatMap(([groupName, skills]) =>
-            skills
-              .filter((s) => SKILLS.includes(s))
-              .map((s) => {
-                const active =
-                  selectedSkills.size === 0 || selectedSkills.has(s);
-                return `<button class="sk-btn ${active ? "active" : ""}" data-group="${groupName}" title="${groupName}" onclick="toggleSkill('${s}')">${s}</button>`;
-              }),
-          )
-          .join("")}
+        ${recentSkills.map(skillButton).join("")}
+        ${moreSelect}
     </div>`;
       }
 
