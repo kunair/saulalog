@@ -1,12 +1,11 @@
 <!doctype html>
 
 <!--
-  Saulalog v3.24
+  Saulalog v3.27
   - Moved loaded/cached source metadata above the top-right controls.
   - Softened the sticky filter header so rounded corners stay clean while scrolling.
 -->
 
-<!-- saved from url=(0132)file:///C:/Users/telev/AppData/Local/Temp/MicrosoftEdgeDownloads/30af294b-42f8-4b4b-a95c-131b4f34d6b0/gemini-code-1776939632602.html -->
 <html lang="en">
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
@@ -1890,33 +1889,13 @@
         grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 6px;
       }
-
-      .clue-hint-row {
-        width: 100%;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-        gap: 8px;
-        margin-bottom: 8px;
-      }
-
-      .skill-chart-state {
+.skill-chart-state {
         color: var(--color-text-light);
         font-size: 10px;
         font-weight: 700;
         margin-bottom: 6px;
       }
-
-      .clue-hint-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--color-text-light);
-        font-size: 10px;
-        font-weight: 800;
-        margin-bottom: 8px;
-      }
-
-      .sticky-top-zone {
+.sticky-top-zone {
         position: sticky;
         top: 0;
         z-index: 20;
@@ -2471,6 +2450,61 @@
         border-radius: 8px;
         overflow: hidden;
       }
+      /* ── v3.27 shared UI cleanup ─────────────────────────────────────
+         These shared foundations keep repeated panels, rows, and controls
+         visually cohesive while preserving the existing section-specific
+         class names used by the render functions. */
+      .main-content {
+        width: 100%;
+      }
+
+      .list-pane-header-shell {
+        border-bottom: none;
+        border-radius: 8px 8px 0 0;
+      }
+
+      .list-pane-body-shell {
+        border-top: none;
+        border-radius: 0 0 8px 8px;
+      }
+
+      .log-row {
+        min-width: 0;
+      }
+
+      .dual-col,
+      .combat-sec,
+      .entries,
+      .debug-pane {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.025);
+      }
+
+      body.dark-mode .dual-col,
+      body.dark-mode .combat-sec,
+      body.dark-mode .entries,
+      body.dark-mode .debug-pane {
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      }
+
+      .ui-control,
+      .b-pill,
+      .skill-all-btn,
+      .skill-group-pill,
+      .dp-btn,
+      .debug-action-btn,
+      .refresh-data-btn,
+      .csv-upload-btn,
+      .theme-toggle,
+      .debug-toggle {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .list-pane-title,
+      .dual-col-header > span:first-child,
+      .combat-sec h3 {
+        line-height: 1.2;
+      }
+
     </style>
   </head>
   <body>
@@ -2483,14 +2517,14 @@
           </div>
           <div class="top-action-row">
             <div
-              class="theme-toggle"
+              class="theme-toggle ui-control"
               onclick="toggleDarkMode()"
               title="Toggle Dark Mode"
             >
               <span id="theme-icon">🌙</span>
             </div>
             <div
-              class="debug-toggle"
+              class="debug-toggle ui-control"
               id="debug-toggle"
               onclick="toggleDebugMode()"
               title="Toggle Debug Mode"
@@ -2500,7 +2534,7 @@
           </div>
           <div class="top-action-row">
             <button
-              class="refresh-data-btn google-sheet-refresh-btn"
+              class="refresh-data-btn google-sheet-refresh-btn ui-control"
               id="refresh-data-btn"
               onclick="refreshData()"
               title="Refresh Google Sheets data"
@@ -2509,7 +2543,7 @@
               <span class="refresh-icon">⟳</span>
             </button>
             <label
-              class="upload-area csv-upload-btn"
+              class="upload-area csv-upload-btn ui-control"
               for="csv-file"
               id="upload-label"
               title="Upload CSV"
@@ -2635,38 +2669,12 @@
           <div class="skill-grouped-list" id="skill-grouped-view"></div>
         </div>
       </div>
-      <div id="main-content" style="width: 100%">
+      <div class="main-content" id="main-content">
         <div class="combat-grid" id="combat-view">
           <div class="combat-sec">
             <h3>Bosses</h3>
+            <!-- Populated by renderCombatSide(); keep source markup empty to avoid stale saved state. -->
             <div class="bubble-wrap" id="boss-bubbles">
-              <div class="b-pill" onclick="selectMonster('boss', 'Osseous')">
-                Osseous
-              </div>
-              <div
-                class="b-pill"
-                onclick="selectMonster('boss', 'Corporeal Beast')"
-              >
-                Corporeal Beast
-              </div>
-              <div
-                class="b-pill"
-                onclick="selectMonster('boss', 'K\'ril Tsutsaroth')"
-              >
-                K'ril Tsutsaroth
-              </div>
-              <div
-                class="b-pill"
-                onclick="selectMonster('boss', 'The Magister')"
-              >
-                The Magister
-              </div>
-              <div
-                class="b-pill"
-                onclick="selectMonster('boss', 'Kalphite Queen')"
-              >
-                Kalphite Queen
-              </div>
             </div>
             <div class="combat-more-wrap">
               <select
@@ -2674,89 +2682,15 @@
                 onchange="selectMonster('boss', this.value)"
               >
                 <option value="">More...</option>
-                <option value="King Black Dragon">King Black Dragon</option>
-                <option value="Pthentraken">Pthentraken</option>
-                <option value="Commander Zilyana">Commander Zilyana</option>
-                <option value="Orikalka">Orikalka</option>
-                <option value="Rathis">Rathis</option>
-                <option value="General Graardor">General Graardor</option>
-                <option value="Kree'arra">Kree'arra</option>
-                <option value="Astellarn">Astellarn</option>
-                <option value="Helwyr">Helwyr</option>
-                <option value="Nex">Nex</option>
-                <option value="Beastmaster Durzag">Beastmaster Durzag</option>
-                <option value="Black stone dragon">Black stone dragon</option>
-                <option value="Verak Lith">Verak Lith</option>
-                <option value="Queen Black Dragon">Queen Black Dragon</option>
-                <option value="Gregorovic">Gregorovic</option>
-                <option value="Vorago">Vorago</option>
-                <option value="Kalphite King">Kalphite King</option>
-                <option value="Gorvek and Vindicta">Gorvek and Vindicta</option>
-                <option value="Dagannoth Prime">Dagannoth Prime</option>
-                <option value="Dagannoth Supreme">Dagannoth Supreme</option>
-                <option value="Dagannoth Rex">Dagannoth Rex</option>
-                <option value="Legio Quartus">Legio Quartus</option>
-                <option selected="" value="Legio Primus">Legio Primus</option>
-                <option value="Legio Sextus">Legio Sextus</option>
-                <option value="Legio Tertius">Legio Tertius</option>
-                <option value="Legio Quintus">Legio Quintus</option>
-                <option value="Legio Secundus">Legio Secundus</option>
-                <option value="Exiled Kalphite Queen">
-                  Exiled Kalphite Queen
-                </option>
-                <option value="Yakamaru">Yakamaru</option>
-                <option value="Chaos Elemental">Chaos Elemental</option>
-                <option value="Giant mole">Giant mole</option>
               </select>
             </div>
             <div class="loot-container" id="boss-loot-list">
-              <div
-                class="loot-row clickable"
-                onclick="
-                  toggleLootDrilldown('boss', 'Corrupted Ascension signet I')
-                "
-              >
-                <span class="loot-name"
-                  ><span class="loot-count">1x</span>Corrupted Ascension signet
-                  I</span
-                >
-                <span class="loot-ts">10/29/2017 13:12</span>
-              </div>
             </div>
           </div>
           <div class="combat-sec">
             <h3>Slayer</h3>
+            <!-- Populated by renderCombatSide(); keep source markup empty to avoid stale saved state. -->
             <div class="bubble-wrap" id="slayer-bubbles">
-              <div
-                class="b-pill"
-                onclick="selectMonster('slayer', 'Lava strykewyrm')"
-              >
-                Lava strykewyrm
-              </div>
-              <div
-                class="b-pill"
-                onclick="selectMonster('slayer', 'Venomous dinosaur')"
-              >
-                Venomous dinosaur
-              </div>
-              <div
-                class="b-pill"
-                onclick="selectMonster('slayer', 'Steel dragon')"
-              >
-                Steel dragon
-              </div>
-              <div
-                class="b-pill active"
-                onclick="selectMonster('slayer', 'Adamant dragon')"
-              >
-                Adamant dragon
-              </div>
-              <div
-                class="b-pill"
-                onclick="selectMonster('slayer', 'Nodon enforcer')"
-              >
-                Nodon enforcer
-              </div>
             </div>
             <div class="combat-more-wrap">
               <select
@@ -2764,123 +2698,9 @@
                 onchange="selectMonster('slayer', this.value)"
               >
                 <option value="">More...</option>
-                <option value="Nodon engineer">Nodon engineer</option>
-                <option value="Soulgazer">Soulgazer</option>
-                <option value="Glacor">Glacor</option>
-                <option value="Chaos dwarf">Chaos dwarf</option>
-                <option value="Ice strykewyrm">Ice strykewyrm</option>
-                <option value="Blood nihil">Blood nihil</option>
-                <option value="Spiritual mage">Spiritual mage</option>
-                <option value="Gargoyle">Gargoyle</option>
-                <option value="Rune dragon">Rune dragon</option>
-                <option value="Dagannoth">Dagannoth</option>
-                <option value="Mithril dragon">Mithril dragon</option>
-                <option value="Elite rune dragon">Elite rune dragon</option>
-                <option value="Kal'gerion demon">Kal'gerion demon</option>
-                <option value="Luminous snaggler">Luminous snaggler</option>
-                <option value="Nodon artificer">Nodon artificer</option>
-                <option value="Celestial dragon">Celestial dragon</option>
-                <option value="Automaton Guardian">Automaton Guardian</option>
-                <option value="Dragonstone dragon">Dragonstone dragon</option>
-                <option value="Slasher Demon">Slasher Demon</option>
-                <option value="Ripper Demon">Ripper Demon</option>
-                <option value="Tormented demon">Tormented demon</option>
-                <option value="Camel Warrior">Camel Warrior</option>
-                <option value="Onyx dragon">Onyx dragon</option>
-                <option value="Crystal Shapeshifter">
-                  Crystal Shapeshifter
-                </option>
-                <option value="Desert strykewyrm">Desert strykewyrm</option>
-                <option value="Capsarius">Capsarius</option>
-                <option value="Automaton Tracer">Automaton Tracer</option>
-                <option value="Hydrix dragon">Hydrix dragon</option>
-                <option value="Automaton Generator">Automaton Generator</option>
-                <option value="Jungle strykewyrm">Jungle strykewyrm</option>
-                <option value="Nightmare">Nightmare</option>
-                <option value="Edimmu">Edimmu</option>
-                <option value="Vyrelord">Vyrelord</option>
-                <option value="Moss golem">Moss golem</option>
-                <option value="Abyssal demon">Abyssal demon</option>
-                <option value="Wyvern">Wyvern</option>
-                <option value="Airut">Airut</option>
-                <option value="Elite Profane Scabarite">
-                  Elite Profane Scabarite
-                </option>
-                <option value="Zakl'n Gritch">Zakl'n Gritch</option>
-                <option value="Balfrug Kreeyath">Balfrug Kreeyath</option>
-                <option value="Tstanon Karlak">Tstanon Karlak</option>
-                <option value="Mutated jadinko male">
-                  Mutated jadinko male
-                </option>
-                <option value="Vyrelady">Vyrelady</option>
-                <option value="Dark beast">Dark beast</option>
-                <option value="Nodon guard">Nodon guard</option>
-                <option value="Aquanite">Aquanite</option>
-                <option value="Sergeant Grimspike">Sergeant Grimspike</option>
-                <option value="Sergeant Strongstack">
-                  Sergeant Strongstack
-                </option>
-                <option value="Starlight">Starlight</option>
-                <option value="Growler">Growler</option>
-                <option value="Bree">Bree</option>
-                <option value="Wingman Skree">Wingman Skree</option>
-                <option value="Crassian warrior">Crassian warrior</option>
-                <option value="Vinecrawler">Vinecrawler</option>
-                <option value="Black dragon">Black dragon</option>
-                <option value="Throwing muspah">Throwing muspah</option>
-                <option value="Iron dragon">Iron dragon</option>
-                <option value="Flockleader Geerin">Flockleader Geerin</option>
-                <option value="Flight Kilisa">Flight Kilisa</option>
-                <option value="Sergeant Steelwill">Sergeant Steelwill</option>
-                <option value="Ganodermic beast">Ganodermic beast</option>
-                <option value="Abyssal walker">Abyssal walker</option>
-                <option value="Abyssal leech">Abyssal leech</option>
-                <option value="Abyssal guardian">Abyssal guardian</option>
               </select>
             </div>
             <div class="loot-container" id="slayer-loot-list">
-              <div
-                class="loot-row clickable"
-                onclick="toggleLootDrilldown('slayer', 'Dragon plateskirt')"
-              >
-                <span class="loot-name"
-                  ><span class="loot-count">1x</span>Dragon plateskirt</span
-                >
-                <span class="loot-ts">4/14/2026 19:23</span>
-              </div>
-              <div
-                class="loot-row clickable"
-                onclick="toggleLootDrilldown('slayer', 'Dragon platelegs')"
-              >
-                <span class="loot-name"
-                  ><span class="loot-count">1x</span>Dragon platelegs</span
-                >
-                <span class="loot-ts">4/14/2026 19:21</span>
-              </div>
-              <div
-                class="loot-row clickable"
-                onclick="
-                  toggleLootDrilldown('slayer', 'Dragon shield left half')
-                "
-              >
-                <span class="loot-name"
-                  ><span class="loot-count">1x</span>Dragon shield left
-                  half</span
-                >
-                <span class="loot-ts">10/9/2017 17:53</span>
-              </div>
-              <div
-                class="loot-row clickable"
-                onclick="
-                  toggleLootDrilldown('slayer', 'Page from Forcae\'s journal')
-                "
-              >
-                <span class="loot-name"
-                  ><span class="loot-count">1x</span>Page from Forcae's
-                  journal</span
-                >
-                <span class="loot-ts">12/22/2015 20:11</span>
-              </div>
             </div>
           </div>
         </div>
@@ -2955,18 +2775,10 @@
             <div class="dual-col-body" id="skill-entry-list"></div>
           </div>
         </div>
-        <div
-          class="entries hidden"
-          id="list-pane-header-wrap"
-          style="border-radius: 8px 8px 0 0; border-bottom: none"
-        >
+        <div class="entries list-pane-header-shell hidden" id="list-pane-header-wrap">
           <div class="list-pane-header" id="list-pane-header"></div>
         </div>
-        <div
-          class="entries hidden"
-          id="list"
-          style="border-radius: 0 0 8px 8px; border-top: none"
-        ></div>
+        <div class="entries list-pane-body-shell hidden" id="list"></div>
       </div>
       <div class="footer-stub" id="footer"></div>
     </div>
@@ -2986,7 +2798,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.26";
+      const APP_VERSION = "3.27";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -5273,7 +5085,7 @@
         }
 
         const makeEntry = (e) => `
-        <div class="dual-entry">
+        <div class="dual-entry log-row">
             <div class="dual-entry-title">${escapeHtml(e.title)}</div>
             <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
             <div class="dual-entry-ts">${escapeHtml(e.ts)}
@@ -5321,7 +5133,7 @@
           entryCount.textContent = `${visibleEntries.length.toLocaleString()} entries`;
 
         const makeEntry = (e) => `
-        <div class="dual-entry">
+        <div class="dual-entry log-row">
             <div class="dual-entry-title">${escapeHtml(e.title)}</div>
             <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
             <div class="dual-entry-ts">${escapeHtml(e.ts)}
@@ -5397,7 +5209,7 @@
             entryCount.textContent = `${logs.length.toLocaleString()} ${selectedLabel} completions`;
 
           const makeClueLogEntry = (e) => `
-        <div class="loot-row">
+        <div class="loot-row log-row">
             <span class="loot-name">${escapeHtml(e.details)}</span>
             <span class="loot-ts">${escapeHtml(e.ts)}</span>
         </div>`;
@@ -5430,7 +5242,7 @@
             history
               .map(
                 (e) => `
-                <div class="loot-row">
+                <div class="loot-row log-row">
                     <span class="loot-name">${escapeHtml(e.item)}</span>
                     <span class="loot-ts">${escapeHtml(e.ts)}</span>
                 </div>`,
@@ -5580,7 +5392,7 @@
             visible
               .map(
                 (e) => `
-            <div class="entry">
+            <div class="entry log-row">
                 <div class="entry-content">
                     <span class="cat-dot" style="background:${getColor(e.super)}"></span>
                     <div class="entry-text-stack">
@@ -5689,13 +5501,13 @@
             .sort((a, b) => new Date(b.ts) - new Date(a.ts));
           lootListEl.innerHTML = `
             <div class="kc-disclaimer">Approximate values pulled from loaded log entries...</div>
-            <div class="loot-row clickable back-btn" onclick="toggleKillcountDrill('${type}')">← Back to ${currentMonster}</div>
+            <div class="loot-row log-row clickable back-btn" onclick="toggleKillcountDrill('${type}')">← Back to ${currentMonster}</div>
             ${
               sorted.length
                 ? sorted
                     .map(
                       (h) => `
-                <div class="loot-row">
+                <div class="loot-row log-row">
                     <span class="loot-name"><span class="loot-count">${h.killCount.toLocaleString()}x</span>${h.details}</span>
                     <span class="loot-ts">${h.ts}</span>
                 </div>`,
@@ -5711,8 +5523,8 @@
             .filter((h) => h.item === currentDrill)
             .sort((a, b) => new Date(b.ts) - new Date(a.ts));
           lootListEl.innerHTML = `
-            <div class="loot-row clickable back-btn" onclick="toggleLootDrilldown('${type}', null)">← Back to ${currentMonster}</div>
-            ${itemHistory.map((h) => `<div class="loot-row"><span class="loot-name">${h.title}</span><span class="loot-ts">${h.ts}</span></div>`).join("")}`;
+            <div class="loot-row log-row clickable back-btn" onclick="toggleLootDrilldown('${type}', null)">← Back to ${currentMonster}</div>
+            ${itemHistory.map((h) => `<div class="loot-row log-row"><span class="loot-name">${h.title}</span><span class="loot-ts">${h.ts}</span></div>`).join("")}`;
           return;
         }
 
@@ -5740,7 +5552,7 @@
         lootListEl.innerHTML = sortedDrops
           .map(
             (g) => `
-        <div class="loot-row clickable" onclick="toggleLootDrilldown('${type}', '${g.name.replace(/'/g, "\\'")}')">
+        <div class="loot-row log-row clickable" onclick="toggleLootDrilldown('${type}', '${g.name.replace(/'/g, "\\'")}')">
             <span class="loot-name"><span class="loot-count">${g.count}x</span>${g.name}</span>
             <span class="loot-ts">${g.count > 1 ? "View History" : g.lastTs}</span>
         </div>`,
