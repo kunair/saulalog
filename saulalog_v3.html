@@ -1,5 +1,11 @@
 <!doctype html>
 
+<!--
+  Saulalog v3.24
+  - Moved loaded/cached source metadata above the top-right controls.
+  - Softened the sticky filter header so rounded corners stay clean while scrolling.
+-->
+
 <!-- saved from url=(0132)file:///C:/Users/telev/AppData/Local/Temp/MicrosoftEdgeDownloads/30af294b-42f8-4b4b-a95c-131b4f34d6b0/gemini-code-1776939632602.html -->
 <html lang="en">
   <head>
@@ -1223,6 +1229,19 @@
         flex-wrap: wrap;
         flex: 1;
       }
+      .list-pane-title {
+        color: var(--color-text-dim);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+      }
+      .list-pane-title-plain {
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0;
+        text-transform: none;
+      }
       .list-header-right {
         display: flex;
         align-items: center;
@@ -1235,8 +1254,7 @@
         color: var(--color-text-light);
         font-weight: 700;
         white-space: nowrap;
-        padding-left: 6px;
-        border-left: 1px solid var(--color-border);
+        text-align: right;
       }
 
       /* ── Load More ── */
@@ -1334,11 +1352,14 @@
         background: none;
       }
       .dual-col-header .col-count {
-        font-size: 11px;
+        margin-left: auto;
+        color: var(--color-text-light);
+        font-size: 10px;
         font-weight: 700;
-        color: var(--color-text-dim);
-        text-transform: none;
         letter-spacing: 0;
+        text-align: right;
+        text-transform: none;
+        white-space: nowrap;
       }
       .dual-col-body {
         flex: 1;
@@ -1685,78 +1706,849 @@
       body.dark-mode .clue-loot-count {
         color: #121212;
       }
+
+      /* ── v3.12 dashboard polish ─────────────────────────────────────────
+         These blocks are additive UI affordances: they do not change parsing
+         behavior, but make source state and diagnostics visible. */
+      .source-status-panel {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text-dim);
+        border-radius: 10px;
+        padding: 8px 10px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .source-status-panel {
+        justify-content: center;
+      }
+
+      .source-status-panel .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--color-ui);
+        box-shadow: 0 0 0 3px var(--color-ui-glow);
+      }
+
+      .status-item {
+        color: var(--color-text-dim);
+        white-space: nowrap;
+      }
+
+      .status-item.dim {
+        color: var(--color-text-light);
+      }
+
+      .mini-action-btn,
+      .filter-chip-clear,
+      .entry-debug-btn {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text-dim);
+        cursor: pointer;
+        font-weight: 800;
+        transition: all 0.1s;
+      }
+
+      .mini-action-btn {
+        padding: 4px 9px;
+        border-radius: 9px;
+        font-size: 10px;
+      }
+
+      .mini-action-btn:hover,
+      .filter-chip-clear:hover,
+      .entry-debug-btn:hover {
+        border-color: var(--color-ui);
+        color: var(--color-ui);
+        background: var(--color-bg-sub);
+      }
+
+
+
+
+
+
+      .summary-card,
+      .rule-card,
+      .audit-card,
+      .milestone-card {
+        border: 1px solid var(--color-border);
+        background: var(--color-bg-sub);
+        border-radius: 10px;
+        padding: 9px 10px;
+        min-width: 0;
+      }
+
+      .summary-label,
+      .rule-label,
+      .audit-label,
+      .milestone-label {
+        display: block;
+        color: var(--color-text-light);
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+      }
+
+      .summary-value,
+      .rule-value,
+      .audit-value,
+      .milestone-value {
+        display: block;
+        color: var(--color-text);
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .summary-note,
+      .audit-note {
+        display: block;
+        margin-top: 3px;
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .debug-grid {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 8px;
+      }
+
+      .parser-rule-panel {
+        width: 100%;
+      }
+
+      .audit-section-title {
+        grid-column: 1 / -1;
+        font-size: 10px;
+        font-weight: 900;
+        color: var(--color-text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 4px;
+      }
+
+      .entry-debug-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        font-size: 11px;
+        flex-shrink: 0;
+        margin-left: 8px;
+      }
+
+      .debug-entry-popover {
+        width: 100%;
+        border: 1px solid var(--color-border);
+        background: var(--color-bg-sub);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 8px;
+        color: var(--color-text-dim);
+        font-size: 11px;
+      }
+
+      .debug-entry-popover h4 {
+        color: var(--color-text);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+      }
+
+      .debug-entry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 6px;
+      }
+
+      .clue-hint-row {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .skill-chart-state {
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .clue-hint-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
+
+      .sticky-top-zone {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: var(--color-bg);
+        padding-top: 6px;
+        padding-bottom: 6px;
+      }
+
+      /* Compact upload metadata sits under the upload button so the main
+         source summary can live in Debug mode instead of the dashboard. */
+      .upload-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .upload-meta-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .refresh-data-btn {
+        width: 18px;
+        height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text-light);
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 900;
+        line-height: 1;
+        transition: all 0.12s;
+      }
+
+      .refresh-data-btn:hover {
+        border-color: var(--color-ui);
+        color: var(--color-ui);
+        background: var(--color-bg-sub);
+      }
+
+      .refresh-data-btn.loading {
+        animation: refresh-spin 0.8s linear infinite;
+      }
+
+      .refresh-data-btn.success {
+        border-color: var(--color-skill);
+        color: var(--color-skill);
+      }
+
+      .refresh-data-btn.error {
+        border-color: var(--color-combat);
+        color: var(--color-combat);
+      }
+
+      .refresh-data-btn.cache {
+        border-color: var(--color-text-light);
+        color: var(--color-text-light);
+      }
+
+      @keyframes refresh-spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      .debug-pane .source-status-panel {
+        justify-content: flex-start;
+      }
+
+      /* Entry-level diagnostics open in a right-side drawer so normal section
+         context remains visible while inspecting a single parsed row. */
+      .entry-debug-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.18);
+        z-index: 90;
+      }
+
+      .entry-debug-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(390px, 92vw);
+        height: 100vh;
+        z-index: 100;
+        background: var(--color-surface);
+        color: var(--color-text);
+        border-left: 1px solid var(--color-border);
+        box-shadow: -12px 0 30px rgba(0, 0, 0, 0.18);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .entry-debug-drawer-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--color-border);
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--color-text-dim);
+      }
+
+      .entry-debug-drawer-header button {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text-dim);
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+      }
+
+      .entry-debug-drawer-body {
+        padding: 14px;
+        overflow-y: auto;
+      }
+
+      .entry-debug-section {
+        border: 1px solid var(--color-border);
+        background: var(--color-bg-sub);
+        border-radius: 10px;
+        padding: 10px;
+        margin-bottom: 10px;
+        font-size: 11px;
+        color: var(--color-text-dim);
+      }
+
+      .entry-debug-section-title {
+        display: block;
+        color: var(--color-text);
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 6px;
+      }
+
+      @media (max-width: 720px) {
+        .debug-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .source-status-panel {
+          justify-content: flex-start;
+        }
+      }
+
+
+      /* v3.18: Condensed top controls and sticky category cards.
+         The upload button is intentionally icon-sized like the theme/debug
+         toggles; the full label remains available via its title tooltip. */
+      .wrap {
+        padding-top: 0.75rem;
+        gap: 0.65rem;
+      }
+
+      .header-row {
+        justify-content: flex-end;
+      }
+
+      .top-action-cluster {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+      }
+
+      .top-action-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .upload-wrap {
+        width: auto;
+      }
+
+      .upload-area,
+      .theme-toggle,
+      .debug-toggle {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+      }
+
+      .upload-area {
+        padding: 0;
+        border-style: dashed;
+        font-size: 10px;
+        letter-spacing: 0.5px;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      .upload-meta-row {
+        justify-content: flex-end;
+        font-size: 10px;
+        color: var(--color-text-light);
+      }
+
+      .toolbar-row {
+        margin-top: -2px;
+      }
+
+      /* Category cards remain visible while scrolling. Once scroll begins,
+         body.compact-summary trims their height without hiding counts/labels. */
+      .stats-bar {
+        position: sticky;
+        top: 0;
+        z-index: 60;
+        background: color-mix(in srgb, var(--color-bg) 92%, transparent);
+        backdrop-filter: blur(8px);
+        padding: 6px 0;
+      }
+
+      .stat-chip {
+        min-width: 104px;
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      body.compact-summary .stats-bar {
+        gap: 6px;
+        padding: 4px 0;
+      }
+
+      body.compact-summary .stat-chip {
+        flex-direction: row;
+        justify-content: center;
+        gap: 7px;
+        padding: 6px 14px;
+        min-height: 36px;
+        transform: none;
+      }
+
+      body.compact-summary .stat-chip.active {
+        transform: none;
+      }
+
+      body.compact-summary .stat-num {
+        font-size: 14px;
+      }
+
+      body.compact-summary .stat-label {
+        margin-top: 0;
+        font-size: 8px;
+      }
+
+      @media (max-width: 760px) {
+        .header-row {
+          justify-content: center;
+        }
+
+        .top-action-cluster {
+          align-items: center;
+        }
+
+        .toolbar-row {
+          gap: 8px;
+        }
+
+        .stats-bar {
+          top: 0;
+        }
+
+        .stat-chip {
+          min-width: 92px;
+        }
+      }
+
+
+      /* v3.19: Source controls are a non-sticky top-right cluster. Search,
+         range, and category cards share one sticky zone so filtering controls
+         stay visible together while scrolling. */
+      .page-action-row {
+        justify-content: flex-end;
+        align-self: stretch;
+      }
+
+      .top-action-cluster {
+        align-items: flex-end;
+      }
+
+      .top-action-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .theme-toggle,
+      .debug-toggle,
+      .google-sheet-refresh-btn,
+      .csv-upload-btn {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+      }
+
+      .google-sheet-refresh-btn,
+      .csv-upload-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text-dim);
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: 900;
+        line-height: 1;
+        padding: 0;
+        transition: all 0.12s;
+      }
+
+      .csv-upload-btn {
+        border-style: dashed;
+        font-size: 17px;
+      }
+
+      .google-sheet-refresh-btn:hover,
+      .csv-upload-btn:hover {
+        border-color: var(--color-ui);
+        color: var(--color-ui);
+        background: var(--color-bg-sub);
+      }
+
+      .google-sheet-refresh-btn:active,
+      .csv-upload-btn:active {
+        transform: scale(0.92);
+      }
+
+      .upload-meta-row {
+        width: 100%;
+        justify-content: flex-end;
+        padding-top: 1px;
+      }
+
+      .sticky-controls-zone {
+        position: sticky;
+        top: 0;
+        z-index: 70;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 7px 0 8px;
+        background: color-mix(in srgb, var(--color-bg) 94%, transparent);
+        backdrop-filter: blur(8px);
+        transition: padding 0.15s, gap 0.15s;
+      }
+
+      .sticky-controls-zone .stats-bar {
+        position: static;
+        z-index: auto;
+        background: transparent;
+        backdrop-filter: none;
+        padding: 0;
+      }
+
+      #search {
+        font-family: inherit;
+        font-weight: 600;
+        letter-spacing: 0;
+        transition: padding 0.15s, font-size 0.15s, height 0.15s;
+      }
+
+      #search::placeholder {
+        font-family: inherit;
+        font-weight: 600;
+        color: var(--color-text-light);
+      }
+
+      body.compact-summary .sticky-controls-zone {
+        gap: 5px;
+        padding: 4px 0 5px;
+      }
+
+      body.compact-summary #search {
+        padding: 7px 9px;
+        font-size: 12px;
+      }
+
+      body.compact-summary .range-wrap {
+        gap: 6px;
+      }
+
+      body.compact-summary .date-label {
+        font-size: 9px;
+        letter-spacing: 1px;
+      }
+
+      body.compact-summary .dp-btn {
+        padding: 4px 9px;
+        border-radius: 10px;
+        font-size: 10px;
+      }
+
+      @media (max-width: 760px) {
+        .page-action-row {
+          justify-content: flex-end;
+        }
+      }
+
+
+
+      /* v3.20: The source/debug controls live in the page corner, not the
+         centered dashboard width. Entry debug buttons are opt-in from Debug mode. */
+      body {
+        position: relative;
+      }
+
+      .page-action-row {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 95;
+        width: auto;
+        align-self: auto;
+        pointer-events: none;
+      }
+
+      .top-action-cluster {
+        gap: 3px;
+        pointer-events: auto;
+      }
+
+      .top-action-row {
+        gap: 5px;
+      }
+
+      .theme-toggle,
+      .debug-toggle,
+      .google-sheet-refresh-btn,
+      .csv-upload-btn {
+        width: 28px;
+        height: 28px;
+        flex: 0 0 28px;
+        border-radius: 7px;
+        font-size: 13px;
+      }
+
+      .debug-toggle span {
+        font-size: 14px;
+      }
+
+      .google-sheet-refresh-btn .refresh-icon {
+        display: inline-block;
+        line-height: 1;
+      }
+
+      .refresh-data-btn.loading {
+        animation: none;
+      }
+
+      .refresh-data-btn.loading .refresh-icon {
+        animation: refresh-spin 0.8s linear infinite;
+      }
+
+      .upload-meta-row {
+        gap: 5px;
+        font-size: 9px;
+        line-height: 1.05;
+      }
+
+      .entry-debug-btn {
+        display: none;
+      }
+
+      body.debug-individual-entries .entry-debug-btn {
+        display: inline-flex;
+      }
+
+      .debug-action-btn.active {
+        border-color: var(--color-ui);
+        background: var(--color-bg-sub);
+        color: var(--color-ui);
+      }
+
+      @media (max-width: 760px) {
+        .page-action-row {
+          right: 6px;
+        }
+
+        .theme-toggle,
+        .debug-toggle,
+        .google-sheet-refresh-btn,
+        .csv-upload-btn {
+          width: 26px;
+          height: 26px;
+          flex-basis: 26px;
+        }
+      }
+
+
+      /* v3.24: Keep the sticky controls visually neutral. The rows and panes
+         that scroll underneath get soft corners instead, preventing harsh
+         overlap edges without turning the toolbar into a separate card. */
+      .page-action-row {
+        top: 4px;
+        right: 6px;
+      }
+
+      .top-action-cluster {
+        align-items: flex-end;
+        gap: 4px;
+      }
+
+      .upload-meta-row {
+        order: -1;
+        width: max-content;
+        max-width: min(260px, calc(100vw - 20px));
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 6px;
+        padding: 0 1px 1px;
+        color: var(--color-text-light);
+        font-size: 9px;
+        line-height: 1.15;
+        text-align: right;
+      }
+
+      .sticky-controls-zone {
+        border-radius: 0;
+        overflow: visible;
+        background-clip: border-box;
+      }
+
+      body.compact-summary .entry,
+      body.compact-summary .dual-entry,
+      body.compact-summary .loot-row,
+      body.compact-summary .clue-loot-item {
+        border-radius: 8px;
+        overflow: hidden;
+      }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <div class="header-row">
-        <div class="upload-wrap">
-          <label class="upload-area" for="csv-file" id="upload-label"
-            >CSV / Google Sheets</label
-          >
-          <input
-            accept=".csv"
-            id="csv-file"
-            onchange="handleFileUpload(event)"
-            type="file"
-          />
-        </div>
-        <div
-          class="theme-toggle"
-          onclick="toggleDarkMode()"
-          title="Toggle Dark Mode"
-        >
-          <span id="theme-icon">🌙</span>
-        </div>
-        <div
-          class="debug-toggle"
-          id="debug-toggle"
-          onclick="toggleDebugMode()"
-          title="Toggle Debug Mode"
-        >
-          <span id="debug-icon">𝒊</span>
-        </div>
-      </div>
-      <!-- Search and global date range controls -->
-      <div class="toolbar-row">
-        <div class="search-wrap">
-          <input
-            id="search"
-            oninput="
-              currentPage = 0;
-              render();
-            "
-            placeholder="Search by title, monster, or drop..."
-            type="text"
-          />
-        </div>
-        <div class="range-wrap">
-          <span class="date-label">Range</span>
-          <div class="date-presets" id="date-presets">
-            <button class="dp-btn" data-p="7d" onclick="setDatePreset('7d')">
-              7d
-            </button>
-            <button class="dp-btn" data-p="30d" onclick="setDatePreset('30d')">
-              30d
-            </button>
-            <button class="dp-btn" data-p="90d" onclick="setDatePreset('90d')">
-              90d
-            </button>
-            <button class="dp-btn" data-p="1y" onclick="setDatePreset('1y')">
-              1yr
-            </button>
-            <button
-              class="dp-btn active"
-              data-p="all"
-              onclick="setDatePreset('all')"
+      <div class="header-row page-action-row">
+        <div class="top-action-cluster" aria-label="Page actions">
+          <div class="upload-meta-row" id="upload-meta-row">
+            <span id="loaded-date-label">loaded: —</span>
+            <span id="cached-date-label">cached: —</span>
+          </div>
+          <div class="top-action-row">
+            <div
+              class="theme-toggle"
+              onclick="toggleDarkMode()"
+              title="Toggle Dark Mode"
             >
-              All Time
+              <span id="theme-icon">🌙</span>
+            </div>
+            <div
+              class="debug-toggle"
+              id="debug-toggle"
+              onclick="toggleDebugMode()"
+              title="Toggle Debug Mode"
+            >
+              <span id="debug-icon">𝒊</span>
+            </div>
+          </div>
+          <div class="top-action-row">
+            <button
+              class="refresh-data-btn google-sheet-refresh-btn"
+              id="refresh-data-btn"
+              onclick="refreshData()"
+              title="Refresh Google Sheets data"
+              type="button"
+            >
+              <span class="refresh-icon">⟳</span>
             </button>
+            <label
+              class="upload-area csv-upload-btn"
+              for="csv-file"
+              id="upload-label"
+              title="Upload CSV"
+              >⇧</label
+            >
+            <input
+              accept=".csv"
+              id="csv-file"
+              onchange="handleFileUpload(event)"
+              type="file"
+            />
           </div>
         </div>
       </div>
-      <!-- Stats Bar -->
-      <div class="stats-bar" id="stats-bar"></div>
+      <div class="sticky-controls-zone" id="sticky-controls-zone">
+        <!-- Search and global date range controls stick with category cards while scrolling. -->
+        <div class="toolbar-row">
+          <div class="search-wrap">
+            <input
+              id="search"
+              oninput="debouncedSearchRender()"
+              placeholder="Search by title, monster, or drop..."
+              type="text"
+            />
+          </div>
+          <div class="range-wrap">
+            <span class="date-label">Range</span>
+            <div class="date-presets" id="date-presets">
+              <button class="dp-btn" data-p="7d" onclick="setDatePreset('7d')">
+                7d
+              </button>
+              <button class="dp-btn" data-p="30d" onclick="setDatePreset('30d')">
+                30d
+              </button>
+              <button class="dp-btn" data-p="90d" onclick="setDatePreset('90d')">
+                90d
+              </button>
+              <button class="dp-btn" data-p="1y" onclick="setDatePreset('1y')">
+                1yr
+              </button>
+              <button
+                class="dp-btn active"
+                data-p="all"
+                onclick="setDatePreset('all')"
+              >
+                All Time
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Stats Bar -->
+        <div class="stats-bar" id="stats-bar"></div>
+      </div>
       <div class="debug-pane hidden" id="debug-pane">
         <div class="debug-title">
           <span class="debug-title-main">
@@ -1764,6 +2556,14 @@
             <span class="debug-subtitle">Data health and parser diagnostics</span>
           </span>
           <span class="debug-actions">
+            <button
+              class="debug-action-btn"
+              id="debug-individual-entries-btn"
+              onclick="toggleDebugIndividualEntries()"
+              type="button"
+            >
+              Debug individual entries
+            </button>
             <button class="debug-action-btn" onclick="copyParserWarnings()">
               Copy warnings
             </button>
@@ -1773,10 +2573,14 @@
             <span class="debug-action-status" id="debug-action-status"></span>
           </span>
         </div>
+        <div class="debug-section-title">Data source</div>
+        <div class="source-status-panel" id="source-status-panel"></div>
         <div class="debug-section-title">Data health</div>
         <div class="data-health-panel" id="data-health-panel"></div>
         <div class="debug-section-title">Unclassified Misc breakdown</div>
         <div class="unclassified-panel" id="unclassified-panel"></div>
+        <div class="debug-section-title">Parser rules reference</div>
+        <div class="parser-rule-panel debug-grid" id="parser-rule-panel"></div>
         <div class="debug-section-title">Parser warnings</div>
         <div class="parser-panel" id="parser-panel"></div>
       </div>
@@ -2094,6 +2898,7 @@
               <span>XP History</span>
               <span class="col-count" id="skill-history-label"></span>
             </div>
+            <div class="skill-chart-state" id="skill-chart-state"></div>
             <div class="xp-chart-wrap" id="xp-chart-section">
               <div class="xp-chart-header">
                 <span class="xp-chart-title" id="xp-chart-title"
@@ -2126,7 +2931,7 @@
           </div>
           <div class="dual-col skill-entries-col">
             <div class="dual-col-header">
-              <span>Skill Entries</span>
+              <span>Skill Log</span>
               <span class="col-count" id="skill-entry-count"></span>
             </div>
             <div
@@ -2151,7 +2956,45 @@
       </div>
       <div class="footer-stub" id="footer"></div>
     </div>
+    <div
+      class="entry-debug-backdrop hidden"
+      id="entry-debug-backdrop"
+      onclick="closeEntryDebugDrawer()"
+    ></div>
+    <aside class="entry-debug-drawer hidden" id="entry-debug-drawer">
+      <div class="entry-debug-drawer-header">
+        <span>Entry debug</span>
+        <button onclick="closeEntryDebugDrawer()" title="Close entry debug" type="button">×</button>
+      </div>
+      <div class="entry-debug-drawer-body" id="entry-debug-drawer-body"></div>
+    </aside>
     <script>
+      // ── App configuration ──────────────────────────────────────────────
+      // Keep deployment settings and user-facing assumptions centralized so
+      // the one-file GitHub Pages app stays easier to maintain.
+      const APP_VERSION = "3.24";
+      const CSV_CACHE_KEY = "saulalog:lastCsv";
+      const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
+      const SEARCH_DEBOUNCE_MS = 150;
+      // Keep killcount approximation intentionally narrow: only explicit
+      // numbers, "killed many" (=100), and singular kill-only rows count.
+      let searchDebounceTimer = null;
+      let lastDataSource = {
+        source: "None",
+        loadedAt: null,
+        cachedAt: null,
+        rows: 0,
+        note: "Waiting for data",
+      };
+      let dataRefreshState = "idle";
+      let parsedIndexes = {
+        byCategory: new Map(),
+        byMonster: new Map(),
+        bySkill: new Map(),
+        byClueType: new Map(),
+        byDate: new Map(),
+      };
+      let activeDebugEntryIndex = null;
       const BOSS_LIST = [
         "Araxxi",
         "Araxzor",
@@ -2298,6 +3141,7 @@
       let unclassifiedBreakdown = null;
       let rawCsvLineCount = 0;
       let debugMode = false;
+      let debugIndividualEntriesEnabled = false;
       let suppressUrlStateUpdate = false;
       let activeFilter = "all";
       let selBoss = null;
@@ -2478,6 +3322,14 @@
           label: "Shared boss alias",
           description: "Rows expanded across shared boss aliases.",
         },
+        "duplicate-drop": {
+          label: "Possible duplicate drop",
+          description: "Same timestamp, monster, and item appeared more than once.",
+        },
+        "csv-malformed": {
+          label: "CSV parse issue",
+          description: "Rows skipped because timestamp, title, or details were missing.",
+        },
       };
 
       function toggleDarkMode() {
@@ -2530,6 +3382,274 @@
         render();
       }
 
+      function debouncedSearchRender() {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(() => {
+          currentPage = 0;
+          render();
+        }, SEARCH_DEBOUNCE_MS);
+      }
+
+      function refreshData() {
+        dataRefreshState = "loading";
+        renderUploadMeta();
+        fetchGoogleSheetData({ forceRefresh: true });
+      }
+
+      function getCachedCsvMeta() {
+        try {
+          return JSON.parse(localStorage.getItem(CSV_CACHE_META_KEY) || "{}");
+        } catch (err) {
+          console.warn("Unable to read cached CSV metadata:", err);
+          return {};
+        }
+      }
+
+      function saveCsvCache(csvText, sourceLabel) {
+        try {
+          const savedAt = new Date().toISOString();
+          localStorage.setItem(CSV_CACHE_KEY, csvText);
+          localStorage.setItem(
+            CSV_CACHE_META_KEY,
+            JSON.stringify({
+              source: sourceLabel,
+              savedAt,
+              rows: csvText.split(/\r?\n/).filter((line) => line.trim()).length - 1,
+            }),
+          );
+          lastDataSource.cachedAt = new Date(savedAt);
+          renderUploadMeta();
+        } catch (err) {
+          console.warn("Unable to cache CSV payload:", err);
+        }
+      }
+
+      function loadCachedCsv() {
+        try {
+          const csvText = localStorage.getItem(CSV_CACHE_KEY);
+          const meta = getCachedCsvMeta();
+          return csvText ? { csvText, meta } : null;
+        } catch (err) {
+          console.warn("Unable to load cached CSV payload:", err);
+          return null;
+        }
+      }
+
+      function setDataSourceState(source, rows, note = "", options = {}) {
+        const cachedMeta = getCachedCsvMeta();
+        lastDataSource = {
+          source,
+          loadedAt: options.loadedAt || new Date(),
+          cachedAt:
+            options.cachedAt ||
+            (cachedMeta.savedAt ? new Date(cachedMeta.savedAt) : lastDataSource.cachedAt),
+          rows: Math.max(0, rows || 0),
+          note,
+        };
+        if (options.refreshState) dataRefreshState = options.refreshState;
+        renderUploadMeta();
+        renderSourceStatusPanel();
+      }
+
+      function normalizeDate(dateLike) {
+        const d = dateLike instanceof Date ? dateLike : dateLike ? new Date(dateLike) : null;
+        return d && !Number.isNaN(d.getTime()) ? d : null;
+      }
+
+      function formatDateOnly(dateLike) {
+        const d = normalizeDate(dateLike);
+        if (!d) return "—";
+        return d.toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      }
+
+      function formatDateMmDdYyyy(dateLike) {
+        const d = normalizeDate(dateLike);
+        if (!d) return "—";
+        return d.toLocaleDateString("en-US", {
+          timeZone: "America/New_York",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        });
+      }
+
+      function formatLoadedDateEst(dateLike) {
+        const d = normalizeDate(dateLike);
+        if (!d) return "—";
+        // Data controls intentionally use a compact fixed Eastern-time display
+        // so GitHub Pages visitors see the same loaded timestamp regardless of locale.
+        const parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/New_York",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        })
+          .formatToParts(d)
+          .reduce((acc, part) => {
+            acc[part.type] = part.value;
+            return acc;
+          }, {});
+        return parts.month + "/" + parts.day + "/" + parts.year + " " +
+          parts.hour + ":" + parts.minute + " " + parts.dayPeriod + " EST";
+      }
+
+      function renderUploadMeta() {
+        const loadedEl = document.getElementById("loaded-date-label");
+        const cachedEl = document.getElementById("cached-date-label");
+        const refreshBtn = document.getElementById("refresh-data-btn");
+        const cachedMeta = getCachedCsvMeta();
+        const cachedAt = lastDataSource.cachedAt || cachedMeta.savedAt;
+        if (loadedEl) loadedEl.textContent = "loaded: " + formatLoadedDateEst(lastDataSource.loadedAt);
+        if (cachedEl) cachedEl.textContent = "cached: " + formatDateMmDdYyyy(cachedAt);
+        if (refreshBtn) {
+          refreshBtn.className = "refresh-data-btn google-sheet-refresh-btn";
+          if (["loading", "success", "error", "cache"].includes(dataRefreshState)) {
+            refreshBtn.classList.add(dataRefreshState);
+          }
+        }
+      }
+
+      function renderSourceStatusPanel() {
+        const panel = document.getElementById("source-status-panel");
+        if (!panel) return;
+        panel.innerHTML = `
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="status-item"><strong>Saulalog ${APP_VERSION}</strong></span>
+          <span class="status-item">Source: ${escapeHtml(lastDataSource.source)}</span>
+          <span class="status-item">Rows: ${Number(lastDataSource.rows || 0).toLocaleString()}</span>
+          <span class="status-item dim">Loaded: ${escapeHtml(formatDateOnly(lastDataSource.loadedAt))}</span>
+          <span class="status-item dim">Cached: ${escapeHtml(formatDateOnly(lastDataSource.cachedAt || getCachedCsvMeta().savedAt))}</span>
+          ${lastDataSource.note ? `<span class="status-item dim">${escapeHtml(lastDataSource.note)}</span>` : ""}
+          <button class="mini-action-btn" onclick="exportVisibleEntries()">Export view</button>`;
+      }
+
+      function getDateKey(ts) {
+        const d = parseTs(ts);
+        return d ? d.toISOString().slice(0, 10) : "unknown";
+      }
+
+      function rebuildParsedIndexes() {
+        parsedIndexes = {
+          byCategory: new Map(),
+          byMonster: new Map(),
+          bySkill: new Map(),
+          byClueType: new Map(),
+          byDate: new Map(),
+        };
+        parsed.forEach((entry) => {
+          addIndexValue(parsedIndexes.byCategory, entry.super, entry);
+          if (entry.monster) addIndexValue(parsedIndexes.byMonster, entry.monster, entry);
+          if (entry.skill) addIndexValue(parsedIndexes.bySkill, entry.skill, entry);
+          if (entry.super === "clues") addIndexValue(parsedIndexes.byClueType, entry.sub, entry);
+          addIndexValue(parsedIndexes.byDate, getDateKey(entry.ts), entry);
+        });
+      }
+
+      function addIndexValue(map, key, value) {
+        if (!map.has(key)) map.set(key, []);
+        map.get(key).push(value);
+      }
+
+      function clearSearchFilter() {
+        const search = document.getElementById("search");
+        if (search) search.value = "";
+        currentPage = 0;
+        render();
+      }
+
+      function clearRangeFilter() {
+        setDatePreset("all");
+      }
+
+      function clearCategoryFilter() {
+        setFilter("all");
+      }
+
+      function clearCombatDrilldowns() {
+        selBossLoot = null;
+        selSlayerLoot = null;
+        selBossKC = false;
+        selSlayerKC = false;
+        render();
+      }
+
+      function resetSkillSubFilters() {
+        Object.keys(skillSubs).forEach((key) => {
+          skillSubs[key] = true;
+        });
+        render();
+      }
+
+      function resetClueModeFilters() {
+        selClueType = "easy";
+        clueViewMode = "loot";
+        selClueLootItem = null;
+        render();
+      }
+
+      function resetQuestFilters() {
+        Object.keys(questSubs).forEach((key) => {
+          questSubs[key] = true;
+        });
+        render();
+      }
+
+      function getRangeLabel() {
+        if (datePreset === "custom" && dateFrom) return formatShortDate(dateFrom);
+        return {
+          "7d": "7d",
+          "30d": "30d",
+          "90d": "90d",
+          "1y": "1yr",
+          all: "All Time",
+        }[datePreset] || "Custom";
+      }
+
+      function exportVisibleEntries() {
+        const q = getCurrentSearchQuery().toLowerCase();
+        const rows = parsed.filter((entry) => {
+          const searchContent = `${entry.title || ""} ${entry.details || ""}`.toLowerCase();
+          if (activeFilter !== "all" && entry.super !== activeFilter) return false;
+          if (q && !searchContent.includes(q)) return false;
+          if (!entryMatchesGlobalSearchAndDate(entry)) return false;
+          return true;
+        });
+        const csv = [
+          ["timestamp", "section", "type", "title", "details", "monster", "skill", "item", "killCount"],
+          ...rows.map((entry) => [
+            entry.ts || "",
+            entry.super || "",
+            entry.sub || "",
+            entry.title || "",
+            entry.details || "",
+            entry.monster || "",
+            entry.skill || "",
+            entry.item || "",
+            entry.killCount || "",
+          ]),
+        ].map((row) => row.map(escapeCsv).join(",")).join("\n");
+        downloadTextFile(csv, `saulalog-${activeFilter || "all"}-${Date.now()}.csv`, "text/csv");
+      }
+
+      function downloadTextFile(text, filename, type = "text/plain") {
+        const blob = new Blob([text], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
       function formatShortDate(dateLike) { const d = dateLike instanceof Date ? dateLike : parseTs(dateLike); if (!d) return "—"; return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }); }
       function getCurrentSearchQuery() { const input = document.getElementById("search"); return input ? input.value.trim() : ""; }
       function getSelectedSkillGroupLabel() { if (selectedSkills.size === 0) return "all"; const selected = [...selectedSkills].sort().join("|"); for (const [groupName, skills] of Object.entries(SKILL_GROUPS)) { if (selected === skills.filter((skill) => SKILLS.includes(skill)).sort().join("|")) return groupName; } return [...selectedSkills].join(","); }
@@ -2538,6 +3658,30 @@
       function updateUrlState() { if (suppressUrlStateUpdate) return; const nextHash = "#" + buildUrlStateParams().toString(); if (window.location.hash !== nextHash) history.replaceState(null, "", nextHash); }
       function applyUrlState() { if (!window.location.hash) return; const params = new URLSearchParams(window.location.hash.slice(1)); suppressUrlStateUpdate = true; activeFilter = params.get("section") || activeFilter; const search = document.getElementById("search"); if (search) search.value = params.get("q") || ""; const range = params.get("range") || "all"; if (range === "custom" && params.get("day")) setCustomDateRange(params.get("day")); else setDatePreset(range); applySkillSelectionFromState(params.get("skills")); const skillFilters = params.get("skillFilters"); if (skillFilters !== null) { const enabled = new Set(skillFilters.split(",").filter(Boolean)); Object.keys(skillSubs).forEach((key) => { skillSubs[key] = enabled.has(key); }); } if (params.get("clue")) selClueType = params.get("clue"); if (params.get("clueMode")) clueViewMode = params.get("clueMode"); const questFilters = params.get("questFilters"); if (questFilters !== null) { const enabled = new Set(questFilters.split(",").filter(Boolean)); Object.keys(questSubs).forEach((key) => { questSubs[key] = enabled.has(key); }); } if (params.get("boss")) selBoss = params.get("boss"); if (params.get("slayer")) selSlayer = params.get("slayer"); suppressUrlStateUpdate = false; render(); }
       function resetAllFilters() { suppressUrlStateUpdate = true; activeFilter = "all"; currentPage = 0; const search = document.getElementById("search"); if (search) search.value = ""; selectedSkills.clear(); skillSubs = { xp: true, level: true, pet: true, total: true, m200: true }; clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true }; questSubs = { milestone: true, completion: true }; selClueType = "easy"; clueViewMode = "loot"; selClueLootItem = null; selBossLoot = null; selSlayerLoot = null; selBossKC = false; selSlayerKC = false; suppressUrlStateUpdate = false; setDatePreset("all"); }
+      function syncDebugIndividualEntryState() {
+        document.body.classList.toggle(
+          "debug-individual-entries",
+          debugIndividualEntriesEnabled,
+        );
+        const btn = document.getElementById("debug-individual-entries-btn");
+        if (btn) {
+          btn.classList.toggle("active", debugIndividualEntriesEnabled);
+          btn.setAttribute(
+            "aria-pressed",
+            debugIndividualEntriesEnabled ? "true" : "false",
+          );
+          btn.title = debugIndividualEntriesEnabled
+            ? "Hide row-level debug buttons"
+            : "Show row-level debug buttons in normal log views";
+        }
+      }
+
+      function toggleDebugIndividualEntries() {
+        // Row-level debug buttons are intentionally opt-in so normal log lists stay clean.
+        debugIndividualEntriesEnabled = !debugIndividualEntriesEnabled;
+        syncDebugIndividualEntryState();
+      }
+
       function toggleDebugMode() {
         debugMode = !debugMode;
         if (!activeParserWarningType && parserWarnings.length) {
@@ -2552,9 +3696,11 @@
         if (!pane) return;
         pane.classList.toggle("hidden", !debugMode);
         if (toggle) toggle.classList.toggle("active", debugMode);
+        syncDebugIndividualEntryState();
         if (!debugMode) return;
         renderDataHealth();
         renderUnclassifiedPanel();
+        renderParserRulesPanel();
         renderParserPanel();
       }
 
@@ -2578,6 +3724,7 @@
             dataHealth.oldestTs ? formatShortDate(dataHealth.oldestTs) : "—",
           ],
           ["Warnings", parserWarnings.length.toLocaleString()],
+          ["Unclassified", dataHealth.unclassified.toLocaleString()],
         ];
         panel.innerHTML = healthItems
           .map(
@@ -2663,8 +3810,7 @@
         if (!panel) return;
         const groups = groupParserWarnings();
         if (!groups.length) {
-          panel.innerHTML =
-            '<div class="parser-warning-row"><div class="parser-warning-text">No parser warnings found.</div></div>';
+          panel.innerHTML = '<div class="parser-warning-row"><div class="parser-warning-text">No parser warnings found.</div></div>';
           return;
         }
         if (
@@ -2693,6 +3839,10 @@
               warnings.length.toLocaleString() +
               "</span></button>";
             if (!active) return summary;
+            const exportRow =
+              '<div class="parser-warning-row"><button class="debug-action-btn" onclick="exportParserWarningGroup(\'' +
+              escapeHtml(type) +
+              '\')">Export this group</button></div>';
             const detailHtml = warnings
               .slice(0, 250)
               .map(
@@ -2713,6 +3863,7 @@
             return (
               summary +
               '<div class="parser-warning-list">' +
+              exportRow +
               detailHtml +
               clipped +
               "</div>"
@@ -2726,6 +3877,178 @@
         renderParserPanel();
       }
 
+      function renderParserRulesPanel() {
+        const panel = document.getElementById("parser-rule-panel");
+        if (!panel) return;
+        const rules = [
+          ["Many kills", '"killed many" with no digits = 100'],
+          ["Singular kill", '"killed a/an/the" with no loot = 1'],
+          ["Loot rows", "Rows with parsed item drops never add killcount"],
+          ["Shared bosses", "Rex Matriarchs and Dagannoth Kings expand to their linked bosses"],
+          ["Fight Kiln", '"Completed the Fight Kiln" counts as +1 Har-Aken'],
+        ];
+        panel.innerHTML = rules
+          .map(([label, value]) => `
+            <div class="rule-card">
+              <span class="rule-label">${escapeHtml(label)}</span>
+              <span class="rule-value">${escapeHtml(value)}</span>
+            </div>`)
+          .join("");
+      }
+
+      function getCombatAuditRows(monster) {
+        if (!monster) return [];
+        return parsed
+          .filter((entry) => entry.super === "combat" && entry.monster === monster)
+          .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+      }
+
+      function renderEntryCombatAudit(entry) {
+        if (!entry || entry.super !== "combat" || !entry.monster) return "";
+
+        const rows = getCombatAuditRows(entry.monster);
+        const counted = rows.filter((row) => row.killCount > 0);
+        const ignoredLoot = rows.filter((row) => row.item && !row.killCount);
+        const inferred = counted.filter(
+          (row) =>
+            /\bkilled\s+(?:a|an|the)\s+/i.test(row.rawText || "") &&
+            !/\d/.test(row.rawText || ""),
+        );
+        const shared = rows.filter((row) => row.sharedFromAlias);
+        const total = counted.reduce((sum, row) => sum + (row.killCount || 0), 0);
+        const latestCounted = counted.slice(0, 4);
+
+        // Combat audits are entry-scoped now: they explain how the selected
+        // monster's approximate killcount is built without taking over Debug mode.
+        return `
+          <div class="entry-debug-section">
+            <span class="entry-debug-section-title">Combat audit · ${escapeHtml(entry.monster)}</span>
+            <div class="debug-entry-grid">
+              <div><span class="summary-label">Approx. kills</span><span class="summary-value">${total.toLocaleString()}</span></div>
+              <div><span class="summary-label">Counted rows</span><span class="summary-value">${counted.length.toLocaleString()}</span></div>
+              <div><span class="summary-label">Ignored loot rows</span><span class="summary-value">${ignoredLoot.length.toLocaleString()}</span></div>
+              <div><span class="summary-label">Inferred +1 rows</span><span class="summary-value">${inferred.length.toLocaleString()}</span></div>
+              <div><span class="summary-label">Shared alias rows</span><span class="summary-value">${shared.length.toLocaleString()}</span></div>
+            </div>
+            <div style="margin-top:8px;">
+              ${latestCounted.length
+                ? latestCounted
+                    .map(
+                      (row) => `
+                        <div class="parser-warning-row">
+                          <div class="parser-warning-text">
+                            <strong>+${escapeHtml(row.killCount || 0)} · ${escapeHtml(row.ts || "")}</strong>
+                            <span>${escapeHtml(row.details || row.title || "")}</span>
+                          </div>
+                        </div>`,
+                    )
+                    .join("")
+                : '<div class="parser-warning-text">No counted kill rows for this monster.</div>'}
+            </div>
+          </div>`;
+      }
+
+      function getEntryDebugSummary(entry) {
+        if (!entry) return null;
+        let confidence = "High";
+        let reason = "Direct category parser match";
+        if (entry.sharedFromAlias) {
+          confidence = "Medium";
+          reason = "Shared boss alias expansion";
+        } else if (entry.super === "combat" && entry.killCount === 1 && /\bkilled\s+(?:a|an|the)\s+/i.test(entry.rawText || "")) {
+          confidence = "Medium";
+          reason = "Inferred singular kill-only row";
+        } else if (entry.super === "misc") {
+          confidence = "Low";
+          reason = "No parser branch classified this row";
+        } else if (entry.item && /\d/.test(entry.item)) {
+          reason = "Numeric loot item ignored for killcount";
+        }
+        return { confidence, reason };
+      }
+
+      function debugEntryBySourceIndex(index) {
+        activeDebugEntryIndex = Number(index);
+        renderEntryDebugDrawer();
+      }
+
+      function closeEntryDebugDrawer() {
+        activeDebugEntryIndex = null;
+        renderEntryDebugDrawer();
+      }
+
+      function renderEntryDebugDrawer() {
+        const drawer = document.getElementById("entry-debug-drawer");
+        const backdrop = document.getElementById("entry-debug-backdrop");
+        const body = document.getElementById("entry-debug-drawer-body");
+        if (!drawer || !backdrop || !body) return;
+        const entry = parsed.find((item) => item.sourceIndex === activeDebugEntryIndex);
+        const open = Boolean(entry);
+        drawer.classList.toggle("hidden", !open);
+        backdrop.classList.toggle("hidden", !open);
+        body.innerHTML = open ? renderEntryDebugDrawerContent(entry) : "";
+      }
+
+      function renderEntryDebugDrawerContent(entry) {
+        const summary = getEntryDebugSummary(entry);
+        const relatedWarnings = parserWarnings.filter(
+          (warning) => warning.ts === entry.ts && warning.title === entry.title && warning.details === entry.details,
+        );
+        return `
+          <div class="entry-debug-section">
+            <span class="entry-debug-section-title">Parsed fields</span>
+            <div class="debug-entry-grid">
+              <div><span class="summary-label">Section</span><span class="summary-value">${escapeHtml(entry.super)}</span></div>
+              <div><span class="summary-label">Type</span><span class="summary-value">${escapeHtml(entry.sub)}</span></div>
+              <div><span class="summary-label">Monster</span><span class="summary-value">${escapeHtml(entry.monster || "—")}</span></div>
+              <div><span class="summary-label">Skill</span><span class="summary-value">${escapeHtml(entry.skill || "—")}</span></div>
+              <div><span class="summary-label">Item</span><span class="summary-value">${escapeHtml(entry.item || "—")}</span></div>
+              <div><span class="summary-label">Killcount</span><span class="summary-value">${escapeHtml(entry.killCount || 0)}</span></div>
+              <div><span class="summary-label">Confidence</span><span class="summary-value">${escapeHtml(summary.confidence)}</span></div>
+              <div><span class="summary-label">Reason</span><span class="summary-value">${escapeHtml(summary.reason)}</span></div>
+            </div>
+          </div>
+          ${renderEntryCombatAudit(entry)}
+          <div class="entry-debug-section">
+            <span class="entry-debug-section-title">Source row</span>
+            <div class="entry-title">${escapeHtml(entry.title || "Untitled")}</div>
+            <div class="entry-details" style="margin-top:6px;">${escapeHtml(entry.details || "")}</div>
+            <div class="entry-ts" style="margin-top:8px;">${escapeHtml(entry.ts || "")}</div>
+          </div>
+          <div class="entry-debug-section">
+            <span class="entry-debug-section-title">Related warnings</span>
+            ${relatedWarnings.length
+              ? relatedWarnings
+                  .map((warning) => {
+                    const def = getParserWarningDefinition(warning.type);
+                    return `<div class="parser-warning-row"><div class="parser-warning-text"><strong>${escapeHtml(def.label)}</strong><span>${escapeHtml(warning.message || def.description)}</span></div></div>`;
+                  })
+                  .join("")
+              : '<div class="parser-warning-text">No warnings for this entry.</div>'}
+          </div>`;
+      }
+
+      function renderActiveDebugEntry() {
+        if (activeDebugEntryIndex === null || Number.isNaN(activeDebugEntryIndex)) return "";
+        const entry = parsed.find((item) => item.sourceIndex === activeDebugEntryIndex);
+        if (!entry) return "";
+        const summary = getEntryDebugSummary(entry);
+        return `
+          <div class="debug-entry-popover">
+            <h4>Debug entry</h4>
+            <div class="debug-entry-grid">
+              <div><span class="summary-label">Section</span><span class="summary-value">${escapeHtml(entry.super)}</span></div>
+              <div><span class="summary-label">Type</span><span class="summary-value">${escapeHtml(entry.sub)}</span></div>
+              <div><span class="summary-label">Monster</span><span class="summary-value">${escapeHtml(entry.monster || "—")}</span></div>
+              <div><span class="summary-label">Skill</span><span class="summary-value">${escapeHtml(entry.skill || "—")}</span></div>
+              <div><span class="summary-label">Item</span><span class="summary-value">${escapeHtml(entry.item || "—")}</span></div>
+              <div><span class="summary-label">Killcount</span><span class="summary-value">${escapeHtml(entry.killCount || 0)}</span></div>
+              <div><span class="summary-label">Confidence</span><span class="summary-value">${escapeHtml(summary.confidence)}</span></div>
+              <div><span class="summary-label">Reason</span><span class="summary-value">${escapeHtml(summary.reason)}</span></div>
+            </div>
+          </div>`;
+      }
+
       function addParserWarning(warnings, type, entry, message) {
         warnings.push({
           type,
@@ -2736,8 +4059,24 @@
         });
       }
 
-      function buildParserWarnings() {
+      function buildParserWarnings(malformedLineCount = 0) {
         const warnings = [];
+        if (malformedLineCount > 0) {
+          warnings.push({
+            type: "csv-malformed",
+            ts: "",
+            title: "CSV parse warning",
+            details: "",
+            message: malformedLineCount + " source rows were skipped because they were malformed or incomplete.",
+          });
+        }
+        const duplicateDropKeys = new Map();
+        parsed.forEach((entry) => {
+          if (entry.super === "combat" && entry.monster && entry.item) {
+            const key = `${entry.ts}|${entry.monster}|${entry.item}`;
+            duplicateDropKeys.set(key, (duplicateDropKeys.get(key) || 0) + 1);
+          }
+        });
         parsed.forEach((entry) => {
           const text = entry.rawText || entry.title + " " + entry.details;
           const stayedMisc = entry.super === "misc";
@@ -2794,6 +4133,17 @@
               entry,
               "Shared boss alias expanded this row to " + entry.monster + ".",
             );
+          }
+          if (entry.super === "combat" && entry.monster && entry.item) {
+            const key = `${entry.ts}|${entry.monster}|${entry.item}`;
+            if (duplicateDropKeys.get(key) > 1) {
+              addParserWarning(
+                warnings,
+                "duplicate-drop",
+                entry,
+                "Possible duplicate drop row: " + entry.monster + " / " + entry.item + ".",
+              );
+            }
           }
         });
         parserWarnings = warnings;
@@ -2857,6 +4207,30 @@
         setDebugActionStatus("Exported");
       }
 
+      function exportParserWarningGroup(type) {
+        const rows = parserWarnings.filter((warning) => warning.type === type);
+        if (!rows.length) {
+          setDebugActionStatus("No group rows");
+          return;
+        }
+        const def = getParserWarningDefinition(type);
+        const csv = [
+          ["type", "label", "timestamp", "title", "details", "message"],
+          ...rows.map((warning) => [
+            warning.type,
+            def.label,
+            warning.ts || "",
+            warning.title || "",
+            warning.details || "",
+            warning.message || "",
+          ]),
+        ]
+          .map((row) => row.map(escapeCsv).join(","))
+          .join("\n");
+        downloadTextFile(csv, `saulalog_${type}_warnings.csv`, "text/csv");
+        setDebugActionStatus("Group exported");
+      }
+
       function updateDataHealth() {
         const dates = parsed
           .map((entry) => parseTs(entry.ts))
@@ -2866,6 +4240,8 @@
         dataHealth = {
           loadedRows: parsed.length,
           sourceRows: rawCsvLineCount,
+          source: lastDataSource.source,
+          loadedAt: lastDataSource.loadedAt,
           oldestTs: dates[0] || null,
           latestTs: dates[dates.length - 1] || null,
           unclassified: parsed.filter((entry) => entry.super === "misc").length,
@@ -3095,6 +4471,10 @@
         };
         if (map[e.key]) setFilter(map[e.key]);
         if (e.key === "Escape") {
+          if (activeDebugEntryIndex !== null) {
+            closeEntryDebugDrawer();
+            return;
+          }
           document.getElementById("search").value = "";
           render();
         }
@@ -3106,13 +4486,19 @@
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
-          document.getElementById("upload-label").textContent =
-            `Loaded: ${file.name}`;
-          processData(e.target.result);
+          const uploadLabel = document.getElementById("upload-label");
+          if (uploadLabel) uploadLabel.title = `Loaded local CSV: ${file.name}`;
+          dataRefreshState = "success";
+          saveCsvCache(e.target.result, file.name);
+          processData(e.target.result, file.name, "Loaded from local CSV", {
+            refreshState: "success",
+          });
         };
         reader.onerror = () => {
-          document.getElementById("upload-label").textContent =
-            `❌ Failed to read ${file.name}`;
+          dataRefreshState = "error";
+          renderUploadMeta();
+          const uploadLabel = document.getElementById("upload-label");
+          if (uploadLabel) uploadLabel.title = `Failed to read local CSV: ${file.name}`;
         };
         reader.readAsText(file);
       }
@@ -3124,21 +4510,49 @@
        * Automatically fetches data from the specified Google Sheet and
        * passes it to the existing processCSV function.
        */
-      async function fetchGoogleSheetData() {
-        const label = document.getElementById("upload-label");
-        label.textContent = "Connecting to Google Sheets...";
+      async function fetchGoogleSheetData({ forceRefresh = false } = {}) {
+        const refreshBtn = document.getElementById("refresh-data-btn");
+        if (refreshBtn) {
+          refreshBtn.title = forceRefresh
+            ? "Refreshing Google Sheets data..."
+            : "Connecting to Google Sheets...";
+        }
 
         try {
           const response = await fetch(SHEET_URL);
           if (!response.ok) throw new Error("Network response was not ok");
           const csvText = await response.text();
 
-          // Update label to reflect the source and process the data
-          label.textContent = "✅ Data Loaded from Google Sheets";
-          processData(csvText);
+          // Cache the latest successful Sheets payload so GitHub Pages can still
+          // show useful data if Google Sheets is temporarily unavailable.
+          dataRefreshState = "success";
+          saveCsvCache(csvText, "Google Sheets");
+          if (refreshBtn) refreshBtn.title = "Google Sheets data loaded successfully";
+          processData(csvText, "Google Sheets", "Loaded successfully", {
+            refreshState: "success",
+          });
         } catch (err) {
           console.error("Failed to fetch Google Sheet data:", err);
-          label.textContent = "❌ Error loading Google Sheet";
+          const cached = loadCachedCsv();
+          if (cached) {
+            if (refreshBtn) refreshBtn.title = "Using cached Google Sheets data";
+            dataRefreshState = "cache";
+            processData(
+              cached.csvText,
+              cached.meta?.source || "Cached data",
+              cached.meta?.savedAt ? "Cached from " + formatShortDate(cached.meta.savedAt) : "Loaded from cache",
+              {
+                cachedAt: cached.meta?.savedAt ? new Date(cached.meta.savedAt) : null,
+                refreshState: "cache",
+              },
+            );
+          } else {
+            if (refreshBtn) refreshBtn.title = "Error loading Google Sheets data";
+            dataRefreshState = "error";
+            setDataSourceState("Load failed", 0, "No cached data available", {
+              refreshState: "error",
+            });
+          }
         }
       }
 
@@ -3222,17 +4636,18 @@
 
         return 0;
       }
-      function processData(csvText) {
+      function processData(csvText, sourceLabel = "CSV", sourceNote = "", sourceOptions = {}) {
         const lines = csvText.split(/\r?\n/).slice(1); // skip header row
         rawCsvLineCount = lines.filter((line) => line.trim()).length;
+        let malformedLineCount = 0;
         parsed = lines
           .map((line, sourceIndex) => {
             const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-            if (parts.length < 3) return null;
+            if (parts.length < 3) { malformedLineCount++; return null; }
             const ts = parts[0].replace(/"/g, "").trim();
             const title = parts[1].replace(/"/g, "").trim();
             const details = parts[2].replace(/"/g, "").trim();
-            if (!ts || !title || !details) return null;
+            if (!ts || !title || !details) { malformedLineCount++; return null; }
             let d = {
               ts,
               title,
@@ -3466,7 +4881,14 @@
           });
 
         // Killcounts are intentionally not deduped here; extractApproxKillCount() mirrors the row-level Sheets tally.
-        buildParserWarnings();
+        rebuildParsedIndexes();
+        setDataSourceState(
+          sourceLabel,
+          rawCsvLineCount,
+          sourceNote || (malformedLineCount ? malformedLineCount + " skipped rows" : "Loaded successfully"),
+          sourceOptions,
+        );
+        buildParserWarnings(malformedLineCount);
         updateDataHealth();
         buildSkillPicker();
 
@@ -3563,10 +4985,19 @@
         render();
       }
 
+      function getListPaneTitle() {
+        // Generic list panes keep a short, explicit title. Dedicated panes
+        // such as Combat, Clues, Quests, and Skills render their own headers.
+        return {
+          all: "All logs",
+          misc: "Misc log",
+        }[activeFilter] || "Log entries";
+      }
+
       function renderListHeader(filtered, countBase = filtered) {
         const header = document.getElementById("list-pane-header");
         if (!header) return;
-        // Only show sub-filter pills for all/skills — clues and quests now have dedicated panels
+
         let pillsHtml = "";
         if (activeFilter === "skills") {
           const skillCountBase = countBase.filter(skillEntryMatchesSelection);
@@ -3580,10 +5011,20 @@
             )
             .join("");
         }
+
+        const titleClass = activeFilter === "all"
+          ? "list-pane-title list-pane-title-plain"
+          : "list-pane-title";
+        const titleHtml = pillsHtml
+          ? pillsHtml
+          : `<span class="${titleClass}">${getListPaneTitle()}</span>`;
+
         header.innerHTML = `
-        <div class="list-header-pills ${activeFilter === "skills" ? "skill-filter-context" : ""}" style="${activeFilter === "skills" ? getSkillFilterColorStyle() : ""}">${pillsHtml}</div>
+          <div class="list-header-pills ${activeFilter === "skills" ? "skill-filter-context" : ""}"
+               style="${activeFilter === "skills" ? getSkillFilterColorStyle() : ""}">${titleHtml}</div>
+          <div class="list-header-right">
             <span class="entry-count">${filtered.length.toLocaleString()} entries</span>
-        </div>`;
+          </div>`;
       }
 
       function escapeHtml(str) {
@@ -3775,6 +5216,18 @@
         return "Milestone";
       }
 
+
+      function renderSkillSummaryDetails(selectedBase, visibleEntries) {
+        const chartState = document.getElementById("skill-chart-state");
+        if (!chartState) return;
+
+        // Keep the Skills pane compact: filter bubbles already carry counts,
+        // so this helper only explains the chart state instead of rendering cards.
+        chartState.textContent =
+          "Showing XP milestone history for " +
+          getSkillSelectionLabel() +
+          ". Empty charts mean no matching XP milestone logs in the current range.";
+      }
       function renderSkillPanel(entries) {
         const selectionLabel = getSkillSelectionLabel();
         const selectedBase = entries.filter(skillEntryMatchesSelection);
@@ -3791,6 +5244,7 @@
         if (entryCount)
           entryCount.textContent = `${skillEntries.length.toLocaleString()} entries`;
         if (historyLabel) historyLabel.textContent = selectionLabel;
+        renderSkillSummaryDetails(selectedBase, skillEntries);
 
         if (toolbarEl) {
           toolbarEl.innerHTML = `
@@ -3811,7 +5265,9 @@
         <div class="dual-entry">
             <div class="dual-entry-title">${escapeHtml(e.title)}</div>
             <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
-            <div class="dual-entry-ts">${escapeHtml(e.ts)}</div>
+            <div class="dual-entry-ts">${escapeHtml(e.ts)}
+              <button class="entry-debug-btn" onclick="debugEntryBySourceIndex(${e.sourceIndex})" title="Debug this entry">𝒊</button>
+            </div>
         </div>`;
 
         entryEl.innerHTML = skillEntries.length
@@ -3857,7 +5313,9 @@
         <div class="dual-entry">
             <div class="dual-entry-title">${escapeHtml(e.title)}</div>
             <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
-            <div class="dual-entry-ts">${escapeHtml(e.ts)}</div>
+            <div class="dual-entry-ts">${escapeHtml(e.ts)}
+              <button class="entry-debug-btn" onclick="debugEntryBySourceIndex(${e.sourceIndex})" title="Debug this entry">𝒊</button>
+            </div>
         </div>`;
 
         document.getElementById("quest-list").innerHTML =
@@ -3920,7 +5378,6 @@
 
         const selectedLabel =
           selClueType.charAt(0).toUpperCase() + selClueType.slice(1);
-
         if (clueViewMode === "completions") {
           const logs = allEntries
             .filter((e) => e.sub === selClueType)
@@ -4005,6 +5462,7 @@
           "</div>";
       }
 
+
       function render() {
 
         const q = document.getElementById("search").value.toLowerCase();
@@ -4031,7 +5489,8 @@
           if (statsBar) statsBar.classList.add("hidden");
           if (heatmapSlot) heatmapSlot.classList.add("hidden");
           renderDebugPanel();
-          document.getElementById("footer").textContent = "";
+          document.getElementById("footer").textContent =
+            "Saulalog " + APP_VERSION + " · Debug mode · Shortcuts: 1 All · 2 Skills · 3 Combat · 4 Clues · 5 Quests · 6 Misc · Esc clears search";
           updateUrlState();
           return;
         }
@@ -4114,11 +5573,12 @@
                 <div class="entry-content">
                     <span class="cat-dot" style="background:${getColor(e.super)}"></span>
                     <div class="entry-text-stack">
-                        <span class="entry-title">${e.title}</span>
-                        <span class="entry-details">${e.details}</span>
+                        <span class="entry-title">${escapeHtml(e.title)}</span>
+                        <span class="entry-details">${escapeHtml(e.details)}</span>
                     </div>
                 </div>
-                <span class="entry-ts">${e.ts}</span>
+                <button class="entry-debug-btn" onclick="debugEntryBySourceIndex(${e.sourceIndex})" title="Debug this entry">𝒊</button>
+                <span class="entry-ts">${escapeHtml(e.ts)}</span>
             </div>`,
               )
               .join("") +
@@ -4129,8 +5589,10 @@
           renderListHeader(listFiltered, filtered);
         }
 
-        document.getElementById("footer").textContent = "";
+        document.getElementById("footer").textContent =
+          "Saulalog " + APP_VERSION + " · Shortcuts: 1 All · 2 Skills · 3 Combat · 4 Clues · 5 Quests · 6 Misc · Esc clears search";
         renderStatsBar(filtered);
+        renderUploadMeta();
         renderHeatmap(activeFilter);
         renderDebugPanel();
         if (activeFilter === "skills") updateXpChart();
@@ -4939,9 +6401,17 @@
         if (xpChart) xpChart.resetZoom();
       }
 
+      function updateStickySummaryDensity() {
+        // Category cards stay sticky; this class trims their height while
+        // keeping the count and label visible after the page starts scrolling.
+        document.body.classList.toggle("compact-summary", window.scrollY > 80);
+      }
+
       window.addEventListener("resize", () => renderHeatmap(activeFilter));
+      window.addEventListener("scroll", updateStickySummaryDensity, { passive: true });
 
       // Init skill picker and restore URL state before loading data.
+      renderSourceStatusPanel();
       buildSkillPicker();
       if (window.location.hash) {
         applyUrlState();
@@ -4950,6 +6420,8 @@
       }
       window.addEventListener("hashchange", applyUrlState);
       // --- New Auto-Ingest Call ---
+      updateStickySummaryDensity();
+      renderUploadMeta();
       fetchGoogleSheetData();
     </script>
   </body>
