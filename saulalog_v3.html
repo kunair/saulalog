@@ -1230,17 +1230,12 @@
         flex: 1;
       }
       .list-pane-title {
-        color: var(--color-text-dim);
+        /* Match the dedicated section headers used by Skills, Clues, and Quests. */
+        color: var(--color-text-light);
         font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 1.2px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
         text-transform: uppercase;
-      }
-      .list-pane-title-plain {
-        font-size: 12px;
-        font-weight: 500;
-        letter-spacing: 0;
-        text-transform: none;
       }
       .list-header-right {
         display: flex;
@@ -1255,6 +1250,25 @@
         font-weight: 700;
         white-space: nowrap;
         text-align: right;
+      }
+
+      /* Generic All/Misc list panes use the same in-card underline header
+         treatment as Skills, Clues, and Quests instead of a separate bar. */
+      #list-pane-header-wrap {
+        padding: 15px 15px 0 !important;
+        border-bottom: none !important;
+        border-radius: 10px 10px 0 0 !important;
+        overflow: visible;
+      }
+      #list-pane-header-wrap .list-pane-header {
+        padding: 0 0 6px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--color-border);
+        background: none;
+        border-radius: 0;
+      }
+      #list {
+        border-radius: 0 0 10px 10px !important;
       }
 
       /* ── Load More ── */
@@ -2972,7 +2986,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.24";
+      const APP_VERSION = "3.26";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -5012,12 +5026,9 @@
             .join("");
         }
 
-        const titleClass = activeFilter === "all"
-          ? "list-pane-title list-pane-title-plain"
-          : "list-pane-title";
         const titleHtml = pillsHtml
           ? pillsHtml
-          : `<span class="${titleClass}">${getListPaneTitle()}</span>`;
+          : `<span class="list-pane-title">${getListPaneTitle()}</span>`;
 
         header.innerHTML = `
           <div class="list-header-pills ${activeFilter === "skills" ? "skill-filter-context" : ""}"
