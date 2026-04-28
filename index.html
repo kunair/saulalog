@@ -1187,7 +1187,7 @@ function processData(csvText) {
         } 
         else if (/killed|dropped|looted|found|surviving|defeating/.test(details) && !details.toLowerCase().includes('quest')) {
             d.super = 'combat';
-            const mMatch = details.match(/(?:killing|defeating|surviving|killing a|defeated) (?:the |a )?([\w\s':]+?)(?:, it dropped|: Rex Matriarchs|\.|$)/i);
+            const mMatch = details.match(/(?:killing|defeating|surviving|killing a|defeated) (?:the |a )?([\w\s':,-]+?)(?:, it dropped|: Rex Matriarchs|\.|$)/i);
             if (mMatch) {
                 d.monster = mMatch[1].trim();
                 d.sub = BOSS_LIST.some(b => d.monster.toLowerCase().includes(b.toLowerCase())) ? 'boss' : 'slayer';
