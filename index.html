@@ -1115,6 +1115,10 @@ const SKILL_GROUPS = {
     'Support':   ['Agility', 'Dungeoneering', 'Slayer', 'Thieving']
 };
 
+function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 function toggleDarkMode() {
     const isDark = document.body.classList.toggle('dark-mode');
     document.getElementById('theme-icon').textContent = isDark ? '☀️' : '🌙';
@@ -1185,15 +1189,45 @@ function processData(csvText) {
             SKILLS.forEach(s => { if (details.includes(s)) d.skill = s; });
             d.sub = details.includes('experience points') ? 'xp' : details.includes('While skilling') ? 'pet' : details.includes('total level of') ? 'total' : 'level';
         } 
-        else if (/killed|dropped|looted|found|surviving|defeating/.test(details) && !details.toLowerCase().includes('quest')) {
-            d.super = 'combat';
-            const mMatch = details.match(/(?:killing|defeating|surviving|killing a|defeated) (?:the |a )?([\w\s':,-]+?)(?:, it dropped|: Rex Matriarchs|\.|$)/i);
-            if (mMatch) {
-                d.monster = mMatch[1].trim();
-                d.sub = BOSS_LIST.some(b => d.monster.toLowerCase().includes(b.toLowerCase())) ? 'boss' : 'slayer';
-                const iMatch = details.match(/(?:dropped|found|gave|found a) (?:a |an |some |pair of )?(.+?)(?:\.|$)/i);
-                if (iMatch) d.item = iMatch[1].charAt(0).toUpperCase() + iMatch[1].slice(1).trim();
-            }
+        else if (/killed|dropped|looted|found|surviving|defeating/i.test(details) && !details.toLowerCase().includes('quest')) {
+    d.super = 'combat';
+
+    // Prefer exact boss-list detection first.
+    // This handles boss names with commas, apostrophes, colons, and hyphens.
+    const matchedBoss = BOSS_LIST.find(b => {
+        const bossRegex = new RegExp(`\\b${escapeRegExp(b)}\\b`, 'i');
+        return bossRegex.test(details);
+    });
+
+    if (matchedBoss) {
+        d.monster = matchedBoss;
+        d.sub = 'boss';
+    } else {
+        // Fallback for Slayer / non-boss monsters.
+        // Stop before drop phrases like ", I found", ", it dropped", etc.
+        const mMatch = details.match(
+            /(?:killing|defeating|surviving|killing a|defeated)\s+(?:the |a )?(.+?)(?=,\s*(?:it dropped|I found|I looted|I received)|: Rex Matriarchs|\.|$)/i
+        );
+
+        if (mMatch) {
+            d.monster = mMatch[1].trim();
+            d.sub = 'slayer';
+        }
+    }
+
+    // Extract item drops separately.
+    // Handles:
+    // "it dropped a ..."
+    // "I found an ..."
+    // "I looted a ..."
+    const iMatch = details.match(
+        /(?:it dropped|I found|I looted|I received|dropped|found|looted|gave|gave me)\s+(?:a |an |some |pair of )?(.+?)(?:\.|$)/i
+    );
+
+    if (iMatch) {
+        d.item = iMatch[1].charAt(0).toUpperCase() + iMatch[1].slice(1).trim();
+    }
+}
         }
         if (d.super === 'misc' && (/Quest Complete|Quest Points|helped|worked|finally|ended|saved/.test(details) || title.toLowerCase().includes('quest complete'))) d.super = 'quests';
         return d;
