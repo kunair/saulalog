@@ -1,14 +1,16 @@
 <!doctype html>
 
 <!--
-  Saulalog v3.27
-  - Moved loaded/cached source metadata above the top-right controls.
-  - Softened the sticky filter header so rounded corners stay clean while scrolling.
+  Saulalog v3.33
+  - Smoothed sticky control hover/active feedback.
+  - Made the search field fill the available toolbar space up to the Range controls.
+  - Matched Quest log rows to the All/Misc entry-row styling.
 -->
 
 <html lang="en">
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js"></script>
@@ -1381,8 +1383,8 @@
         margin: 0 -15px;
         padding: 0 15px;
       }
-      /* Single-pane Clue/Quest sections keep filters outside the scrollable area
-         so the scrollbar starts beside the entries, not beside the header. */
+      /* Single-pane Clue/Quest sections now flow like All/Misc logs.
+         Entries paginate at the bottom instead of using an internal scroll box. */
       .quest-single-panel .dual-col-body,
       .clue-single-panel .dual-col-body {
         display: flex;
@@ -1394,11 +1396,8 @@
         margin: 0;
         padding: 0;
       }
-      .single-panel-scroll {
-        flex: 1;
-        min-height: 0;
-        max-height: 480px;
-        overflow-y: auto;
+      .single-panel-flow {
+        width: 100%;
         margin: 0 -15px;
         padding: 0 15px;
       }
@@ -2505,10 +2504,468 @@
         line-height: 1.2;
       }
 
-    </style>
+    
+
+      /* ── v3.28 single-file cohesion pass ──────────────────────────────
+         Kept intentionally additive so the app remains a single deployable
+         HTML file. These tokens and shared rules reduce visual drift between
+         All, Skills, Combat, Clues, Quests, Misc, and Debug panels. */
+      :root {
+        --radius-panel: 10px;
+        --radius-control: 9px;
+        --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.035);
+        --space-panel: 15px;
+      }
+
+      body.dark-mode {
+        --shadow-panel: 0 1px 2px rgba(0, 0, 0, 0.22);
+      }
+
+      html {
+        scroll-padding-top: 140px;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      .wrap[role="main"] {
+        min-width: 0;
+      }
+
+      .main-content,
+      .toolbar-row,
+      .sticky-controls-zone,
+      .stats-bar,
+      .entries,
+      .dual-panel,
+      .combat-grid,
+      .debug-pane {
+        min-width: 0;
+      }
+
+      .entries,
+      .dual-col,
+      .combat-sec,
+      .debug-pane,
+      .heatmap-wrap,
+      .xp-chart-wrap,
+      .source-status-panel {
+        border-radius: var(--radius-panel);
+        box-shadow: var(--shadow-panel);
+      }
+
+      .list-pane-header,
+      .dual-col-header,
+      .combat-sec h3,
+      .debug-title,
+      .xp-chart-header,
+      .heatmap-header {
+        line-height: 1.2;
+      }
+
+      .list-pane-title,
+      .dual-col-header > span:first-child,
+      .combat-sec h3,
+      .xp-chart-title,
+      .heatmap-title,
+      .debug-title-main > span:first-child {
+        letter-spacing: 1.5px;
+      }
+
+      .entry-count,
+      .dual-col-header .col-count,
+      .clue-type-count,
+      .loot-count {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .entry,
+      .dual-entry,
+      .loot-row,
+      .clue-loot-item,
+      .parser-warning-row {
+        overflow-wrap: anywhere;
+      }
+
+      .entry-content,
+      .entry-text-stack,
+      .dual-entry-title,
+      .dual-entry-detail,
+      .clue-loot-name,
+      .clue-loot-meta,
+      .loot-name {
+        min-width: 0;
+      }
+
+      .entry-title,
+      .dual-entry-title,
+      .clue-loot-name {
+        line-height: 1.35;
+      }
+
+      .entry-details,
+      .dual-entry-detail,
+      .clue-loot-meta {
+        line-height: 1.45;
+      }
+
+      .generated-empty-state,
+      .log-empty,
+      .empty-state {
+        width: 100%;
+        padding: 32px 16px;
+        color: var(--color-text-light);
+        font-size: 12px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .generated-empty-state::before,
+      .log-empty::before,
+      .empty-state::before {
+        content: "";
+        display: block;
+        width: 28px;
+        height: 2px;
+        margin: 0 auto 10px;
+        border-radius: 999px;
+        background: var(--color-border);
+      }
+
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible,
+      [role="button"]:focus-visible,
+      .stat-chip:focus-visible,
+      .pill:focus-visible,
+      .b-pill:focus-visible,
+      .sk-btn:focus-visible,
+      .skill-all-btn:focus-visible,
+      .skill-group-pill:focus-visible,
+      .sort-btn:focus-visible,
+      .dp-btn:focus-visible,
+      .debug-action-btn:focus-visible,
+      .refresh-data-btn:focus-visible,
+      .google-sheet-refresh-btn:focus-visible,
+      .csv-upload-btn:focus-visible,
+      .theme-toggle:focus-visible,
+      .debug-toggle:focus-visible {
+        outline: 2px solid var(--color-ui);
+        outline-offset: 3px;
+        box-shadow: 0 0 0 4px var(--color-ui-glow);
+      }
+
+      [role="button"] {
+        cursor: pointer;
+      }
+
+      .ui-control,
+      .pill,
+      .b-pill,
+      .sk-btn,
+      .skill-all-btn,
+      .skill-group-pill,
+      .dp-btn,
+      .sort-btn,
+      .debug-action-btn,
+      .refresh-data-btn,
+      .google-sheet-refresh-btn,
+      .csv-upload-btn,
+      .theme-toggle,
+      .debug-toggle {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      @media (max-width: 640px) {
+        .wrap {
+          padding-left: 0.85rem;
+          padding-right: 0.85rem;
+        }
+
+        .sticky-controls-zone {
+          gap: 6px;
+        }
+
+        .toolbar-row,
+        .range-wrap,
+        .search-wrap {
+          width: 100%;
+        }
+
+        .range-wrap {
+          align-items: flex-start;
+          justify-content: flex-start;
+        }
+
+        .date-presets,
+        .stats-bar {
+          max-width: 100%;
+          overflow-x: auto;
+          flex-wrap: nowrap;
+          justify-content: flex-start;
+          -webkit-overflow-scrolling: touch;
+          padding-bottom: 2px;
+          scrollbar-width: thin;
+        }
+
+        .date-presets > *,
+        .stats-bar > * {
+          flex: 0 0 auto;
+        }
+
+        .filters,
+        .bubble-wrap,
+        .skill-flat-grid,
+        .skill-grouped-list,
+        .skill-skills-row,
+        .list-header-pills {
+          max-width: 100%;
+        }
+
+        .list-pane-header,
+        .dual-col-header,
+        .combat-sec h3,
+        .debug-title,
+        .xp-chart-header,
+        .heatmap-header {
+          gap: 6px;
+        }
+
+        .entry {
+          align-items: flex-start;
+          gap: 10px;
+        }
+
+        .entry-content {
+          padding-right: 8px;
+        }
+
+        .entry-ts,
+        .dual-entry-ts,
+        .loot-ts {
+          white-space: normal;
+          text-align: right;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+
+
+      /* v3.31: compact search alignment. The search field now stretches
+         cleanly until the Range controls and matches the date-preset bubble
+         height instead of reading like a large standalone input. */
+      .toolbar-row {
+        grid-template-columns: minmax(420px, 1fr) max-content;
+        gap: 10px;
+      }
+
+      .search-wrap {
+        position: relative;
+        width: 100%;
+      }
+
+      #search {
+        height: 29px;
+        min-height: 29px;
+        padding: 5px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        box-shadow: none;
+        line-height: 1.2;
+      }
+
+      #search:hover {
+        border-color: color-mix(in srgb, var(--color-border) 70%, var(--color-ui));
+        background: var(--color-surface);
+      }
+
+      #search:focus {
+        border-color: var(--color-ui);
+        background: var(--color-surface);
+        box-shadow: 0 0 0 2px var(--color-ui-glow);
+      }
+
+      @media (max-width: 760px) {
+        .toolbar-row {
+          grid-template-columns: 1fr;
+        }
+
+        #search {
+          width: 100%;
+        }
+      }
+
+      .stats-bar,
+      .date-presets,
+      .skill-skills-row,
+      .bubble-wrap {
+        scrollbar-color: var(--color-border) transparent;
+      }
+
+
+      /* v3.32: responsive-feeling sticky controls and cleaner toolbar width.
+         Keep the restrained v3.30/v3.31 look, but make hover/press feedback
+         feel immediate and make search consume the full row before Range. */
+      .toolbar-row {
+        display: flex;
+        grid-template-columns: none;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .search-wrap {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: auto;
+      }
+
+      .range-wrap {
+        flex: 0 0 auto;
+        width: auto;
+        gap: 8px;
+      }
+
+      .date-presets {
+        align-items: center;
+      }
+
+      #search {
+        width: 100%;
+        height: 29px;
+        min-height: 29px;
+        padding: 5px 12px;
+        border-radius: 12px;
+        transition:
+          border-color 0.12s ease,
+          background-color 0.12s ease,
+          box-shadow 0.12s ease;
+      }
+
+      .dp-btn {
+        min-height: 29px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .sticky-controls-zone {
+        transform: translateZ(0);
+        will-change: transform;
+        transition:
+          padding 0.14s ease,
+          gap 0.14s ease,
+          background-color 0.14s ease,
+          backdrop-filter 0.14s ease;
+      }
+
+      .stat-chip,
+      .dp-btn,
+      .b-pill,
+      .sk-btn,
+      .skill-all-btn,
+      .skill-group-pill,
+      .sort-btn,
+      .debug-action-btn,
+      .refresh-data-btn,
+      .google-sheet-refresh-btn,
+      .csv-upload-btn,
+      .theme-toggle,
+      .debug-toggle {
+        transition:
+          border-color 0.12s ease,
+          background-color 0.12s ease,
+          color 0.12s ease,
+          box-shadow 0.12s ease,
+          transform 0.08s ease,
+          opacity 0.12s ease;
+      }
+
+      .stat-chip:hover,
+      .dp-btn:hover,
+      .b-pill:hover,
+      .sk-btn:hover,
+      .skill-all-btn:hover,
+      .skill-group-pill:hover,
+      .sort-btn:hover,
+      .debug-action-btn:hover,
+      .refresh-data-btn:hover,
+      .google-sheet-refresh-btn:hover,
+      .csv-upload-btn:hover,
+      .theme-toggle:hover,
+      .debug-toggle:hover {
+        transform: translateY(-1px);
+      }
+
+      .stat-chip:active,
+      .dp-btn:active,
+      .b-pill:active,
+      .sk-btn:active,
+      .skill-all-btn:active,
+      .skill-group-pill:active,
+      .sort-btn:active,
+      .debug-action-btn:active,
+      .refresh-data-btn:active,
+      .google-sheet-refresh-btn:active,
+      .csv-upload-btn:active,
+      .theme-toggle:active,
+      .debug-toggle:active {
+        transform: translateY(0) scale(0.985);
+        transition-duration: 0.04s;
+      }
+
+      body.compact-summary .stat-chip,
+      body.compact-summary .stat-chip:hover,
+      body.compact-summary .stat-chip.active {
+        transform: none;
+      }
+
+      .quest-single-panel .entry.quest-log-entry {
+        margin: 0;
+        background: transparent;
+      }
+
+      .quest-single-panel .entry.quest-log-entry:last-child {
+        border-bottom: none;
+      }
+
+      @media (max-width: 760px) {
+        .toolbar-row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .search-wrap,
+        .range-wrap {
+          width: 100%;
+        }
+
+        .range-wrap {
+          justify-content: flex-start;
+          flex-wrap: wrap;
+        }
+      }
+
+
+</style>
   </head>
   <body>
-    <div class="wrap">
+    <div class="wrap" role="main">
       <div class="header-row page-action-row">
         <div class="top-action-cluster" aria-label="Page actions">
           <div class="upload-meta-row" id="upload-meta-row">
@@ -2518,7 +2975,9 @@
           <div class="top-action-row">
             <div
               class="theme-toggle ui-control"
-              onclick="toggleDarkMode()"
+              data-action="toggle-theme"
+              role="button"
+              tabindex="0"
               title="Toggle Dark Mode"
             >
               <span id="theme-icon">🌙</span>
@@ -2526,7 +2985,9 @@
             <div
               class="debug-toggle ui-control"
               id="debug-toggle"
-              onclick="toggleDebugMode()"
+              data-action="toggle-debug"
+              role="button"
+              tabindex="0"
               title="Toggle Debug Mode"
             >
               <span id="debug-icon">𝒊</span>
@@ -2536,7 +2997,7 @@
             <button
               class="refresh-data-btn google-sheet-refresh-btn ui-control"
               id="refresh-data-btn"
-              onclick="refreshData()"
+              data-action="refresh-data"
               title="Refresh Google Sheets data"
               type="button"
             >
@@ -2547,12 +3008,10 @@
               for="csv-file"
               id="upload-label"
               title="Upload CSV"
-              >⇧</label
-            >
+              >⇧</label>
             <input
               accept=".csv"
               id="csv-file"
-              onchange="handleFileUpload(event)"
               type="file"
             />
           </div>
@@ -2563,31 +3022,31 @@
         <div class="toolbar-row">
           <div class="search-wrap">
             <input
+              aria-label="Search logs"
               id="search"
-              oninput="debouncedSearchRender()"
               placeholder="Search by title, monster, or drop..."
-              type="text"
+              type="search"
             />
           </div>
           <div class="range-wrap">
             <span class="date-label">Range</span>
             <div class="date-presets" id="date-presets">
-              <button class="dp-btn" data-p="7d" onclick="setDatePreset('7d')">
+              <button class="dp-btn" data-action="set-date-preset" data-p="7d">
                 7d
               </button>
-              <button class="dp-btn" data-p="30d" onclick="setDatePreset('30d')">
+              <button class="dp-btn" data-action="set-date-preset" data-p="30d">
                 30d
               </button>
-              <button class="dp-btn" data-p="90d" onclick="setDatePreset('90d')">
+              <button class="dp-btn" data-action="set-date-preset" data-p="90d">
                 90d
               </button>
-              <button class="dp-btn" data-p="1y" onclick="setDatePreset('1y')">
+              <button class="dp-btn" data-action="set-date-preset" data-p="1y">
                 1yr
               </button>
               <button
                 class="dp-btn active"
                 data-p="all"
-                onclick="setDatePreset('all')"
+                data-action="set-date-preset"
               >
                 All Time
               </button>
@@ -2607,15 +3066,15 @@
             <button
               class="debug-action-btn"
               id="debug-individual-entries-btn"
-              onclick="toggleDebugIndividualEntries()"
+              data-action="toggle-debug-individual-entries"
               type="button"
             >
               Debug individual entries
             </button>
-            <button class="debug-action-btn" onclick="copyParserWarnings()">
+            <button class="debug-action-btn" data-action="copy-parser-warnings">
               Copy warnings
             </button>
-            <button class="debug-action-btn" onclick="exportParserWarnings()">
+            <button class="debug-action-btn" data-action="export-parser-warnings">
               Export CSV
             </button>
             <span class="debug-action-status" id="debug-action-status"></span>
@@ -2661,7 +3120,7 @@
             <button
               class="skill-all-btn active"
               id="skill-btn-all"
-              onclick="clearSkillSelection()"
+              data-action="clear-skill-selection"
             >
               All Skills
             </button>
@@ -2679,7 +3138,7 @@
             <div class="combat-more-wrap">
               <select
                 id="boss-more"
-                onchange="selectMonster('boss', this.value)"
+                data-action="select-monster-more" data-monster-type="boss"
               >
                 <option value="">More...</option>
               </select>
@@ -2695,7 +3154,7 @@
             <div class="combat-more-wrap">
               <select
                 id="slayer-more"
-                onchange="selectMonster('slayer', this.value)"
+                data-action="select-monster-more" data-monster-type="slayer"
               >
                 <option value="">More...</option>
               </select>
@@ -2749,7 +3208,7 @@
                 <button
                   class="xp-chart-reset"
                   id="xp-chart-reset"
-                  onclick="resetXpChart()"
+                  data-action="reset-xp-chart"
                 >
                   Reset View
                 </button>
@@ -2785,12 +3244,12 @@
     <div
       class="entry-debug-backdrop hidden"
       id="entry-debug-backdrop"
-      onclick="closeEntryDebugDrawer()"
+      data-action="close-entry-debug"
     ></div>
     <aside class="entry-debug-drawer hidden" id="entry-debug-drawer">
       <div class="entry-debug-drawer-header">
         <span>Entry debug</span>
-        <button onclick="closeEntryDebugDrawer()" title="Close entry debug" type="button">×</button>
+        <button data-action="close-entry-debug" title="Close entry debug" type="button">×</button>
       </div>
       <div class="entry-debug-drawer-body" id="entry-debug-drawer-body"></div>
     </aside>
@@ -2798,7 +3257,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.27";
+      const APP_VERSION = "3.33";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -2820,7 +3279,6 @@
         byClueType: new Map(),
         byDate: new Map(),
       };
-      let activeDebugEntryIndex = null;
       const BOSS_LIST = [
         "Araxxi",
         "Araxzor",
@@ -2960,54 +3418,55 @@
         "Necromancy",
       ];
 
-      let parsed = [];
-      let parserWarnings = [];
-      let activeParserWarningType = null;
-      let dataHealth = null;
-      let unclassifiedBreakdown = null;
-      let rawCsvLineCount = 0;
-      let debugMode = false;
-      let debugIndividualEntriesEnabled = false;
-      let suppressUrlStateUpdate = false;
-      let activeFilter = "all";
-      let selBoss = null;
-      let selSlayer = null;
-      let selBossLoot = null;
-      let selSlayerLoot = null;
-      let selBossKC = false;
-      let selSlayerKC = false; // killcount drilldown flag
-      let skillSubs = {
-        xp: true,
-        level: true,
-        pet: true,
-        total: true,
-        m200: true,
+      const appState = {
+        data: {
+          entries: [],
+          parserWarnings: [],
+          activeParserWarningType: null,
+          dataHealth: null,
+          unclassifiedBreakdown: null,
+          rawCsvLineCount: 0,
+        },
+        flags: {
+          debugMode: false,
+          debugIndividualEntriesEnabled: false,
+          suppressUrlStateUpdate: false,
+        },
+        ui: {
+          activeFilter: "all",
+          skillViewMode: "flat",
+          groupChartMode: "stacked",
+          datePreset: "all",
+          dateFrom: null,
+          dateTo: null,
+          sortOrder: "newest",
+          currentPage: 0,
+        },
+        combat: {
+          selectedBoss: null,
+          selectedSlayer: null,
+          bossLoot: null,
+          slayerLoot: null,
+          bossKillcount: false,
+          slayerKillcount: false,
+        },
+        filters: {
+          skillSubs: { xp: true, level: true, pet: true, total: true, m200: true },
+          clueSubs: { easy: true, medium: true, hard: true, elite: true, master: true },
+          questSubs: { milestone: true, completion: true },
+          selectedSkills: new Set(),
+        },
+        clues: {
+          selectedType: "easy",
+          mode: "loot",
+          selectedLootItem: null,
+        },
+        debug: {
+          activeEntryIndex: null,
+        },
       };
-      let clueSubs = {
-        easy: true,
-        medium: true,
-        hard: true,
-        elite: true,
-        master: true,
-      };
-      let questSubs = {
-        milestone: true,
-        completion: true,
-      };
-      let selectedSkills = new Set(); // empty = "All Skills"; otherwise the explicit set of selected skills
-      let skillViewMode = "flat";
       let xpChart = null;
-      let groupChartMode = "stacked"; // only stacked line mode is shown
-      let datePreset = "all";
-      let dateFrom = null;
-      let dateTo = null;
-      let sortOrder = "newest";
-      let currentPage = 0;
       const PAGE_SIZE = 100;
-      // Clue panel state
-      let selClueType = "easy"; // active clue tier for the single Clue pane
-      let clueViewMode = "loot"; // bubble click = loot, count click = completions
-      let selClueLootItem = null; // null=grouped loot list, otherwise item drilldown
 
       const SKILL_GROUPS = {
         Combat: [
@@ -3043,6 +3502,17 @@
         ],
         Support: ["Agility", "Dungeoneering", "Slayer", "Thieving"],
       };
+
+      const CATEGORY_CONFIG = {
+        all: { id: "all", label: "All", title: "All logs", color: "var(--color-all)", shortcut: "1" },
+        skills: { id: "skills", label: "Skills", title: "Skill log", color: "var(--color-skill)", shortcut: "2" },
+        combat: { id: "combat", label: "Combat", title: "Combat log", color: "var(--color-combat)", shortcut: "3" },
+        clues: { id: "clues", label: "Clues", title: "Clue log", color: "var(--color-clue)", shortcut: "4" },
+        quests: { id: "quests", label: "Quests", title: "Quest log", color: "var(--color-quest)", shortcut: "5" },
+        misc: { id: "misc", label: "Misc", title: "Misc log", color: "var(--color-misc)", shortcut: "6" },
+      };
+      const CATEGORY_ORDER = ["all", "skills", "combat", "clues", "quests", "misc"];
+
 
       // ── Parser configuration ─────────────────────────────────────────────
       // Keep the repeated regexes and warning metadata in named blocks so future
@@ -3168,7 +3638,7 @@
           xpChart.destroy();
           xpChart = null;
         }
-        renderHeatmap(activeFilter);
+        renderHeatmap(appState.ui.activeFilter);
         render();
       }
 
@@ -3179,17 +3649,17 @@
 
       // -- Date Range --
       function setDatePreset(p) {
-        datePreset = p;
-        currentPage = 0;
+        appState.ui.datePreset = p;
+        appState.ui.currentPage = 0;
         document.querySelectorAll(".dp-btn").forEach((b) => b.classList.toggle("active", b.dataset.p === p));
         const now = new Date(); now.setHours(23, 59, 59, 999);
         const ago = (days) => { const d = new Date(); d.setDate(d.getDate() - days); d.setHours(0, 0, 0, 0); return d; };
-        dateTo = null;
-        if (p === "7d") { dateFrom = ago(7); dateTo = now; }
-        else if (p === "30d") { dateFrom = ago(30); dateTo = now; }
-        else if (p === "90d") { dateFrom = ago(90); dateTo = now; }
-        else if (p === "1y") { dateFrom = ago(365); dateTo = now; }
-        else { datePreset = "all"; dateFrom = null; dateTo = null; }
+        appState.ui.dateTo = null;
+        if (p === "7d") { appState.ui.dateFrom = ago(7); appState.ui.dateTo = now; }
+        else if (p === "30d") { appState.ui.dateFrom = ago(30); appState.ui.dateTo = now; }
+        else if (p === "90d") { appState.ui.dateFrom = ago(90); appState.ui.dateTo = now; }
+        else if (p === "1y") { appState.ui.dateFrom = ago(365); appState.ui.dateTo = now; }
+        else { appState.ui.datePreset = "all"; appState.ui.dateFrom = null; appState.ui.dateTo = null; }
         if (xpChart) { xpChart.destroy(); xpChart = null; }
         render();
       }
@@ -3197,21 +3667,21 @@
         const start = new Date(dayKey + "T00:00:00");
         const end = new Date(dayKey + "T23:59:59.999");
         if (Number.isNaN(start.getTime())) return;
-        datePreset = "custom"; dateFrom = start; dateTo = end; currentPage = 0;
+        appState.ui.datePreset = "custom"; appState.ui.dateFrom = start; appState.ui.dateTo = end; appState.ui.currentPage = 0;
         document.querySelectorAll(".dp-btn").forEach((b) => b.classList.remove("active"));
         render();
       }
       // ── Sort ──
       function setSortOrder(order) {
-        sortOrder = order;
-        currentPage = 0;
+        appState.ui.sortOrder = order;
+        appState.ui.currentPage = 0;
         render();
       }
 
       function debouncedSearchRender() {
         clearTimeout(searchDebounceTimer);
         searchDebounceTimer = setTimeout(() => {
-          currentPage = 0;
+          appState.ui.currentPage = 0;
           render();
         }, SEARCH_DEBOUNCE_MS);
       }
@@ -3353,7 +3823,7 @@
           <span class="status-item dim">Loaded: ${escapeHtml(formatDateOnly(lastDataSource.loadedAt))}</span>
           <span class="status-item dim">Cached: ${escapeHtml(formatDateOnly(lastDataSource.cachedAt || getCachedCsvMeta().savedAt))}</span>
           ${lastDataSource.note ? `<span class="status-item dim">${escapeHtml(lastDataSource.note)}</span>` : ""}
-          <button class="mini-action-btn" onclick="exportVisibleEntries()">Export view</button>`;
+          <button class="mini-action-btn" data-action="export-visible-entries" type="button">Export view</button>`;
       }
 
       function getDateKey(ts) {
@@ -3369,7 +3839,7 @@
           byClueType: new Map(),
           byDate: new Map(),
         };
-        parsed.forEach((entry) => {
+        appState.data.entries.forEach((entry) => {
           addIndexValue(parsedIndexes.byCategory, entry.super, entry);
           if (entry.monster) addIndexValue(parsedIndexes.byMonster, entry.monster, entry);
           if (entry.skill) addIndexValue(parsedIndexes.bySkill, entry.skill, entry);
@@ -3386,7 +3856,7 @@
       function clearSearchFilter() {
         const search = document.getElementById("search");
         if (search) search.value = "";
-        currentPage = 0;
+        appState.ui.currentPage = 0;
         render();
       }
 
@@ -3399,50 +3869,50 @@
       }
 
       function clearCombatDrilldowns() {
-        selBossLoot = null;
-        selSlayerLoot = null;
-        selBossKC = false;
-        selSlayerKC = false;
+        appState.combat.bossLoot = null;
+        appState.combat.slayerLoot = null;
+        appState.combat.bossKillcount = false;
+        appState.combat.slayerKillcount = false;
         render();
       }
 
       function resetSkillSubFilters() {
-        Object.keys(skillSubs).forEach((key) => {
-          skillSubs[key] = true;
+        Object.keys(appState.filters.skillSubs).forEach((key) => {
+          appState.filters.skillSubs[key] = true;
         });
         render();
       }
 
       function resetClueModeFilters() {
-        selClueType = "easy";
-        clueViewMode = "loot";
-        selClueLootItem = null;
+        appState.clues.selectedType = "easy";
+        appState.clues.mode = "loot";
+        appState.clues.selectedLootItem = null;
         render();
       }
 
       function resetQuestFilters() {
-        Object.keys(questSubs).forEach((key) => {
-          questSubs[key] = true;
+        Object.keys(appState.filters.questSubs).forEach((key) => {
+          appState.filters.questSubs[key] = true;
         });
         render();
       }
 
       function getRangeLabel() {
-        if (datePreset === "custom" && dateFrom) return formatShortDate(dateFrom);
+        if (appState.ui.datePreset === "custom" && appState.ui.dateFrom) return formatShortDate(appState.ui.dateFrom);
         return {
           "7d": "7d",
           "30d": "30d",
           "90d": "90d",
           "1y": "1yr",
           all: "All Time",
-        }[datePreset] || "Custom";
+        }[appState.ui.datePreset] || "Custom";
       }
 
       function exportVisibleEntries() {
         const q = getCurrentSearchQuery().toLowerCase();
-        const rows = parsed.filter((entry) => {
+        const rows = appState.data.entries.filter((entry) => {
           const searchContent = `${entry.title || ""} ${entry.details || ""}`.toLowerCase();
-          if (activeFilter !== "all" && entry.super !== activeFilter) return false;
+          if (appState.ui.activeFilter !== "all" && entry.super !== appState.ui.activeFilter) return false;
           if (q && !searchContent.includes(q)) return false;
           if (!entryMatchesGlobalSearchAndDate(entry)) return false;
           return true;
@@ -3461,7 +3931,7 @@
             entry.killCount || "",
           ]),
         ].map((row) => row.map(escapeCsv).join(",")).join("\n");
-        downloadTextFile(csv, `saulalog-${activeFilter || "all"}-${Date.now()}.csv`, "text/csv");
+        downloadTextFile(csv, `saulalog-${appState.ui.activeFilter || "all"}-${Date.now()}.csv`, "text/csv");
       }
 
       function downloadTextFile(text, filename, type = "text/plain") {
@@ -3478,25 +3948,25 @@
 
       function formatShortDate(dateLike) { const d = dateLike instanceof Date ? dateLike : parseTs(dateLike); if (!d) return "—"; return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }); }
       function getCurrentSearchQuery() { const input = document.getElementById("search"); return input ? input.value.trim() : ""; }
-      function getSelectedSkillGroupLabel() { if (selectedSkills.size === 0) return "all"; const selected = [...selectedSkills].sort().join("|"); for (const [groupName, skills] of Object.entries(SKILL_GROUPS)) { if (selected === skills.filter((skill) => SKILLS.includes(skill)).sort().join("|")) return groupName; } return [...selectedSkills].join(","); }
-      function applySkillSelectionFromState(value) { selectedSkills.clear(); if (!value || value === "all") return; if (SKILL_GROUPS[value]) { SKILL_GROUPS[value].forEach((skill) => selectedSkills.add(skill)); return; } value.split(",").map((skill) => skill.trim()).filter((skill) => SKILLS.includes(skill)).forEach((skill) => selectedSkills.add(skill)); }
-      function buildUrlStateParams() { const params = new URLSearchParams(); params.set("section", activeFilter); params.set("range", datePreset || "all"); const q = getCurrentSearchQuery(); if (q) params.set("q", q); if (datePreset === "custom" && dateFrom) params.set("day", dateFrom.toISOString().slice(0, 10)); if (activeFilter === "skills") { params.set("skills", getSelectedSkillGroupLabel()); params.set("skillFilters", Object.entries(skillSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); } if (activeFilter === "clues") { params.set("clue", selClueType); params.set("clueMode", clueViewMode); } if (activeFilter === "quests") params.set("questFilters", Object.entries(questSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); if (activeFilter === "combat") { if (selBoss) params.set("boss", selBoss); if (selSlayer) params.set("slayer", selSlayer); } return params; }
-      function updateUrlState() { if (suppressUrlStateUpdate) return; const nextHash = "#" + buildUrlStateParams().toString(); if (window.location.hash !== nextHash) history.replaceState(null, "", nextHash); }
-      function applyUrlState() { if (!window.location.hash) return; const params = new URLSearchParams(window.location.hash.slice(1)); suppressUrlStateUpdate = true; activeFilter = params.get("section") || activeFilter; const search = document.getElementById("search"); if (search) search.value = params.get("q") || ""; const range = params.get("range") || "all"; if (range === "custom" && params.get("day")) setCustomDateRange(params.get("day")); else setDatePreset(range); applySkillSelectionFromState(params.get("skills")); const skillFilters = params.get("skillFilters"); if (skillFilters !== null) { const enabled = new Set(skillFilters.split(",").filter(Boolean)); Object.keys(skillSubs).forEach((key) => { skillSubs[key] = enabled.has(key); }); } if (params.get("clue")) selClueType = params.get("clue"); if (params.get("clueMode")) clueViewMode = params.get("clueMode"); const questFilters = params.get("questFilters"); if (questFilters !== null) { const enabled = new Set(questFilters.split(",").filter(Boolean)); Object.keys(questSubs).forEach((key) => { questSubs[key] = enabled.has(key); }); } if (params.get("boss")) selBoss = params.get("boss"); if (params.get("slayer")) selSlayer = params.get("slayer"); suppressUrlStateUpdate = false; render(); }
-      function resetAllFilters() { suppressUrlStateUpdate = true; activeFilter = "all"; currentPage = 0; const search = document.getElementById("search"); if (search) search.value = ""; selectedSkills.clear(); skillSubs = { xp: true, level: true, pet: true, total: true, m200: true }; clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true }; questSubs = { milestone: true, completion: true }; selClueType = "easy"; clueViewMode = "loot"; selClueLootItem = null; selBossLoot = null; selSlayerLoot = null; selBossKC = false; selSlayerKC = false; suppressUrlStateUpdate = false; setDatePreset("all"); }
+      function getSelectedSkillGroupLabel() { if (appState.filters.selectedSkills.size === 0) return "all"; const selected = [...appState.filters.selectedSkills].sort().join("|"); for (const [groupName, skills] of Object.entries(SKILL_GROUPS)) { if (selected === skills.filter((skill) => SKILLS.includes(skill)).sort().join("|")) return groupName; } return [...appState.filters.selectedSkills].join(","); }
+      function applySkillSelectionFromState(value) { appState.filters.selectedSkills.clear(); if (!value || value === "all") return; if (SKILL_GROUPS[value]) { SKILL_GROUPS[value].forEach((skill) => appState.filters.selectedSkills.add(skill)); return; } value.split(",").map((skill) => skill.trim()).filter((skill) => SKILLS.includes(skill)).forEach((skill) => appState.filters.selectedSkills.add(skill)); }
+      function buildUrlStateParams() { const params = new URLSearchParams(); params.set("section", appState.ui.activeFilter); params.set("range", appState.ui.datePreset || "all"); const q = getCurrentSearchQuery(); if (q) params.set("q", q); if (appState.ui.datePreset === "custom" && appState.ui.dateFrom) params.set("day", appState.ui.dateFrom.toISOString().slice(0, 10)); if (appState.ui.activeFilter === "skills") { params.set("skills", getSelectedSkillGroupLabel()); params.set("skillFilters", Object.entries(appState.filters.skillSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); } if (appState.ui.activeFilter === "clues") { params.set("clue", appState.clues.selectedType); params.set("clueMode", appState.clues.mode); } if (appState.ui.activeFilter === "quests") params.set("questFilters", Object.entries(appState.filters.questSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); if (appState.ui.activeFilter === "combat") { if (appState.combat.selectedBoss) params.set("boss", appState.combat.selectedBoss); if (appState.combat.selectedSlayer) params.set("slayer", appState.combat.selectedSlayer); } return params; }
+      function updateUrlState() { if (appState.flags.suppressUrlStateUpdate) return; const nextHash = "#" + buildUrlStateParams().toString(); if (window.location.hash !== nextHash) history.replaceState(null, "", nextHash); }
+      function applyUrlState() { if (!window.location.hash) return; const params = new URLSearchParams(window.location.hash.slice(1)); appState.flags.suppressUrlStateUpdate = true; appState.ui.activeFilter = params.get("section") || appState.ui.activeFilter; const search = document.getElementById("search"); if (search) search.value = params.get("q") || ""; const range = params.get("range") || "all"; if (range === "custom" && params.get("day")) setCustomDateRange(params.get("day")); else setDatePreset(range); applySkillSelectionFromState(params.get("skills")); const skillFilters = params.get("skillFilters"); if (skillFilters !== null) { const enabled = new Set(skillFilters.split(",").filter(Boolean)); Object.keys(appState.filters.skillSubs).forEach((key) => { appState.filters.skillSubs[key] = enabled.has(key); }); } if (params.get("clue")) appState.clues.selectedType = params.get("clue"); if (params.get("clueMode")) appState.clues.mode = params.get("clueMode"); const questFilters = params.get("questFilters"); if (questFilters !== null) { const enabled = new Set(questFilters.split(",").filter(Boolean)); Object.keys(appState.filters.questSubs).forEach((key) => { appState.filters.questSubs[key] = enabled.has(key); }); } if (params.get("boss")) appState.combat.selectedBoss = params.get("boss"); if (params.get("slayer")) appState.combat.selectedSlayer = params.get("slayer"); appState.flags.suppressUrlStateUpdate = false; render(); }
+      function resetAllFilters() { appState.flags.suppressUrlStateUpdate = true; appState.ui.activeFilter = "all"; appState.ui.currentPage = 0; const search = document.getElementById("search"); if (search) search.value = ""; appState.filters.selectedSkills.clear(); appState.filters.skillSubs = { xp: true, level: true, pet: true, total: true, m200: true }; appState.filters.clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true }; appState.filters.questSubs = { milestone: true, completion: true }; appState.clues.selectedType = "easy"; appState.clues.mode = "loot"; appState.clues.selectedLootItem = null; appState.combat.bossLoot = null; appState.combat.slayerLoot = null; appState.combat.bossKillcount = false; appState.combat.slayerKillcount = false; appState.flags.suppressUrlStateUpdate = false; setDatePreset("all"); }
       function syncDebugIndividualEntryState() {
         document.body.classList.toggle(
           "debug-individual-entries",
-          debugIndividualEntriesEnabled,
+          appState.flags.debugIndividualEntriesEnabled,
         );
         const btn = document.getElementById("debug-individual-entries-btn");
         if (btn) {
-          btn.classList.toggle("active", debugIndividualEntriesEnabled);
+          btn.classList.toggle("active", appState.flags.debugIndividualEntriesEnabled);
           btn.setAttribute(
             "aria-pressed",
-            debugIndividualEntriesEnabled ? "true" : "false",
+            appState.flags.debugIndividualEntriesEnabled ? "true" : "false",
           );
-          btn.title = debugIndividualEntriesEnabled
+          btn.title = appState.flags.debugIndividualEntriesEnabled
             ? "Hide row-level debug buttons"
             : "Show row-level debug buttons in normal log views";
         }
@@ -3504,14 +3974,14 @@
 
       function toggleDebugIndividualEntries() {
         // Row-level debug buttons are intentionally opt-in so normal log lists stay clean.
-        debugIndividualEntriesEnabled = !debugIndividualEntriesEnabled;
+        appState.flags.debugIndividualEntriesEnabled = !appState.flags.debugIndividualEntriesEnabled;
         syncDebugIndividualEntryState();
       }
 
       function toggleDebugMode() {
-        debugMode = !debugMode;
-        if (!activeParserWarningType && parserWarnings.length) {
-          activeParserWarningType = parserWarnings[0].type;
+        appState.flags.debugMode = !appState.flags.debugMode;
+        if (!appState.data.activeParserWarningType && appState.data.parserWarnings.length) {
+          appState.data.activeParserWarningType = appState.data.parserWarnings[0].type;
         }
         render();
       }
@@ -3520,10 +3990,10 @@
         const pane = document.getElementById("debug-pane");
         const toggle = document.getElementById("debug-toggle");
         if (!pane) return;
-        pane.classList.toggle("hidden", !debugMode);
-        if (toggle) toggle.classList.toggle("active", debugMode);
+        pane.classList.toggle("hidden", !appState.flags.debugMode);
+        if (toggle) toggle.classList.toggle("active", appState.flags.debugMode);
         syncDebugIndividualEntryState();
-        if (!debugMode) return;
+        if (!appState.flags.debugMode) return;
         renderDataHealth();
         renderUnclassifiedPanel();
         renderParserRulesPanel();
@@ -3533,24 +4003,24 @@
       function renderDataHealth() {
         const panel = document.getElementById("data-health-panel");
         if (!panel) return;
-        if (!dataHealth) {
+        if (!appState.data.dataHealth) {
           panel.innerHTML =
             '<div class="health-chip"><span class="health-label">Loaded</span><span class="health-value">No data yet</span></div>';
           return;
         }
         const healthItems = [
-          ["Loaded", dataHealth.loadedRows.toLocaleString() + " entries"],
-          ["Source", dataHealth.sourceRows.toLocaleString() + " rows"],
+          ["Loaded", appState.data.dataHealth.loadedRows.toLocaleString() + " entries"],
+          ["Source", appState.data.dataHealth.sourceRows.toLocaleString() + " rows"],
           [
             "Latest",
-            dataHealth.latestTs ? formatShortDate(dataHealth.latestTs) : "—",
+            appState.data.dataHealth.latestTs ? formatShortDate(appState.data.dataHealth.latestTs) : "—",
           ],
           [
             "Oldest",
-            dataHealth.oldestTs ? formatShortDate(dataHealth.oldestTs) : "—",
+            appState.data.dataHealth.oldestTs ? formatShortDate(appState.data.dataHealth.oldestTs) : "—",
           ],
-          ["Warnings", parserWarnings.length.toLocaleString()],
-          ["Unclassified", dataHealth.unclassified.toLocaleString()],
+          ["Warnings", appState.data.parserWarnings.length.toLocaleString()],
+          ["Unclassified", appState.data.dataHealth.unclassified.toLocaleString()],
         ];
         panel.innerHTML = healthItems
           .map(
@@ -3579,7 +4049,7 @@
           "skill-like": 0,
           other: 0,
         };
-        parsed.forEach((entry) => {
+        appState.data.entries.forEach((entry) => {
           const hint = getUnclassifiedHint(entry);
           if (hint) counts[hint] = (counts[hint] || 0) + 1;
         });
@@ -3589,7 +4059,7 @@
       function renderUnclassifiedPanel() {
         const panel = document.getElementById("unclassified-panel");
         if (!panel) return;
-        const counts = unclassifiedBreakdown || buildUnclassifiedBreakdown();
+        const counts = appState.data.unclassifiedBreakdown || buildUnclassifiedBreakdown();
         const hintMeta = [
           ["combat-like", "Combat-like"],
           ["quest-like", "Quest-like"],
@@ -3624,7 +4094,7 @@
 
       function groupParserWarnings() {
         const groups = new Map();
-        parserWarnings.forEach((warning) => {
+        appState.data.parserWarnings.forEach((warning) => {
           if (!groups.has(warning.type)) groups.set(warning.type, []);
           groups.get(warning.type).push(warning);
         });
@@ -3640,24 +4110,24 @@
           return;
         }
         if (
-          !activeParserWarningType ||
-          !groups.some(([type]) => type === activeParserWarningType)
+          !appState.data.activeParserWarningType ||
+          !groups.some(([type]) => type === appState.data.activeParserWarningType)
         ) {
-          activeParserWarningType = groups[0][0];
+          appState.data.activeParserWarningType = groups[0][0];
         }
 
         // Render the selected warning group's details directly beneath its row.
         // This keeps the drilldown visually attached to the group being inspected.
         panel.innerHTML = groups
           .map(([type, warnings]) => {
-            const active = type === activeParserWarningType;
+            const active = type === appState.data.activeParserWarningType;
             const def = getParserWarningDefinition(type);
             const summary =
               '<button class="parser-summary-row' +
               (active ? " active" : "") +
               '" data-type="' +
               escapeHtml(type) +
-              '" onclick="toggleParserWarningGroup(this.dataset.type)"><span class="parser-summary-main"><span class="parser-summary-type">' +
+              '" data-action="toggle-parser-warning-group"><span class="parser-summary-main"><span class="parser-summary-type">' +
               escapeHtml(def.label) +
               '</span><span class="parser-summary-desc">' +
               escapeHtml(def.description) +
@@ -3666,9 +4136,7 @@
               "</span></button>";
             if (!active) return summary;
             const exportRow =
-              '<div class="parser-warning-row"><button class="debug-action-btn" onclick="exportParserWarningGroup(\'' +
-              escapeHtml(type) +
-              '\')">Export this group</button></div>';
+              `<div class="parser-warning-row"><button class="debug-action-btn" data-action="export-parser-warning-group" data-warning-type="${escapeHtml(type)}" type="button">Export this group</button></div>`;
             const detailHtml = warnings
               .slice(0, 250)
               .map(
@@ -3699,7 +4167,7 @@
       }
 
       function toggleParserWarningGroup(type) {
-        activeParserWarningType = type;
+        appState.data.activeParserWarningType = type;
         renderParserPanel();
       }
 
@@ -3724,7 +4192,7 @@
 
       function getCombatAuditRows(monster) {
         if (!monster) return [];
-        return parsed
+        return appState.data.entries
           .filter((entry) => entry.super === "combat" && entry.monster === monster)
           .sort((a, b) => new Date(b.ts) - new Date(a.ts));
       }
@@ -3794,12 +4262,12 @@
       }
 
       function debugEntryBySourceIndex(index) {
-        activeDebugEntryIndex = Number(index);
+        appState.debug.activeEntryIndex = Number(index);
         renderEntryDebugDrawer();
       }
 
       function closeEntryDebugDrawer() {
-        activeDebugEntryIndex = null;
+        appState.debug.activeEntryIndex = null;
         renderEntryDebugDrawer();
       }
 
@@ -3808,7 +4276,7 @@
         const backdrop = document.getElementById("entry-debug-backdrop");
         const body = document.getElementById("entry-debug-drawer-body");
         if (!drawer || !backdrop || !body) return;
-        const entry = parsed.find((item) => item.sourceIndex === activeDebugEntryIndex);
+        const entry = appState.data.entries.find((item) => item.sourceIndex === appState.debug.activeEntryIndex);
         const open = Boolean(entry);
         drawer.classList.toggle("hidden", !open);
         backdrop.classList.toggle("hidden", !open);
@@ -3817,7 +4285,7 @@
 
       function renderEntryDebugDrawerContent(entry) {
         const summary = getEntryDebugSummary(entry);
-        const relatedWarnings = parserWarnings.filter(
+        const relatedWarnings = appState.data.parserWarnings.filter(
           (warning) => warning.ts === entry.ts && warning.title === entry.title && warning.details === entry.details,
         );
         return `
@@ -3855,8 +4323,8 @@
       }
 
       function renderActiveDebugEntry() {
-        if (activeDebugEntryIndex === null || Number.isNaN(activeDebugEntryIndex)) return "";
-        const entry = parsed.find((item) => item.sourceIndex === activeDebugEntryIndex);
+        if (appState.debug.activeEntryIndex === null || Number.isNaN(appState.debug.activeEntryIndex)) return "";
+        const entry = appState.data.entries.find((item) => item.sourceIndex === appState.debug.activeEntryIndex);
         if (!entry) return "";
         const summary = getEntryDebugSummary(entry);
         return `
@@ -3897,13 +4365,13 @@
           });
         }
         const duplicateDropKeys = new Map();
-        parsed.forEach((entry) => {
+        appState.data.entries.forEach((entry) => {
           if (entry.super === "combat" && entry.monster && entry.item) {
             const key = `${entry.ts}|${entry.monster}|${entry.item}`;
             duplicateDropKeys.set(key, (duplicateDropKeys.get(key) || 0) + 1);
           }
         });
-        parsed.forEach((entry) => {
+        appState.data.entries.forEach((entry) => {
           const text = entry.rawText || entry.title + " " + entry.details;
           const stayedMisc = entry.super === "misc";
 
@@ -3972,7 +4440,7 @@
             }
           }
         });
-        parserWarnings = warnings;
+        appState.data.parserWarnings = warnings;
       }
 
       function escapeCsv(value) {
@@ -3982,7 +4450,7 @@
       function getParserWarningsCsv() {
         const rows = [
           ["type", "label", "timestamp", "title", "details", "message"],
-          ...parserWarnings.map((warning) => {
+          ...appState.data.parserWarnings.map((warning) => {
             const def = getParserWarningDefinition(warning.type);
             return [
               warning.type,
@@ -4034,7 +4502,7 @@
       }
 
       function exportParserWarningGroup(type) {
-        const rows = parserWarnings.filter((warning) => warning.type === type);
+        const rows = appState.data.parserWarnings.filter((warning) => warning.type === type);
         if (!rows.length) {
           setDebugActionStatus("No group rows");
           return;
@@ -4058,19 +4526,19 @@
       }
 
       function updateDataHealth() {
-        const dates = parsed
+        const dates = appState.data.entries
           .map((entry) => parseTs(entry.ts))
           .filter(Boolean)
           .sort((a, b) => a - b);
-        unclassifiedBreakdown = buildUnclassifiedBreakdown();
-        dataHealth = {
-          loadedRows: parsed.length,
-          sourceRows: rawCsvLineCount,
+        appState.data.unclassifiedBreakdown = buildUnclassifiedBreakdown();
+        appState.data.dataHealth = {
+          loadedRows: appState.data.entries.length,
+          sourceRows: appState.data.rawCsvLineCount,
           source: lastDataSource.source,
           loadedAt: lastDataSource.loadedAt,
           oldestTs: dates[0] || null,
           latestTs: dates[dates.length - 1] || null,
-          unclassified: parsed.filter((entry) => entry.super === "misc").length,
+          unclassified: appState.data.entries.filter((entry) => entry.super === "misc").length,
         };
         renderDebugPanel();
       }
@@ -4078,63 +4546,31 @@
       // ── Stats Bar ──
       function renderStatsBar(filteredForCount) {
         // Stats always count across all categories for the current date window
-        const base = parsed.filter((e) => {
-          if (!dateFrom && !dateTo) return true;
+        const base = appState.data.entries.filter((e) => {
+          if (!appState.ui.dateFrom && !appState.ui.dateTo) return true;
           const d = parseTs(e.ts);
           if (!d) return false;
-          if (dateFrom && d < dateFrom) return false;
-          if (dateTo && d > dateTo) return false;
+          if (appState.ui.dateFrom && d < appState.ui.dateFrom) return false;
+          if (appState.ui.dateTo && d > appState.ui.dateTo) return false;
           return true;
         });
         const cnt = (cat) => base.filter((e) => e.super === cat).length;
-        const items = [
-          {
-            id: "all",
-            label: "All",
-            color: "var(--color-all)",
-            count: base.length,
-          },
-          {
-            id: "skills",
-            label: "Skills",
-            color: "var(--color-skill)",
-            count: cnt("skills"),
-          },
-          {
-            id: "combat",
-            label: "Combat",
-            color: "var(--color-combat)",
-            count: cnt("combat"),
-          },
-          {
-            id: "clues",
-            label: "Clues",
-            color: "var(--color-clue)",
-            count: cnt("clues"),
-          },
-          {
-            id: "quests",
-            label: "Quests",
-            color: "var(--color-quest)",
-            count: cnt("quests"),
-          },
-          {
-            id: "misc",
-            label: "Misc",
-            color: "var(--color-misc)",
-            count: cnt("misc"),
-          },
-        ];
+        const items = CATEGORY_ORDER.map((id) => {
+          const config = CATEGORY_CONFIG[id];
+          return {
+            ...config,
+            count: id === "all" ? base.length : cnt(id),
+          };
+        });
         document.getElementById("stats-bar").innerHTML = items
-          .map(
-            (it) => `
-        <div class="stat-chip ${activeFilter === it.id ? "active" : ""}"
-             style="--chip-color:${it.color}"
-             onclick="setFilter('${it.id}')">
-            <span class="stat-num">${it.count.toLocaleString()}</span>
-            <span class="stat-label">${it.label}</span>
-        </div>`,
-          )
+          .map((it) => renderActionElement({
+            tag: "div",
+            className: `stat-chip ${appState.ui.activeFilter === it.id ? "active" : ""}`,
+            action: "set-filter",
+            dataset: { filter: it.id },
+            attrs: { role: "button", tabindex: "0", style: `--chip-color:${it.color}` },
+            html: `<span class="stat-num">${it.count.toLocaleString()}</span><span class="stat-label">${escapeHtml(it.label)}</span>`,
+          }))
           .join("");
       }
 
@@ -4170,12 +4606,12 @@
         // The range buttons only decide which tiles are allowed to receive color;
         // out-of-range days remain visible as empty/base cells instead of disappearing.
         const counts = {};
-        for (const e of parsed) {
+        for (const e of appState.data.entries) {
           if (cat && cat !== "all" && e.super !== cat) continue;
           const d = parseTs(e.ts);
           if (!d) continue;
-          if (dateFrom && d < dateFrom) continue;
-          if (dateTo && d > dateTo) continue;
+          if (appState.ui.dateFrom && d < appState.ui.dateFrom) continue;
+          if (appState.ui.dateTo && d > appState.ui.dateTo) continue;
           const key = d.toISOString().slice(0, 10);
           counts[key] = (counts[key] || 0) + 1;
         }
@@ -4283,6 +4719,96 @@
           `${catLabel}Activity Heatmap`;
       }
 
+      // ── Delegated UI actions ─────────────────────────────────────────
+      // Rendered controls use data-action attributes instead of inline onclick
+      // handlers. This keeps markup reusable and routes behavior through one
+      // auditable action map.
+      const ACTIONS = {
+        "toggle-theme": () => toggleDarkMode(),
+        "toggle-debug": () => toggleDebugMode(),
+        "refresh-data": () => refreshData(),
+        "set-date-preset": (el) => setDatePreset(el.dataset.p || "all"),
+        "toggle-debug-individual-entries": () => toggleDebugIndividualEntries(),
+        "copy-parser-warnings": () => copyParserWarnings(),
+        "export-parser-warnings": () => exportParserWarnings(),
+        "clear-skill-selection": () => clearSkillSelection(),
+        "reset-xp-chart": () => resetXpChart(),
+        "close-entry-debug": () => closeEntryDebugDrawer(),
+        "export-visible-entries": () => exportVisibleEntries(),
+        "toggle-parser-warning-group": (el) => toggleParserWarningGroup(el.dataset.type || el.dataset.warningType),
+        "export-parser-warning-group": (el) => exportParserWarningGroup(el.dataset.warningType),
+        "set-filter": (el) => setFilter(el.dataset.filter),
+        "toggle-sub-filter": (el) => toggleSubFilter(el.dataset.category, el.dataset.subfilter),
+        "entry-debug": (el) => debugEntryBySourceIndex(el.dataset.sourceIndex),
+        "select-clue-type": (el) => selectClueType(el.dataset.clueType),
+        "select-clue-completions": (el) => selectClueCompletions(el.dataset.clueType),
+        "clue-loot-back": () => clueLootBack(),
+        "select-clue-loot-item": (el) => selectClueLootItem(el.dataset.item),
+        "load-more": () => loadMore(),
+        "select-monster": (el) => selectMonster(el.dataset.monsterType, el.dataset.monster),
+        "select-monster-killcount": (el) => selectMonsterKillcount(el.dataset.monsterType, el.dataset.monster),
+        "toggle-killcount-drill": (el) => toggleKillcountDrill(el.dataset.monsterType),
+        "toggle-loot-drilldown": (el) => toggleLootDrilldown(el.dataset.monsterType, el.dataset.item || null),
+        "toggle-skill-group": (el) => toggleSkillGroup(el.dataset.skillGroup),
+        "toggle-skill": (el) => toggleSkill(el.dataset.skill),
+      };
+
+      function selectMonsterKillcount(type, monster) {
+        if (type === "boss") {
+          appState.combat.selectedBoss = monster;
+          appState.combat.bossLoot = null;
+          appState.combat.bossKillcount = true;
+        } else {
+          appState.combat.selectedSlayer = monster;
+          appState.combat.slayerLoot = null;
+          appState.combat.slayerKillcount = true;
+        }
+        render();
+      }
+
+      function handleAppClick(event) {
+        const target = event.target.closest("[data-action]");
+        if (!target) return;
+        const action = target.dataset.action;
+        const handler = ACTIONS[action];
+        if (!handler) return;
+        if (target.dataset.stopPropagation === "true") event.stopPropagation();
+        if (target.tagName !== "LABEL") event.preventDefault();
+        handler(target, event);
+      }
+
+      function handleAppChange(event) {
+        const target = event.target;
+        if (target.id === "csv-file") {
+          handleFileUpload(event);
+          return;
+        }
+        if (target.dataset.action === "select-monster-more" && target.value) {
+          selectMonster(target.dataset.monsterType, target.value);
+          return;
+        }
+        if (target.dataset.action === "set-skill-filter" && target.value) {
+          setSkillFilter(target.value);
+        }
+      }
+
+      function handleAppInput(event) {
+        if (event.target.id === "search") debouncedSearchRender();
+      }
+
+      function handleActionKeydown(event) {
+        const target = event.target.closest("[data-action]");
+        if (!target || (event.key !== "Enter" && event.key !== " ")) return;
+        if (["BUTTON", "INPUT", "SELECT", "TEXTAREA", "LABEL"].includes(target.tagName)) return;
+        event.preventDefault();
+        target.click();
+      }
+
+      document.addEventListener("click", handleAppClick);
+      document.addEventListener("change", handleAppChange);
+      document.addEventListener("input", handleAppInput);
+      document.addEventListener("keydown", handleActionKeydown);
+
       // ── Keyboard shortcuts ──
       document.addEventListener("keydown", (e) => {
         if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT")
@@ -4297,7 +4823,7 @@
         };
         if (map[e.key]) setFilter(map[e.key]);
         if (e.key === "Escape") {
-          if (activeDebugEntryIndex !== null) {
+          if (appState.debug.activeEntryIndex !== null) {
             closeEntryDebugDrawer();
             return;
           }
@@ -4464,9 +4990,9 @@
       }
       function processData(csvText, sourceLabel = "CSV", sourceNote = "", sourceOptions = {}) {
         const lines = csvText.split(/\r?\n/).slice(1); // skip header row
-        rawCsvLineCount = lines.filter((line) => line.trim()).length;
+        appState.data.rawCsvLineCount = lines.filter((line) => line.trim()).length;
         let malformedLineCount = 0;
-        parsed = lines
+        appState.data.entries = lines
           .map((line, sourceIndex) => {
             const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
             if (parts.length < 3) { malformedLineCount++; return null; }
@@ -4710,7 +5236,7 @@
         rebuildParsedIndexes();
         setDataSourceState(
           sourceLabel,
-          rawCsvLineCount,
+          appState.data.rawCsvLineCount,
           sourceNote || (malformedLineCount ? malformedLineCount + " skipped rows" : "Loaded successfully"),
           sourceOptions,
         );
@@ -4720,22 +5246,22 @@
 
         // Default combat selections should start on monsters that actually have loot/drop entries,
         // so the prominent Boss/Slayer panes stay loot-focused rather than jumping to killcount-only logs.
-        selBoss =
-          parsed.find((e) => e.sub === "boss" && e.item)?.monster ||
-          parsed.find((e) => e.sub === "boss")?.monster ||
+        appState.combat.selectedBoss =
+          appState.data.entries.find((e) => e.sub === "boss" && e.item)?.monster ||
+          appState.data.entries.find((e) => e.sub === "boss")?.monster ||
           null;
-        selSlayer =
-          parsed.find((e) => e.sub === "slayer" && e.item)?.monster ||
-          parsed.find((e) => e.sub === "slayer")?.monster ||
+        appState.combat.selectedSlayer =
+          appState.data.entries.find((e) => e.sub === "slayer" && e.item)?.monster ||
+          appState.data.entries.find((e) => e.sub === "slayer")?.monster ||
           null;
         render();
       }
 
       function setFilter(id) {
-        debugMode = false;
-        activeFilter = id;
-        currentPage = 0;
-        selClueLootItem = null; // reset only the drilldown; keep type selections
+        appState.flags.debugMode = false;
+        appState.ui.activeFilter = id;
+        appState.ui.currentPage = 0;
+        appState.clues.selectedLootItem = null; // reset only the drilldown; keep type selections
         document
           .querySelectorAll(".pill")
           .forEach((p) => p.classList.remove("active"));
@@ -4745,79 +5271,167 @@
       }
 
       function selectClueType(type) {
-        selClueType = type;
-        clueViewMode = "loot";
-        selClueLootItem = null;
+        appState.clues.selectedType = type;
+        appState.clues.mode = "loot";
+        appState.clues.selectedLootItem = null;
+        appState.ui.currentPage = 0;
         render();
       }
       function selectClueCompletions(type) {
-        selClueType = type;
-        clueViewMode = "completions";
-        selClueLootItem = null;
+        appState.clues.selectedType = type;
+        appState.clues.mode = "completions";
+        appState.clues.selectedLootItem = null;
+        appState.ui.currentPage = 0;
         render();
       }
       function selectClueLootItem(item) {
-        clueViewMode = "loot";
-        selClueLootItem = item;
+        appState.clues.mode = "loot";
+        appState.clues.selectedLootItem = item;
+        appState.ui.currentPage = 0;
         render();
       }
       function clueLootBack() {
-        selClueLootItem = null;
-        clueViewMode = "loot";
+        appState.clues.selectedLootItem = null;
+        appState.clues.mode = "loot";
+        appState.ui.currentPage = 0;
         render();
       }
 
       function toggleSubFilter(cat, id) {
 
         const obj =
-          cat === "skills" ? skillSubs : cat === "quests" ? questSubs : clueSubs;
+          cat === "skills" ? appState.filters.skillSubs : cat === "quests" ? appState.filters.questSubs : appState.filters.clueSubs;
         obj[id] = !obj[id];
-        currentPage = 0;
+        appState.ui.currentPage = 0;
         render();
       }
 
       function selectMonster(type, name) {
         if (type === "boss") {
-          selBoss = name;
-          selBossLoot = null;
-          selBossKC = false;
+          appState.combat.selectedBoss = name;
+          appState.combat.bossLoot = null;
+          appState.combat.bossKillcount = false;
         } else {
-          selSlayer = name;
-          selSlayerLoot = null;
-          selSlayerKC = false;
+          appState.combat.selectedSlayer = name;
+          appState.combat.slayerLoot = null;
+          appState.combat.slayerKillcount = false;
         }
         render();
       }
 
       function toggleLootDrilldown(type, itemName) {
         if (type === "boss") {
-          selBossLoot = itemName;
-          selBossKC = false;
+          appState.combat.bossLoot = itemName;
+          appState.combat.bossKillcount = false;
         } else {
-          selSlayerLoot = itemName;
-          selSlayerKC = false;
+          appState.combat.slayerLoot = itemName;
+          appState.combat.slayerKillcount = false;
         }
         render();
       }
 
       function toggleKillcountDrill(type) {
         if (type === "boss") {
-          selBossKC = !selBossKC;
-          selBossLoot = null;
+          appState.combat.bossKillcount = !appState.combat.bossKillcount;
+          appState.combat.bossLoot = null;
         } else {
-          selSlayerKC = !selSlayerKC;
-          selSlayerLoot = null;
+          appState.combat.slayerKillcount = !appState.combat.slayerKillcount;
+          appState.combat.slayerLoot = null;
         }
         render();
+      }
+
+      function attrString(attrs = {}) {
+        return Object.entries(attrs)
+          .filter(([, value]) => value !== false && value !== null && value !== undefined)
+          .map(([key, value]) => value === true ? key : `${key}="${escapeHtml(value)}"`)
+          .join(" ");
+      }
+
+      function dataAttrs(dataset = {}) {
+        return attrString(Object.fromEntries(
+          Object.entries(dataset)
+            .filter(([, value]) => value !== null && value !== undefined)
+            .map(([key, value]) => ["data-" + key.replace(/[A-Z]/g, (ch) => "-" + ch.toLowerCase()), value])
+        ));
+      }
+
+      function renderActionElement({
+        tag = "button",
+        className = "",
+        action,
+        dataset = {},
+        attrs = {},
+        html = "",
+      }) {
+        const mergedAttrs = {
+          class: className,
+          "data-action": action,
+          ...attrs,
+        };
+        if (tag === "button" && !mergedAttrs.type) mergedAttrs.type = "button";
+        const attrBits = [attrString(mergedAttrs), dataAttrs(dataset)].filter(Boolean).join(" ");
+        return `<${tag} ${attrBits}>${html}</${tag}>`;
+      }
+
+      function renderPillButton({
+        className = "b-pill",
+        action,
+        dataset = {},
+        label,
+        count = null,
+        active = false,
+        attrs = {},
+        tag = "button",
+      }) {
+        const countHtml = count === null || count === undefined
+          ? ""
+          : `<span class="b-pill-count">${Number(count || 0).toLocaleString()}</span>`;
+        return renderActionElement({
+          tag,
+          className: `${className}${active ? " active" : ""}`,
+          action,
+          dataset,
+          attrs,
+          html: `${escapeHtml(label)}${countHtml}`,
+        });
+      }
+
+      function renderEntryDebugButton(sourceIndex) {
+        return renderActionElement({
+          className: "entry-debug-btn",
+          action: "entry-debug",
+          dataset: { sourceIndex },
+          attrs: { title: "Debug this entry" },
+          html: "𝒊",
+        });
+      }
+
+      function renderEmptyState(message, className = "dual-empty") {
+        return `<div class="${className}">${escapeHtml(message || "No matching entries found.")}</div>`;
       }
 
       function getListPaneTitle() {
         // Generic list panes keep a short, explicit title. Dedicated panes
         // such as Combat, Clues, Quests, and Skills render their own headers.
-        return {
-          all: "All logs",
-          misc: "Misc log",
-        }[activeFilter] || "Log entries";
+        return CATEGORY_CONFIG[appState.ui.activeFilter]?.title || "Log entries";
+      }
+
+      function getLogCountLabel(count) {
+        return `${Number(count || 0).toLocaleString()} ${Number(count || 0) === 1 ? "entry" : "entries"}`;
+      }
+
+      function renderSectionHeaderHtml(options) {
+        const titleHtml = options.pillsHtml
+          ? options.pillsHtml
+          : `<span class="${options.titleClass || "list-pane-title"}">${escapeHtml(options.title || "Log entries")}</span>`;
+
+        return `
+          <div class="list-header-pills ${options.contextClass || ""}"
+               style="${options.contextStyle || ""}">${titleHtml}</div>
+          <div class="list-header-right">
+            <span class="entry-count">${getLogCountLabel(options.count)}</span>
+          </div>`;
       }
 
       function renderListHeader(filtered, countBase = filtered) {
@@ -4825,29 +5439,29 @@
         if (!header) return;
 
         let pillsHtml = "";
-        if (activeFilter === "skills") {
+        if (appState.ui.activeFilter === "skills") {
           const skillCountBase = countBase.filter(skillEntryMatchesSelection);
           pillsHtml = getSkillFilterOptions()
-            .map(
-              (s) => `
-            <div class="b-pill pill-skill ${skillSubs[s.id] ? "active" : ""}"
-                 onclick="toggleSubFilter('skills','${s.id}')">
-                ${s.label}<span class="b-pill-count">${getSkillSubFilterCount(skillCountBase, s.id).toLocaleString()}</span>
-            </div>`,
-            )
+            .map((s) => renderPillButton({
+              className: "b-pill pill-skill",
+              action: "toggle-sub-filter",
+              dataset: { category: "skills", subfilter: s.id },
+              label: s.label,
+              count: getSkillSubFilterCount(skillCountBase, s.id),
+              active: !!appState.filters.skillSubs[s.id],
+              tag: "span",
+            }))
             .join("");
         }
 
-        const titleHtml = pillsHtml
-          ? pillsHtml
-          : `<span class="list-pane-title">${getListPaneTitle()}</span>`;
-
-        header.innerHTML = `
-          <div class="list-header-pills ${activeFilter === "skills" ? "skill-filter-context" : ""}"
-               style="${activeFilter === "skills" ? getSkillFilterColorStyle() : ""}">${titleHtml}</div>
-          <div class="list-header-right">
-            <span class="entry-count">${filtered.length.toLocaleString()} entries</span>
-          </div>`;
+        header.innerHTML = renderSectionHeaderHtml({
+          title: getListPaneTitle(),
+          titleClass: appState.ui.activeFilter === "all" ? "list-pane-title list-pane-title-plain" : "list-pane-title",
+          pillsHtml,
+          count: filtered.length,
+          contextClass: appState.ui.activeFilter === "skills" ? "skill-filter-context" : "",
+          contextStyle: appState.ui.activeFilter === "skills" ? getSkillFilterColorStyle() : "",
+        });
       }
 
       function escapeHtml(str) {
@@ -4865,27 +5479,27 @@
       }
 
       function getSkillSelectionLabel() {
-        if (selectedSkills.size === 0) return "All Skills";
+        if (appState.filters.selectedSkills.size === 0) return "All Skills";
         const group = Object.keys(SKILL_GROUPS).find((g) =>
           isGroupFullySelected(g),
         );
         if (group) return group;
-        if (selectedSkills.size === 1) return [...selectedSkills][0];
-        return selectedSkills.size + " selected skills";
+        if (appState.filters.selectedSkills.size === 1) return [...appState.filters.selectedSkills][0];
+        return appState.filters.selectedSkills.size + " selected skills";
       }
 
       function getActiveSkillGroupForColor() {
         // Filter bubbles borrow the selected group's color only when the current
         // selection maps cleanly to one group; mixed selections fall back to green.
-        if (selectedSkills.size === 0) return null; // All Skills uses the native green skill color
+        if (appState.filters.selectedSkills.size === 0) return null; // All Skills uses the native green skill color
         const exactGroup = Object.keys(SKILL_GROUPS).find((g) =>
           isGroupFullySelected(g),
         );
         if (exactGroup) return exactGroup;
-        if (selectedSkills.size === 1)
-          return getSkillGroupName([...selectedSkills][0]) || null;
+        if (appState.filters.selectedSkills.size === 1)
+          return getSkillGroupName([...appState.filters.selectedSkills][0]) || null;
         const groups = new Set(
-          [...selectedSkills].map(getSkillGroupName).filter(Boolean),
+          [...appState.filters.selectedSkills].map(getSkillGroupName).filter(Boolean),
         );
         return groups.size === 1 ? [...groups][0] : null;
       }
@@ -4901,8 +5515,8 @@
       }
 
       function skillEntryMatchesSelection(e) {
-        if (selectedSkills.size === 0) return true;
-        return !!e.skill && selectedSkills.has(e.skill);
+        if (appState.filters.selectedSkills.size === 0) return true;
+        return !!e.skill && appState.filters.selectedSkills.has(e.skill);
       }
 
       function is200mXpEntry(e) {
@@ -4933,11 +5547,11 @@
         const q = getCurrentSearchQuery().toLowerCase();
         const searchContent = `${e.title || ""} ${e.details || ""}`.toLowerCase();
         if (q && !searchContent.includes(q)) return false;
-        if (dateFrom || dateTo) {
+        if (appState.ui.dateFrom || appState.ui.dateTo) {
           const d = parseTs(e.ts);
           if (!d) return false;
-          if (dateFrom && d < dateFrom) return false;
-          if (dateTo && d > dateTo) return false;
+          if (appState.ui.dateFrom && d < appState.ui.dateFrom) return false;
+          if (appState.ui.dateTo && d > appState.ui.dateTo) return false;
         }
         return true;
       }
@@ -4948,7 +5562,7 @@
         // for every log in the current search/date context.
         const source = Array.isArray(contextEntries)
           ? contextEntries
-          : parsed.filter((e) => e.super === "skills" && entryMatchesGlobalSearchAndDate(e));
+          : appState.data.entries.filter((e) => e.super === "skills" && entryMatchesGlobalSearchAndDate(e));
         return source.filter((e) => e.skill && SKILLS.includes(e.skill));
       }
 
@@ -5012,13 +5626,13 @@
       function skillEntryMatchesSubFilters(e) {
         // 200m XP entries are split out from normal XP milestones so that the
         // dedicated 200m bubble can be toggled independently.
-        if (is200mXpEntry(e)) return !!skillSubs.m200;
+        if (is200mXpEntry(e)) return !!appState.filters.skillSubs.m200;
 
         // Total-level entries no longer have their own visible filter bubble;
         // keep them included whenever the selected skill/group matches.
         if (e.sub === "total") return true;
 
-        return !!skillSubs[e.sub];
+        return !!appState.filters.skillSubs[e.sub];
       }
 
       function isSkillBigMilestone(e) {
@@ -5026,7 +5640,7 @@
         if (e.sub === "pet") return true;
         if (e.sub === "total") return true;
         if (is200mXpEntry(e)) return true;
-        if (/Master Max cape/i.test(text)) return selectedSkills.size === 0;
+        if (/Master Max cape/i.test(text)) return appState.filters.selectedSkills.size === 0;
         return false;
       }
 
@@ -5073,13 +5687,15 @@
           toolbarEl.innerHTML = `
             <div class="list-header-pills skill-filter-context" style="${getSkillFilterColorStyle()}">
                 ${getSkillFilterOptions()
-                  .map(
-                    (s) => `
-                    <div class="b-pill pill-skill ${skillSubs[s.id] ? "active" : ""}"
-                         onclick="toggleSubFilter('skills','${s.id}')">
-                        ${s.label}<span class="b-pill-count">${getSkillSubFilterCount(selectedBase, s.id).toLocaleString()}</span>
-                    </div>`,
-                  )
+                  .map((s) => renderPillButton({
+                    className: "b-pill pill-skill",
+                    action: "toggle-sub-filter",
+                    dataset: { category: "skills", subfilter: s.id },
+                    label: s.label,
+                    count: getSkillSubFilterCount(selectedBase, s.id),
+                    active: !!appState.filters.skillSubs[s.id],
+                    tag: "span",
+                  }))
                   .join("")}
             </div>`;
         }
@@ -5089,13 +5705,24 @@
             <div class="dual-entry-title">${escapeHtml(e.title)}</div>
             <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
             <div class="dual-entry-ts">${escapeHtml(e.ts)}
-              <button class="entry-debug-btn" onclick="debugEntryBySourceIndex(${e.sourceIndex})" title="Debug this entry">𝒊</button>
+              ${renderEntryDebugButton(e.sourceIndex)}
             </div>
         </div>`;
 
         entryEl.innerHTML = skillEntries.length
           ? sortEntries(skillEntries).map(makeEntry).join("")
           : `<div class="dual-empty">No skill entries found for ${escapeHtml(selectionLabel)}</div>`;
+      }
+
+      function renderPaginatedRows(rows, renderRow, emptyHtml) {
+        const pageEnd = (appState.ui.currentPage + 1) * PAGE_SIZE;
+        const visible = rows.slice(0, pageEnd);
+        const hasMore = rows.length > pageEnd;
+        const bodyHtml = visible.length ? visible.map(renderRow).join("") : emptyHtml;
+        const loadMoreHtml = hasMore
+          ? `<button class="load-more-btn" data-action="load-more" type="button">Load more — showing ${visible.length.toLocaleString()} of ${rows.length.toLocaleString()}</button>`
+          : "";
+        return `<div class="single-panel-flow">${bodyHtml}${loadMoreHtml}</div>`;
       }
 
       function renderQuestPanel(entries) {
@@ -5114,16 +5741,20 @@
             ${questTypes
               .map(
                 (type) => `
-                <div class="b-pill pill-quest ${questSubs[type.id] ? "active" : ""}"
-                     onclick="toggleSubFilter('quests','${type.id}')">
-                    ${type.label}
-                    <span class="b-pill-count">${countByType(type.id)}</span>
-                </div>`,
+                ${renderPillButton({
+                  className: "b-pill pill-quest",
+                  action: "toggle-sub-filter",
+                  dataset: { category: "quests", subfilter: type.id },
+                  label: type.label,
+                  count: countByType(type.id),
+                  active: !!appState.filters.questSubs[type.id],
+                  tag: "span",
+                })}`,
               )
               .join("")}
         </div>`;
 
-        const visibleEntries = entries.filter((e) => questSubs[e.sub]);
+        const visibleEntries = entries.filter((e) => appState.filters.questSubs[e.sub]);
         const sortedEntries = visibleEntries
           .slice()
           .sort((a, b) => new Date(b.ts) - new Date(a.ts));
@@ -5133,21 +5764,25 @@
           entryCount.textContent = `${visibleEntries.length.toLocaleString()} entries`;
 
         const makeEntry = (e) => `
-        <div class="dual-entry log-row">
-            <div class="dual-entry-title">${escapeHtml(e.title)}</div>
-            <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
-            <div class="dual-entry-ts">${escapeHtml(e.ts)}
-              <button class="entry-debug-btn" onclick="debugEntryBySourceIndex(${e.sourceIndex})" title="Debug this entry">𝒊</button>
+        <div class="entry quest-log-entry log-row">
+            <div class="entry-content">
+                <span class="cat-dot" style="background:var(--color-quest)"></span>
+                <div class="entry-text-stack">
+                    <span class="entry-title">${escapeHtml(e.title)}</span>
+                    <span class="entry-details">${escapeHtml(e.details)}</span>
+                </div>
             </div>
+            ${renderEntryDebugButton(e.sourceIndex)}
+            <span class="entry-ts">${escapeHtml(e.ts)}</span>
         </div>`;
 
         document.getElementById("quest-list").innerHTML =
           buttonRow +
-          '<div class="single-panel-scroll">' +
-          (sortedEntries.length
-            ? sortedEntries.map(makeEntry).join("")
-            : '<div class="dual-empty">No quest entries match the selected filters</div>') +
-          "</div>";
+          renderPaginatedRows(
+            sortedEntries,
+            makeEntry,
+            '<div class="dual-empty">No quest entries match the selected filters</div>',
+          );
       }
 
       const CLUE_TYPES = ["easy", "medium", "hard", "elite", "master"];
@@ -5188,22 +5823,27 @@
             ${orderedClueTypes.map((type) => {
               const label = type.charAt(0).toUpperCase() + type.slice(1);
               return `
-                <div class="b-pill pill-clue ${selClueType === type ? "active" : ""}"
-                     onclick="selectClueType('${type}')"
-                     title="Show ${label} notable loot">
-                    ${label}
+                <span class="b-pill pill-clue ${appState.clues.selectedType === type ? "active" : ""}"
+                     data-action="select-clue-type"
+                     data-clue-type="${escapeHtml(type)}"
+                     role="button"
+                     tabindex="0"
+                     title="Show ${escapeHtml(label)} notable loot">
+                    ${escapeHtml(label)}
                     <span class="b-pill-count clue-count-action"
-                          title="Show ${label} completions"
-                          onclick="event.stopPropagation(); selectClueCompletions('${type}')">${completionCount(type).toLocaleString()}</span>
-                </div>`;
+                          title="Show ${escapeHtml(label)} completions"
+                          data-action="select-clue-completions"
+                          data-clue-type="${escapeHtml(type)}"
+                          data-stop-propagation="true">${completionCount(type).toLocaleString()}</span>
+                </span>`;
             }).join("")}
         </div>`;
 
         const selectedLabel =
-          selClueType.charAt(0).toUpperCase() + selClueType.slice(1);
-        if (clueViewMode === "completions") {
+          appState.clues.selectedType.charAt(0).toUpperCase() + appState.clues.selectedType.slice(1);
+        if (appState.clues.mode === "completions") {
           const logs = allEntries
-            .filter((e) => e.sub === selClueType)
+            .filter((e) => e.sub === appState.clues.selectedType)
             .sort((a, b) => new Date(b.ts) - new Date(a.ts));
           if (entryCount)
             entryCount.textContent = `${logs.length.toLocaleString()} ${selectedLabel} completions`;
@@ -5216,44 +5856,43 @@
 
           listEl.innerHTML =
             buttonRow +
-            '<div class="single-panel-scroll">' +
-            (logs.length
-              ? logs.map(makeClueLogEntry).join("")
-              : `<div class="dual-empty">No ${escapeHtml(selectedLabel)} completions found</div>`) +
-            "</div>";
+            renderPaginatedRows(
+              logs,
+              makeClueLogEntry,
+              `<div class="dual-empty">No ${escapeHtml(selectedLabel)} completions found</div>`,
+            );
           return;
         }
 
-        if (selClueLootItem) {
+        if (appState.clues.selectedLootItem) {
           // Item drilldown stays within loot mode and lists every matching drop log.
           const history = lootEntries
-            .filter((e) => e.sub === selClueType && e.item === selClueLootItem)
+            .filter((e) => e.sub === appState.clues.selectedType && e.item === appState.clues.selectedLootItem)
             .sort((a, b) => new Date(b.ts) - new Date(a.ts));
           if (entryCount)
             entryCount.textContent = `${history.length.toLocaleString()} ${selectedLabel} loot entries`;
 
-          listEl.innerHTML =
-            buttonRow +
-            '<div class="single-panel-scroll">' +
-            `<div class="dual-entry dual-drill-header">
-                <span class="dual-drill-back" onclick="clueLootBack()">← Back to ${selectedLabel} loot</span>
-                <span style="color:var(--color-text-dim);font-size:11px;">${escapeHtml(selClueLootItem)}</span>
-             </div>` +
-            history
-              .map(
-                (e) => `
+          const makeHistoryEntry = (e) => `
                 <div class="loot-row log-row">
                     <span class="loot-name">${escapeHtml(e.item)}</span>
                     <span class="loot-ts">${escapeHtml(e.ts)}</span>
-                </div>`,
-              )
-              .join("") +
-            "</div>";
+                </div>`;
+          listEl.innerHTML =
+            buttonRow +
+            `<div class="dual-entry dual-drill-header">
+                <span class="dual-drill-back" data-action="clue-loot-back" role="button" tabindex="0">← Back to ${selectedLabel} loot</span>
+                <span style="color:var(--color-text-dim);font-size:11px;">${escapeHtml(appState.clues.selectedLootItem)}</span>
+             </div>` +
+            renderPaginatedRows(
+              history,
+              makeHistoryEntry,
+              `<div class="dual-empty">No ${escapeHtml(selectedLabel)} loot history found</div>`,
+            );
           return;
         }
 
         // Default Clue view: grouped notable loot for the selected clue tier.
-        const typeLoot = lootEntries.filter((e) => e.sub === selClueType);
+        const typeLoot = lootEntries.filter((e) => e.sub === appState.clues.selectedType);
         const lootMap = {};
         typeLoot.forEach((e) => {
           if (!lootMap[e.item])
@@ -5268,21 +5907,19 @@
         if (entryCount)
           entryCount.textContent = `${grouped.length.toLocaleString()} ${selectedLabel} loot items`;
 
-        listEl.innerHTML =
-          buttonRow +
-          '<div class="single-panel-scroll">' +
-          (grouped.length
-            ? grouped
-                .map(
-                  (g) => `
-                <div class="loot-row ${g.count > 1 ? "clickable" : ""}" ${g.count > 1 ? `onclick="selectClueLootItem('${g.name.replace(/'/g, "\\'")}')"` : ""}>
+        const makeGroupedLootEntry = (g) => `
+                <div class="loot-row ${g.count > 1 ? "clickable" : ""}" ${g.count > 1 ? `data-action="select-clue-loot-item" data-item="${escapeHtml(g.name)}" role="button" tabindex="0"` : ""}>
                     <span class="loot-name">${g.count > 1 ? `<span class="loot-count" style="color:var(--color-clue);">${g.count}x</span>` : ""}${escapeHtml(g.name)}</span>
                     <span class="loot-ts">${g.count > 1 ? "View History" : escapeHtml(g.lastTs)}</span>
-                </div>`,
-                )
-                .join("")
-            : `<div class="dual-empty">No notable loot recorded for ${escapeHtml(selectedLabel)} clues</div>`) +
-          "</div>";
+                </div>`;
+
+        listEl.innerHTML =
+          buttonRow +
+          renderPaginatedRows(
+            grouped,
+            makeGroupedLootEntry,
+            `<div class="dual-empty">No notable loot recorded for ${escapeHtml(selectedLabel)} clues</div>`,
+          );
       }
 
 
@@ -5301,7 +5938,7 @@
 
         // Debug mode is a standalone diagnostics view. It hides the active
         // category pane instead of stacking debug metrics above it.
-        if (debugMode) {
+        if (appState.flags.debugMode) {
           if (skillControls) skillControls.classList.add("hidden");
           if (combatView) combatView.classList.add("hidden");
           if (questView) questView.classList.add("hidden");
@@ -5321,40 +5958,40 @@
         if (statsBar) statsBar.classList.remove("hidden");
         if (heatmapSlot) heatmapSlot.classList.remove("hidden");
 
-        if (skillControls) skillControls.classList.toggle("hidden", activeFilter !== "skills");
-        combatView.classList.toggle("hidden", activeFilter !== "combat");
-        questView.classList.toggle("hidden", activeFilter !== "quests");
-        clueView.classList.toggle("hidden", activeFilter !== "clues");
+        if (skillControls) skillControls.classList.toggle("hidden", appState.ui.activeFilter !== "skills");
+        combatView.classList.toggle("hidden", appState.ui.activeFilter !== "combat");
+        questView.classList.toggle("hidden", appState.ui.activeFilter !== "quests");
+        clueView.classList.toggle("hidden", appState.ui.activeFilter !== "clues");
         if (skillView)
-          skillView.classList.toggle("hidden", activeFilter !== "skills");
+          skillView.classList.toggle("hidden", appState.ui.activeFilter !== "skills");
 
         const showList = !["combat", "quests", "clues", "skills"].includes(
-          activeFilter,
+          appState.ui.activeFilter,
         );
         list.classList.toggle("hidden", !showList);
         if (headerWrap) headerWrap.classList.toggle("hidden", !showList);
 
         // Base filter (category + search + date)
-        let filtered = parsed.filter((e) => {
+        let filtered = appState.data.entries.filter((e) => {
           const searchContent = (e.title + " " + e.details).toLowerCase();
-          if (activeFilter !== "all" && e.super !== activeFilter) return false;
+          if (appState.ui.activeFilter !== "all" && e.super !== appState.ui.activeFilter) return false;
           if (q && !searchContent.includes(q)) return false;
-          if (dateFrom || dateTo) {
+          if (appState.ui.dateFrom || appState.ui.dateTo) {
             const d = parseTs(e.ts);
             if (!d) return false;
-            if (dateFrom && d < dateFrom) return false;
-            if (dateTo && d > dateTo) return false;
+            if (appState.ui.dateFrom && d < appState.ui.dateFrom) return false;
+            if (appState.ui.dateTo && d > appState.ui.dateTo) return false;
           }
           return true;
         });
 
         // Additional sub-filtering only for skills in the list view
         let listFiltered = filtered;
-        if (activeFilter === "skills") {
+        if (appState.ui.activeFilter === "skills") {
           listFiltered = filtered.filter((e) => {
             if (
-              selectedSkills.size > 0 &&
-              (!e.skill || !selectedSkills.has(e.skill))
+              appState.filters.selectedSkills.size > 0 &&
+              (!e.skill || !appState.filters.selectedSkills.has(e.skill))
             )
               return false;
             if (!skillEntryMatchesSubFilters(e)) return false;
@@ -5362,7 +5999,7 @@
           });
         }
 
-        if (activeFilter === "combat") {
+        if (appState.ui.activeFilter === "combat") {
           renderCombatSide(
             "boss",
             filtered.filter((e) => e.sub === "boss"),
@@ -5371,20 +6008,20 @@
             "slayer",
             filtered.filter((e) => e.sub === "slayer"),
           );
-        } else if (activeFilter === "quests") {
+        } else if (appState.ui.activeFilter === "quests") {
           renderQuestPanel(filtered);
-        } else if (activeFilter === "clues") {
-          const clueFiltered = filtered.filter((e) => clueSubs[e.sub]);
+        } else if (appState.ui.activeFilter === "clues") {
+          const clueFiltered = filtered.filter((e) => appState.filters.clueSubs[e.sub]);
           renderCluePanel(clueFiltered);
-        } else if (activeFilter === "skills") {
+        } else if (appState.ui.activeFilter === "skills") {
           buildSkillPicker(filtered);
           renderSkillPanel(filtered);
         } else {
           let display = [...listFiltered];
-          if (sortOrder === "oldest")
+          if (appState.ui.sortOrder === "oldest")
             display.sort((a, b) => new Date(a.ts) - new Date(b.ts));
 
-          const pageEnd = (currentPage + 1) * PAGE_SIZE;
+          const pageEnd = (appState.ui.currentPage + 1) * PAGE_SIZE;
           const visible = display.slice(0, pageEnd);
           const hasMore = display.length > pageEnd;
 
@@ -5400,13 +6037,13 @@
                         <span class="entry-details">${escapeHtml(e.details)}</span>
                     </div>
                 </div>
-                <button class="entry-debug-btn" onclick="debugEntryBySourceIndex(${e.sourceIndex})" title="Debug this entry">𝒊</button>
+                ${renderEntryDebugButton(e.sourceIndex)}
                 <span class="entry-ts">${escapeHtml(e.ts)}</span>
             </div>`,
               )
               .join("") +
             (hasMore
-              ? `<button class="load-more-btn" onclick="loadMore()">Load more — showing ${visible.length.toLocaleString()} of ${display.length.toLocaleString()}</button>`
+              ? `<button class="load-more-btn" data-action="load-more" type="button">Load more — showing ${visible.length.toLocaleString()} of ${display.length.toLocaleString()}</button>`
               : "");
 
           renderListHeader(listFiltered, filtered);
@@ -5416,14 +6053,14 @@
           "Saulalog " + APP_VERSION + " · Shortcuts: 1 All · 2 Skills · 3 Combat · 4 Clues · 5 Quests · 6 Misc · Esc clears search";
         renderStatsBar(filtered);
         renderUploadMeta();
-        renderHeatmap(activeFilter);
+        renderHeatmap(appState.ui.activeFilter);
         renderDebugPanel();
-        if (activeFilter === "skills") updateXpChart();
+        if (appState.ui.activeFilter === "skills") updateXpChart();
         updateUrlState();
       }
 
       function loadMore() {
-        currentPage++;
+        appState.ui.currentPage++;
         render();
       }
 
@@ -5449,9 +6086,9 @@
           (a, b) => lootLastSeen[b] - lootLastSeen[a],
         );
         const top5 = names.slice(0, 5);
-        const currentMonster = type === "boss" ? selBoss : selSlayer;
-        const currentDrill = type === "boss" ? selBossLoot : selSlayerLoot;
-        const kcDrill = type === "boss" ? selBossKC : selSlayerKC;
+        const currentMonster = type === "boss" ? appState.combat.selectedBoss : appState.combat.selectedSlayer;
+        const currentDrill = type === "boss" ? appState.combat.bossLoot : appState.combat.slayerLoot;
+        const kcDrill = type === "boss" ? appState.combat.bossKillcount : appState.combat.slayerKillcount;
 
         // Render pills with embedded kill-count badge (matches clue button-count aesthetic).
         // The badge itself is clickable to drill into the kill-log; clicking elsewhere on the
@@ -5463,9 +6100,9 @@
             const isSelected = currentMonster === n;
             const badge =
               kc > 0
-                ? `<span class="b-pill-count kc-clickable" title="View kill log" onclick="event.stopPropagation(); selectMonster('${type}', '${safeName}'); toggleKillcountDrill('${type}')">${kc.toLocaleString()}</span>`
+                ? `<span class="b-pill-count kc-clickable" title="View kill log" data-action="select-monster-killcount" data-stop-propagation="true" data-monster-type="${escapeHtml(type)}" data-monster="${escapeHtml(n)}">${kc.toLocaleString()}</span>`
                 : "";
-            return `<div class="b-pill pill-combat ${isSelected ? "active" : ""}" onclick="selectMonster('${type}', '${safeName}')">${n}${badge}</div>`;
+            return `<span class="b-pill pill-combat ${isSelected ? "active" : ""}" data-action="select-monster" data-monster-type="${escapeHtml(type)}" data-monster="${escapeHtml(n)}" role="button" tabindex="0">${escapeHtml(n)}${badge}</span>`;
           })
           .join("");
 
@@ -5501,7 +6138,7 @@
             .sort((a, b) => new Date(b.ts) - new Date(a.ts));
           lootListEl.innerHTML = `
             <div class="kc-disclaimer">Approximate values pulled from loaded log entries...</div>
-            <div class="loot-row log-row clickable back-btn" onclick="toggleKillcountDrill('${type}')">← Back to ${currentMonster}</div>
+            <div class="loot-row log-row clickable back-btn" data-action="toggle-killcount-drill" data-monster-type="${escapeHtml(type)}" role="button" tabindex="0">← Back to ${escapeHtml(currentMonster)}</div>
             ${
               sorted.length
                 ? sorted
@@ -5523,7 +6160,7 @@
             .filter((h) => h.item === currentDrill)
             .sort((a, b) => new Date(b.ts) - new Date(a.ts));
           lootListEl.innerHTML = `
-            <div class="loot-row log-row clickable back-btn" onclick="toggleLootDrilldown('${type}', null)">← Back to ${currentMonster}</div>
+            <div class="loot-row log-row clickable back-btn" data-action="toggle-loot-drilldown" data-monster-type="${escapeHtml(type)}" role="button" tabindex="0">← Back to ${escapeHtml(currentMonster)}</div>
             ${itemHistory.map((h) => `<div class="loot-row log-row"><span class="loot-name">${h.title}</span><span class="loot-ts">${h.ts}</span></div>`).join("")}`;
           return;
         }
@@ -5552,7 +6189,7 @@
         lootListEl.innerHTML = sortedDrops
           .map(
             (g) => `
-        <div class="loot-row log-row clickable" onclick="toggleLootDrilldown('${type}', '${g.name.replace(/'/g, "\\'")}')">
+        <div class="loot-row log-row clickable" data-action="toggle-loot-drilldown" data-monster-type="${escapeHtml(type)}" data-item="${escapeHtml(g.name)}" role="button" tabindex="0">
             <span class="loot-name"><span class="loot-count">${g.count}x</span>${g.name}</span>
             <span class="loot-ts">${g.count > 1 ? "View History" : g.lastTs}</span>
         </div>`,
@@ -5561,33 +6198,24 @@
       }
 
       function getColor(cat) {
-        return {
-          skills: "var(--color-skill)",
-          combat: "var(--color-combat)",
-          quests: "var(--color-quest)",
-          clues: "var(--color-clue)",
-          misc: "var(--color-misc)",
-        }[cat];
+        return CATEGORY_CONFIG[cat]?.color || "var(--color-misc)";
       }
 
-      const CATS = [
-        { id: "all", label: "All", color: "var(--color-all)" },
-        { id: "skills", label: "Skills", color: "var(--color-skill)" },
-        { id: "combat", label: "Combat", color: "var(--color-combat)" },
-        { id: "clues", label: "Clues", color: "var(--color-clue)" },
-        { id: "quests", label: "Quests", color: "var(--color-quest)" },
-        { id: "misc", label: "Misc", color: "var(--color-misc)" },
-      ];
-      document.getElementById("pills").innerHTML = CATS.map(
-        (c) => `
-    <span class="pill" id="pill-${c.id}" onclick="setFilter('${c.id}')" style="color:${c.color}">
-        <span class="dot" style="background:${c.color}"></span>${c.label}
-    </span>`,
-      ).join("");
+      document.getElementById("pills").innerHTML = CATEGORY_ORDER.map((id) => {
+        const c = CATEGORY_CONFIG[id];
+        return renderActionElement({
+          tag: "span",
+          className: "pill",
+          action: "set-filter",
+          dataset: { filter: c.id },
+          attrs: { id: `pill-${c.id}`, role: "button", tabindex: "0", style: `color:${c.color}` },
+          html: `<span class="dot" style="background:${c.color}"></span>${escapeHtml(c.label)}`,
+        });
+      }).join("");
 
       // Build skill picker buttons (grouped-only, group headers are clickable)
       function isSkillSelected(skill) {
-        return selectedSkills.size === 0 || selectedSkills.has(skill);
+        return appState.filters.selectedSkills.size === 0 || appState.filters.selectedSkills.has(skill);
       }
 
       function isGroupFullySelected(groupName) {
@@ -5595,15 +6223,15 @@
           SKILLS.includes(s),
         );
         if (!groupSkills.length) return false;
-        if (selectedSkills.size === 0) return false; // "all" mode is not equivalent to a group selection
-        return groupSkills.every((s) => selectedSkills.has(s));
+        if (appState.filters.selectedSkills.size === 0) return false; // "all" mode is not equivalent to a group selection
+        return groupSkills.every((s) => appState.filters.selectedSkills.has(s));
       }
 
       function getEffectiveSkillSet() {
         // Returns the skills currently active for the chart. Empty Set → all SKILLS.
-        return selectedSkills.size === 0
+        return appState.filters.selectedSkills.size === 0
           ? new Set(SKILLS)
-          : new Set(selectedSkills);
+          : new Set(appState.filters.selectedSkills);
       }
 
       function getSkillGroupName(skill) {
@@ -5625,34 +6253,34 @@
         );
 
         top.innerHTML = `
-        <button class="skill-all-btn ${selectedSkills.size === 0 ? "active" : ""}" id="skill-btn-all" onclick="clearSkillSelection()">
+        <button class="skill-all-btn ${appState.filters.selectedSkills.size === 0 ? "active" : ""}" id="skill-btn-all" data-action="clear-skill-selection" type="button">
             All Skills<span class="b-pill-count">${allSkillLogCount.toLocaleString()}</span>
         </button>
         ${Object.entries(SKILL_GROUPS)
           .map(([groupName]) => {
             const active = isGroupFullySelected(groupName);
             const count = getSkillGroupEntryCount(summary, groupName);
-            return `<div class="b-pill skill-group-pill ${active ? "active" : ""}" data-group="${groupName}" onclick="toggleSkillGroup('${groupName}')">
-                ${groupName}<span class="b-pill-count">${count.toLocaleString()}</span>
-            </div>`;
+            return `<span class="b-pill skill-group-pill ${active ? "active" : ""}" data-group="${escapeHtml(groupName)}" data-action="toggle-skill-group" data-skill-group="${escapeHtml(groupName)}" role="button" tabindex="0">
+                ${escapeHtml(groupName)}<span class="b-pill-count">${count.toLocaleString()}</span>
+            </span>`;
           })
           .join("")}`;
 
         const skillButton = ({ skill, groupName, count }) => {
-          const active = selectedSkills.size === 0 || selectedSkills.has(skill);
-          return `<button class="sk-btn ${active ? "active" : ""}" data-group="${groupName}" title="${groupName}" onclick="toggleSkill('${skill}')">
-                ${skill}<span class="b-pill-count">${count.toLocaleString()}</span>
+          const active = appState.filters.selectedSkills.size === 0 || appState.filters.selectedSkills.has(skill);
+          return `<button class="sk-btn ${active ? "active" : ""}" data-group="${escapeHtml(groupName)}" title="${escapeHtml(groupName)}" data-action="toggle-skill" data-skill="${escapeHtml(skill)}" type="button">
+                ${escapeHtml(skill)}<span class="b-pill-count">${count.toLocaleString()}</span>
             </button>`;
         };
 
         const moreSelect = otherSkills.length
           ? `<div class="skill-more-wrap">
-                <select id="skill-more" onchange="if (this.value) setSkillFilter(this.value)">
+                <select id="skill-more" data-action="set-skill-filter">
                     <option value="">More skills...</option>
                     ${otherSkills
                       .map(
                         ({ skill, count }) =>
-                          `<option value="${skill}" ${selectedSkills.size === 1 && selectedSkills.has(skill) ? "selected" : ""}>${skill} (${count.toLocaleString()})</option>`,
+                          `<option value="${skill}" ${appState.filters.selectedSkills.size === 1 && appState.filters.selectedSkills.has(skill) ? "selected" : ""}>${skill} (${count.toLocaleString()})</option>`,
                       )
                       .join("")}
                 </select>
@@ -5666,8 +6294,8 @@
       }
 
       function toggleSkill(skill) {
-        if (selectedSkills.has(skill)) selectedSkills.delete(skill);
-        else selectedSkills.add(skill);
+        if (appState.filters.selectedSkills.has(skill)) appState.filters.selectedSkills.delete(skill);
+        else appState.filters.selectedSkills.add(skill);
         buildSkillPicker();
         if (xpChart) {
           xpChart.destroy();
@@ -5681,9 +6309,9 @@
           SKILLS.includes(s),
         );
         if (isGroupFullySelected(groupName)) {
-          selectedSkills.clear(); // clicking the active group returns to All Skills
+          appState.filters.selectedSkills.clear(); // clicking the active group returns to All Skills
         } else {
-          selectedSkills = new Set(groupSkills); // group behaves like a clean filter, not an additive toggle
+          appState.filters.selectedSkills = new Set(groupSkills); // group behaves like a clean filter, not an additive toggle
         }
         buildSkillPicker();
         if (xpChart) {
@@ -5694,7 +6322,7 @@
       }
 
       function clearSkillSelection() {
-        selectedSkills.clear();
+        appState.filters.selectedSkills.clear();
         buildSkillPicker();
         if (xpChart) {
           xpChart.destroy();
@@ -5704,7 +6332,7 @@
       }
 
       function setGroupChartMode(mode) {
-        groupChartMode = "stacked";
+        appState.ui.groupChartMode = "stacked";
         if (xpChart) {
           xpChart.destroy();
           xpChart = null;
@@ -5715,7 +6343,7 @@
       // Backward-compat shim — anything that still calls setSkillFilter routes through clear/toggle
       function setSkillFilter(skill) {
         if (skill === "all") return clearSkillSelection();
-        selectedSkills = new Set([skill]);
+        appState.filters.selectedSkills = new Set([skill]);
         buildSkillPicker();
         if (xpChart) {
           xpChart.destroy();
@@ -5773,7 +6401,7 @@
 
       // Returns pet entries for a skill
       function getPetEntries(skill) {
-        return parsed
+        return appState.data.entries
           .filter(
             (e) => e.super === "skills" && e.sub === "pet" && e.skill === skill,
           )
@@ -5814,7 +6442,7 @@
           if (last.y >= XP_CAP) {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-            const cap = dateTo && dateTo < today ? dateTo : today;
+            const cap = appState.ui.dateTo && appState.ui.dateTo < today ? appState.ui.dateTo : today;
             if (cap > last.x) {
               xpPoints.push({
                 x: cap,
@@ -5890,7 +6518,7 @@
           .trim();
 
         // All XP milestone entries sorted oldest first
-        const allXpEntries = parsed
+        const allXpEntries = appState.data.entries
           .filter((e) => e.super === "skills" && e.sub === "xp")
           .map((e) => ({
             ...e,
@@ -5899,14 +6527,14 @@
           }))
           .filter((e) => e.xp !== null && e.date !== null)
           .filter((e) => {
-            if (dateFrom && e.date < dateFrom) return false;
-            if (dateTo && e.date > dateTo) return false;
+            if (appState.ui.dateFrom && e.date < appState.ui.dateFrom) return false;
+            if (appState.ui.dateTo && e.date > appState.ui.dateTo) return false;
             return true;
           })
           .sort((a, b) => a.date - b.date);
 
         // Empty selection → render the All-Skills running total
-        if (selectedSkills.size === 0) {
+        if (appState.filters.selectedSkills.size === 0) {
           const lastKnownXp = {};
           const points = [];
           for (const entry of allXpEntries) {
@@ -5951,8 +6579,8 @@
         }
 
         // Single-skill selection: render with the canonical skill color
-        if (selectedSkills.size === 1) {
-          const onlySkill = [...selectedSkills][0];
+        if (appState.filters.selectedSkills.size === 1) {
+          const onlySkill = [...appState.filters.selectedSkills][0];
           const { lineDataset, petDataset, hasPets } = buildDatasetForSkill(
             onlySkill,
             allXpEntries,
@@ -5972,7 +6600,7 @@
 
         // Multi-skill selection: one line per skill, colored from the multi-line palette.
         // We sort the active skills the same way SKILLS is ordered for stable colors.
-        const activeOrdered = SKILLS.filter((s) => selectedSkills.has(s));
+        const activeOrdered = SKILLS.filter((s) => appState.filters.selectedSkills.has(s));
         const datasets = [];
         let hasPets = false;
         activeOrdered.forEach((skill, idx) => {
@@ -5997,8 +6625,8 @@
             groupSkills.filter((s) => SKILLS.includes(s)),
           );
           if (
-            groupSet.size === selectedSkills.size &&
-            [...groupSet].every((s) => selectedSkills.has(s))
+            groupSet.size === appState.filters.selectedSkills.size &&
+            [...groupSet].every((s) => appState.filters.selectedSkills.has(s))
           ) {
             title = `XP Progress — ${groupName} Skills`;
             break;
@@ -6089,7 +6717,7 @@
 
         const wrap = document.getElementById("xp-chart-canvas-wrap");
         document.getElementById("xp-chart-title").textContent = title;
-        groupChartMode = "stacked";
+        appState.ui.groupChartMode = "stacked";
         const modeBtns = document.getElementById("chart-mode-btns");
         if (modeBtns) modeBtns.classList.remove("visible");
 
@@ -6230,7 +6858,7 @@
         document.body.classList.toggle("compact-summary", window.scrollY > 80);
       }
 
-      window.addEventListener("resize", () => renderHeatmap(activeFilter));
+      window.addEventListener("resize", () => renderHeatmap(appState.ui.activeFilter));
       window.addEventListener("scroll", updateStickySummaryDensity, { passive: true });
 
       // Init skill picker and restore URL state before loading data.
@@ -6246,6 +6874,111 @@
       updateStickySummaryDensity();
       renderUploadMeta();
       fetchGoogleSheetData();
-    </script>
+    
+
+      // ── v3.28 single-file accessibility and empty-state helpers ───────
+      (function () {
+        function makeClickableKeyboardFriendly(el) {
+          if (!el || el.dataset.keyboardReady === "true") return;
+          el.dataset.keyboardReady = "true";
+
+          if (!el.hasAttribute("role")) el.setAttribute("role", "button");
+          if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "0");
+
+          el.addEventListener("keydown", function (event) {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            el.click();
+          });
+        }
+
+        function refreshA11yAttributes() {
+          var main = document.querySelector(".wrap");
+          if (main && !main.hasAttribute("role")) main.setAttribute("role", "main");
+
+          document.querySelectorAll("button:not([type])").forEach(function (button) {
+            button.setAttribute("type", "button");
+          });
+
+          var search = document.getElementById("search");
+          if (search) {
+            try { search.setAttribute("type", "search"); } catch (_) {}
+            if (!search.hasAttribute("aria-label")) search.setAttribute("aria-label", "Search logs");
+          }
+
+          var csvFile = document.getElementById("csv-file");
+          if (csvFile && !csvFile.hasAttribute("aria-label")) {
+            csvFile.setAttribute("aria-label", "Upload Saulalog CSV file");
+          }
+
+          var footer = document.getElementById("footer");
+          if (footer && !footer.hasAttribute("aria-live")) footer.setAttribute("aria-live", "polite");
+
+          document.querySelectorAll(
+            ".stat-chip[data-action], .pill[data-action], .b-pill[data-action], .sk-btn[data-action], .skill-all-btn[data-action], .skill-group-pill[data-action], .loot-row.clickable, .dual-entry.clickable, .clue-loot-item.clickable, .clue-type-row[data-action]"
+          ).forEach(makeClickableKeyboardFriendly);
+
+          document.querySelectorAll(".stat-chip, .pill, .b-pill, .sk-btn, .skill-all-btn, .skill-group-pill, .dp-btn, .sort-btn").forEach(function (item) {
+            item.setAttribute("aria-pressed", item.classList.contains("active") ? "true" : "false");
+          });
+        }
+
+        function addEmptyState(container, message) {
+          if (!container || container.dataset.emptyStateManaged === "true") return;
+          container.dataset.emptyStateManaged = "true";
+
+          function syncEmptyState() {
+            var hasVisibleContent = Array.prototype.some.call(container.children, function (child) {
+              if (child.classList.contains("generated-empty-state")) return false;
+              if (child.classList.contains("hidden")) return false;
+              return child.textContent.trim().length > 0 || child.children.length > 0;
+            });
+            var existing = container.querySelector(":scope > .generated-empty-state");
+            if (!hasVisibleContent && !existing) {
+              var empty = document.createElement("div");
+              empty.className = "generated-empty-state";
+              empty.textContent = message || "No matching entries found.";
+              container.appendChild(empty);
+            } else if (hasVisibleContent && existing) {
+              existing.remove();
+            }
+          }
+
+          var observer = new MutationObserver(syncEmptyState);
+          observer.observe(container, { childList: true, subtree: false });
+          syncEmptyState();
+        }
+
+        function bootSingleFilePolish() {
+          refreshA11yAttributes();
+
+          [
+            ["list", "No matching entries found."],
+            ["skill-entry-list", "No matching skill entries found."],
+            ["quest-list", "No matching quest entries found."],
+            ["clue-list", "No matching clue entries found."],
+            ["boss-loot-list", "No boss drops found."],
+            ["slayer-loot-list", "No slayer drops found."],
+            ["parser-warning-list", "No parser warnings found."],
+          ].forEach(function (pair) {
+            addEmptyState(document.getElementById(pair[0]), pair[1]);
+          });
+
+          var observer = new MutationObserver(refreshA11yAttributes);
+          observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["class"],
+          });
+        }
+
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", bootSingleFilePolish);
+        } else {
+          bootSingleFilePolish();
+        }
+      })();
+</script>
   </body>
 </html>
