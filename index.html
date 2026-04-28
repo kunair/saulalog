@@ -1035,65 +1035,16 @@ body.dark-mode .cmode-btn.active { color: #121212; }
 
 <script>
 const BOSS_LIST = [
-        "Araxxi",
-        "Araxxor",
-        "Arch-Glacor",
-        "Beastmaster Durzag",
-        "Black Stone Dragon",
-        "Chaos Elemental",
-        "Corporeal Beast",
-        "Croesus",
-        "Dagannoth Prime",
-        "Dagannoth Rex",
-        "Dagannoth Supreme",
-        "General Graardor",
-        "Gregorovic",
-        "Helwyr",
-        "Hermit",
-        "Hermod, the Spirit of War",
-        "Ivar, King of Bones",
-        "Kalphite King",
-        "Kalphite Queen",
-        "Kerapac",
-        "King Black Dragon",
-        "K'ril Tsutsaroth",
-        "Kree'arra",
-        "Legio Primus",
-        "Legio Secundus",
-        "Legio Tertius",
-        "Legio Quartus",
-        "Legio Quintus",
-        "Legio Sextus",
-        "Magister",
-        "Nex",
-        "Nex: Angel of Death",
-        "Osseous",
-        "Rathis",
-        "Raksha",
-        "Rasial",
-        "Solak",
-        "Telos",
-        "Twin Furies",
-        "Vindicta",
-        "Vorago",
-        "Yakamaru",
-        "Zamorak",
-        "Zuk",
-        "Pthentraken",
-        "Commander Zilyana",
-        "Orikalka",
-        "Astellarn",
-        "Verak Lith",
-        "Queen Black Dragon",
-        "Giant mole",
-        "Silverquill, the Dreadhog",
-        "Clawdia",
-        "Flesh-hatcher Mhekarnahz",
-        "Seiryu the Azure Serpent",
-        "Barrows",
-        "Rise of the Six",
-        "Har-Aken",
-      ].sort((a, b) => b.length - a.length);
+    "Araxxi", "Araxzor", "Arch-Glacor", "Beastmaster Durzag", "Black Stone Dragon", "Chaos Elemental", 
+    "Corporeal Beast", "Croesus", "Dagannoth Prime", "Dagannoth Rex", "Dagannoth Supreme", 
+    "General Graardor", "Gregorovic", "Helwyr", "Hermit", "Kalphite King", "Kalphite Queen", 
+    "Kerapac", "King Black Dragon", "K'ril Tsutsaroth", "Kree'arra", "Legio Primus", 
+    "Legio Secundus", "Legio Tertius", "Legio Quartus", "Legio Quintus", "Legio Sextus", 
+    "Magister", "Nex", "Nex: Angel of Death", "Osseous", "Pavo", "Oro", "Rath", "Raksha", 
+    "Rasial", "Solak", "Telos", "Twin Furies", "Vindicta", "Vorago", "Yakamaru", "Zamorak", 
+    "Zuk", "Rex Matriarchs", "Pthentraken", "Commander Zilyana", "Orikalka", "Astellarn", 
+    "Verak Lith", "Queen Black Dragon", "Giant mole", "Ivar, King of Bones"
+].sort((a, b) => b.length - a.length);
 
 const SKILLS = ["Attack", "Strength", "Defence", "Ranged", "Prayer", "Magic", "Runecrafting", "Construction", "Constitution", "Agility", "Herblore", "Thieving", "Crafting", "Fletching", "Slayer", "Hunter", "Mining", "Smithing", "Fishing", "Cooking", "Firemaking", "Woodcutting", "Farming", "Summoning", "Dungeoneering", "Divination", "Invention", "Archaeology", "Necromancy"];
 
@@ -1114,10 +1065,6 @@ const SKILL_GROUPS = {
     'Gathering': ['Archaeology', 'Divination', 'Farming', 'Fishing', 'Hunter', 'Mining', 'Woodcutting'],
     'Support':   ['Agility', 'Dungeoneering', 'Slayer', 'Thieving']
 };
-
-function escapeRegExp(str) {
-    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
 
 function toggleDarkMode() {
     const isDark = document.body.classList.toggle('dark-mode');
@@ -1189,45 +1136,15 @@ function processData(csvText) {
             SKILLS.forEach(s => { if (details.includes(s)) d.skill = s; });
             d.sub = details.includes('experience points') ? 'xp' : details.includes('While skilling') ? 'pet' : details.includes('total level of') ? 'total' : 'level';
         } 
-        else if (/killed|dropped|looted|found|surviving|defeating/i.test(details) && !details.toLowerCase().includes('quest')) {
-    d.super = 'combat';
-
-    // Prefer exact boss-list detection first.
-    // This handles boss names with commas, apostrophes, colons, and hyphens.
-    const matchedBoss = BOSS_LIST.find(b => {
-        const bossRegex = new RegExp(`\\b${escapeRegExp(b)}\\b`, 'i');
-        return bossRegex.test(details);
-    });
-
-    if (matchedBoss) {
-        d.monster = matchedBoss;
-        d.sub = 'boss';
-    } else {
-        // Fallback for Slayer / non-boss monsters.
-        // Stop before drop phrases like ", I found", ", it dropped", etc.
-        const mMatch = details.match(
-            /(?:killing|defeating|surviving|killing a|defeated)\s+(?:the |a )?(.+?)(?=,\s*(?:it dropped|I found|I looted|I received)|: Rex Matriarchs|\.|$)/i
-        );
-
-        if (mMatch) {
-            d.monster = mMatch[1].trim();
-            d.sub = 'slayer';
-        }
-    }
-
-    // Extract item drops separately.
-    // Handles:
-    // "it dropped a ..."
-    // "I found an ..."
-    // "I looted a ..."
-    const iMatch = details.match(
-        /(?:it dropped|I found|I looted|I received|dropped|found|looted|gave|gave me)\s+(?:a |an |some |pair of )?(.+?)(?:\.|$)/i
-    );
-
-    if (iMatch) {
-        d.item = iMatch[1].charAt(0).toUpperCase() + iMatch[1].slice(1).trim();
-    }
-}
+        else if (/killed|dropped|looted|found|surviving|defeating/.test(details) && !details.toLowerCase().includes('quest')) {
+            d.super = 'combat';
+            const mMatch = details.match(/(?:killing|defeating|surviving|killing a|defeated) (?:the |a )?(.+?)(?:, it dropped|, I found|: Rex Matriarchs|\.|$)/i);
+            if (mMatch) {
+                d.monster = mMatch[1].trim();
+                d.sub = BOSS_LIST.some(b => d.monster.toLowerCase().includes(b.toLowerCase())) ? 'boss' : 'slayer';
+                const iMatch = details.match(/(?:dropped|found|gave|found a) (?:a |an |some |pair of )?(.+?)(?:\.|$)/i);
+                if (iMatch) d.item = iMatch[1].charAt(0).toUpperCase() + iMatch[1].slice(1).trim();
+            }
         }
         if (d.super === 'misc' && (/Quest Complete|Quest Points|helped|worked|finally|ended|saved/.test(details) || title.toLowerCase().includes('quest complete'))) d.super = 'quests';
         return d;
