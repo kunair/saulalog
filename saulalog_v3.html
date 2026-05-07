@@ -1,11 +1,11 @@
 <!doctype html>
 
 <!--
-  Saulalog v3.37
-  - Collapsed All Logs skill XP milestones to the highest/latest milestone per skill.
-  - Fixed All Logs Day view grouping for non-native timestamp formats.
-  - Kept Compact view badges inline beside row titles.
-  - Preserved All Logs controls and section-colored accent lines.
+  Saulalog v3.38
+  - Tightened skilling pet parsing and captures pet names.
+  - Added boss and Slayer combat pet tagging from known unlock items.
+  - Shows Pet badges and inline pet names in Combat and All Logs.
+  - Makes pet names searchable and extends the Pets quick filter across Skills + Combat.
 -->
 
 <html lang="en">
@@ -1493,6 +1493,21 @@
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.7px;
+      }
+
+      .combat-pet-badge {
+        color: var(--color-combat);
+        margin-right: 6px;
+        margin-bottom: 0;
+        vertical-align: middle;
+      }
+      .pet-name-inline {
+        color: var(--color-text-light);
+        font-size: 11px;
+        font-weight: 700;
+        margin-left: 2px;
+        text-transform: none;
+        letter-spacing: 0;
       }
 
       /* Clue type summary rows */
@@ -3252,7 +3267,7 @@
       }
 
 
-      /* v3.37: Cleaner All Logs controls, milestone collapse, fixed Day grouping, and section-colored row accents. */
+      /* v3.38: All Logs controls, milestone collapse, Search + Range cleanup, pet parsing, and section-colored row accents. */
       .all-log-controls {
         width: 100%;
         background: var(--color-surface);
@@ -3496,6 +3511,79 @@
         }
       }
 
+
+      /* v3.38: Search + Range cleanup */
+      .enhanced-search-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .enhanced-search-wrap #search {
+        padding-right: 34px;
+      }
+      .search-clear-btn {
+        position: absolute;
+        right: 74px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: 1px solid var(--color-border);
+        background: var(--color-bg-sub);
+        color: var(--color-text-light);
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.12s ease;
+      }
+      .search-clear-btn:hover {
+        border-color: var(--color-ui);
+        color: var(--color-ui);
+        background: var(--color-surface);
+      }
+      .search-match-count {
+        flex: 0 0 62px;
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 800;
+        text-align: right;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+      #heatmap-svg-wrap rect[data-action="set-heatmap-day"] {
+        cursor: pointer;
+      }
+      #heatmap-svg-wrap rect[data-action="set-heatmap-day"]:hover {
+        stroke: var(--color-ui);
+        stroke-width: 1.5;
+      }
+      @media (max-width: 760px) {
+        .enhanced-search-wrap {
+          width: 100%;
+        }
+        .search-clear-btn {
+          right: 8px;
+        }
+        .search-match-count {
+          flex-basis: 100%;
+          text-align: left;
+          padding-left: 2px;
+        }
+        .date-presets {
+          flex-wrap: nowrap;
+          overflow-x: auto;
+          max-width: 100%;
+          justify-content: flex-start;
+          -webkit-overflow-scrolling: touch;
+        }
+      }
+
 </style>
   </head>
   <body>
@@ -3554,17 +3642,29 @@
       <div class="sticky-controls-zone" id="sticky-controls-zone">
         <!-- Search and global date range controls stick with category cards while scrolling. -->
         <div class="toolbar-row">
-          <div class="search-wrap">
+          <div class="search-wrap enhanced-search-wrap">
             <input
               aria-label="Search logs"
               id="search"
-              placeholder="Search by title, monster, or drop..."
+              placeholder="Search logs... try skill:Necromancy, boss:Rasial, type:pet"
               type="search"
             />
+            <button
+              class="search-clear-btn hidden"
+              id="search-clear-btn"
+              data-action="clear-search-filter"
+              type="button"
+              title="Clear search"
+              aria-label="Clear search"
+            >×</button>
+            <span class="search-match-count" id="search-match-count" aria-live="polite"></span>
           </div>
           <div class="range-wrap">
             <span class="date-label">Range</span>
             <div class="date-presets" id="date-presets">
+              <button class="dp-btn" data-action="set-date-preset" data-p="today">
+                Today
+              </button>
               <button class="dp-btn" data-action="set-date-preset" data-p="7d">
                 7d
               </button>
@@ -3582,7 +3682,7 @@
                 data-p="all"
                 data-action="set-date-preset"
               >
-                All Time
+                All
               </button>
             </div>
           </div>
@@ -3796,7 +3896,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.37";
+      const APP_VERSION = "3.38";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -4063,8 +4163,10 @@
       // parser fixes can be made in one place without hunting through processData().
       const CLUE_LOOT_RE =
         /(?:I got|received|found) (?:a |an |some )?(.+?)(?:\s+out of it|\.|$)/i;
+      const SKILLING_PET_RE =
+        /^While skilling,\s*I found\s+(.+?),\s+the\s+(.+?)\s+pet\.$/i;
       const SKILL_EVENT_RE =
-        /experience points in the|I levelled|level 99|While skilling|achieved at least level|total level of/i;
+        /experience points in the|I levelled|level 99|While skilling,\s*I found\s+.+?,\s+the\s+.+?\s+pet\.|achieved at least level|total level of/i;
       const COMBAT_TRIGGER_RE =
         /killed|dropped|looted|found|surviving|defeating|battling|freeing|diving|exploring|plundering|hibernation/i;
       const QUEST_MILESTONE_RE = /quest points?|Quest Complete/i;
@@ -4105,6 +4207,369 @@
         /After defeating .+?, I found (?:a pair of |some |an |a )?([^.!]+)/i,
         /I looted (?:a pair of |some |an |a )?([^.!]+)/i,
       ];
+
+      // Combat pets are normal-looking item drops in the Activity Log.
+      // Keep boss and Slayer configs separate so the parser can preserve source metadata.
+      const BOSS_PET_ITEMS = {
+        "King black dragon scale": {
+                "boss": "King Black Dragon",
+                "petName": "King Black Dragonling"
+        },
+        "Kalphite egg": {
+                "boss": "Kalphite Queen",
+                "petName": "Kalphite Grublet"
+        },
+        "Shrivelled dagannoth claw": {
+                "boss": "Dagannoth Rex",
+                "petName": "Rex hatchling"
+        },
+        "Dagannoth egg": {
+                "boss": "Dagannoth Prime",
+                "petName": "Prime hatchling"
+        },
+        "Dagannoth scale": {
+                "boss": "Dagannoth Supreme",
+                "petName": "Supreme hatchling"
+        },
+        "Ribs of chaos": {
+                "boss": "Chaos Elemental",
+                "petName": "Ellie"
+        },
+        "Rotten fang": {
+                "boss": "Giant mole",
+                "petName": "Molly"
+        },
+        "Giant feather": {
+                "boss": "Kree'arra",
+                "petName": "Chick'arra"
+        },
+        "Auburn lock": {
+                "boss": "Commander Zilyana",
+                "petName": "Commander Miniana"
+        },
+        "Decaying tooth": {
+                "boss": "General Graardor",
+                "petName": "General Awwdor"
+        },
+        "Severed hoof": {
+                "boss": "K'ril Tsutsaroth",
+                "petName": "K'ril Tinyroth"
+        },
+        "Blood-soaked feather": {
+                "boss": "Nex",
+                "petName": "Nexterminator"
+        },
+        "Blood tentacle": {
+                "boss": "Nex, Angel of Death",
+                "petName": "Reeves"
+        },
+        "Corporeal bone": {
+                "boss": "Corporeal Beast",
+                "petName": "Corporeal Puppy"
+        },
+        "Volcanic shard": {
+                "boss": "Har-Aken",
+                "petName": "Shrimpy"
+        },
+        "Queen Black Dragon scale": {
+                "boss": "Queen Black Dragon",
+                "petName": "Queen Black Dragonling"
+        },
+        "Kalphite claw": {
+                "boss": "Kalphite King",
+                "petName": "Kalphite Grubling"
+        },
+        "Corrupted Ascension signet I": {
+                "boss": "Legio Primus",
+                "petName": "Legio Primulus"
+        },
+        "Corrupted Ascension signet II": {
+                "boss": "Legio Secundus",
+                "petName": "Legio Secundulus"
+        },
+        "Corrupted Ascension signet III": {
+                "boss": "Legio Tertius",
+                "petName": "Legio Tertiolus"
+        },
+        "Corrupted Ascension signet IV": {
+                "boss": "Legio Quartus",
+                "petName": "Legio Quartulus"
+        },
+        "Corrupted Ascension signet V": {
+                "boss": "Legio Quintus",
+                "petName": "Legio Quintulus"
+        },
+        "Corrupted Ascension signet VI": {
+                "boss": "Legio Sextus",
+                "petName": "Legio Sextulus"
+        },
+        "Ancient summoning stone": {
+                "boss": "Vorago",
+                "petName": "Vitalis"
+        },
+        "Ancient artefact": {
+                "boss": "Vorago",
+                "petName": "Bombi"
+        },
+        "Araxyte egg": {
+                "boss": "Araxxi",
+                "sequence": [
+                        "Barry",
+                        "Mallory"
+                ]
+        },
+        "Durzag's helmet": {
+                "boss": "Beastmaster Durzag",
+                "petName": "Diddyzag"
+        },
+        "Yakamaru's helmet": {
+                "boss": "Yakamaru",
+                "petName": "Yakaminu"
+        },
+        "Faceless mask": {
+                "boss": "Gregorovic",
+                "petName": "Greg"
+        },
+        "Twisted antler": {
+                "boss": "Helwyr",
+                "petName": "Lilwyr"
+        },
+        "Avaryss' braid": {
+                "boss": "The Twin Furies",
+                "petName": "Ava"
+        },
+        "Nymora's braid": {
+                "boss": "The Twin Furies",
+                "petName": "Nylessa"
+        },
+        "Imbued blade slice": {
+                "boss": "Vindicta",
+                "petName": "Vindiddy"
+        },
+        "Glimmering scale": {
+                "boss": "Vindicta",
+                "petName": "Rawrvek"
+        },
+        "Telos' tendril": {
+                "boss": "Telos, the Warden",
+                "petName": "Tess"
+        },
+        "Soul fragment": {
+                "boss": "The Magister",
+                "petName": "The Minister"
+        },
+        "Imbued bark shard": {
+                "boss": "Solak, Guardian of the Grove",
+                "petName": "Solly"
+        },
+        "Chipped black stone crystal": {
+                "boss": "Seiryu the Azure Serpent",
+                "petName": "Kuroryu"
+        },
+        "Inert black stone crystal": {
+                "boss": "Black stone dragon",
+                "petName": "Bisdi"
+        },
+        "Umbral urn": {
+                "boss": "The Ambassador",
+                "petName": "Ambi"
+        },
+        "Broken shackle": {
+                "boss": "Raksha, the Shadow Colossus",
+                "petName": "Raklette"
+        },
+        "Pristine Bagrada rex egg": {
+                "boss": "Orikalka",
+                "petName": "Bagra"
+        },
+        "Pristine Pavosaurus rex egg": {
+                "boss": "Pthentraken",
+                "petName": "Pavo"
+        },
+        "Pristine Corbicula rex egg": {
+                "boss": "Rathis",
+                "petName": "Corbi"
+        },
+        "Kerapac's mask piece": {
+                "boss": "Kerapac, the bound",
+                "petName": "Kerry"
+        },
+        "Glacor core": {
+                "boss": "Arch-Glacor",
+                "petName": "Gladys"
+        },
+        "Croesus's enriched root": {
+                "boss": "Croesus",
+                "petName": "Little Sus"
+        },
+        "TzKal-Zuk's armour piece": {
+                "boss": "TzKal-Zuk",
+                "petName": "Little Zuk"
+        },
+        "Jewels of Zamorak": {
+                "boss": "Zamorak, Lord of Chaos",
+                "petName": "Zammo the Rak"
+        },
+        "Hermod's armour spike": {
+                "boss": "Hermod, the Spirit of War",
+                "petName": "Herman"
+        },
+        "Miso's collar": {
+                "boss": "Rasial, the First Necromancer",
+                "petName": "Miso"
+        },
+        "Vorkath's claw": {
+                "boss": "Zemouregal & Vorkath",
+                "petName": "Vorki"
+        },
+        "Calcified heart": {
+                "boss": "Osseous",
+                "petName": "Baby Osseous"
+        },
+        "Clawdia's shell clippings": {
+                "boss": "Clawdia",
+                "petName": "Clawdie"
+        },
+        "Nefthys' tooth": {
+                "boss": "Nakatra, Devourer Eternal",
+                "petName": "Neffie"
+        },
+        "Fragment of the Gate": {
+                "boss": "The Gate of Elidinis",
+                "petName": "Edie"
+        },
+        "Amascut's promise": {
+                "boss": "Amascut, the Devourer",
+                "petName": "Amaskitty"
+        },
+        "Snowverload's nose": {
+                "boss": "Snowverload",
+                "petName": "Snowdrop"
+        },
+        "Mhekarnahz's eye": {
+                "boss": "Flesh-hatcher Mhekarnahz",
+                "petName": "Flesh-hatchling Mhekarnahz"
+        },
+        "Ivar's loincloth": {
+                "boss": "Ivar, King of Bones",
+                "petName": "Ivarsson"
+        },
+        "Silverquill's blood-filled cyst": {
+                "boss": "Silverquill, the Dreadhog",
+                "petName": "Needlemouse"
+        }
+};
+
+      const SLAYER_PET_ITEMS = {
+        "Edimmu": {
+                "monster": "Edimmu",
+                "petName": "Eddy"
+        },
+        "Soulgazer's charm": {
+                "monster": "Soulgazer",
+                "petName": "Baby Soulgazer"
+        },
+        "Item": {
+                "monster": "Slasher demon",
+                "petName": "Nipper demon",
+                "requiresMonsterMatch": true
+        }
+};
+
+      function normalizeLookupName(value) {
+        return String(value || "")
+          .toLowerCase()
+          .replace(/['’]/g, "")
+          .replace(/[^a-z0-9]+/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+
+      function parseSkillingPet(details) {
+        const match = String(details || "").match(SKILLING_PET_RE);
+        if (!match) return null;
+        return {
+          petName: match[1].trim(),
+          skill: match[2].trim(),
+        };
+      }
+
+      function buildCombatPetItemLookup(configs) {
+        const lookup = {};
+        const add = (source, item, meta) => {
+          const key = normalizeLookupName(item);
+          if (!key) return;
+          if (!lookup[key]) lookup[key] = [];
+          lookup[key].push({
+            ...meta,
+            source,
+            item,
+          });
+        };
+        Object.entries(configs.boss || {}).forEach(([item, meta]) => add("boss", item, meta));
+        Object.entries(configs.slayer || {}).forEach(([item, meta]) => add("slayer", item, meta));
+        return lookup;
+      }
+
+      const COMBAT_PET_ITEM_LOOKUP = buildCombatPetItemLookup({
+        boss: BOSS_PET_ITEMS,
+        slayer: SLAYER_PET_ITEMS,
+      });
+
+      function combatPetMetadataMatches(entry, meta) {
+        if (!entry || !meta) return false;
+        const expectedMonster = meta.monster || meta.boss || "";
+        if (meta.requiresMonsterMatch || meta.source === "slayer") {
+          return normalizeLookupName(entry.monster) === normalizeLookupName(expectedMonster);
+        }
+        return true;
+      }
+
+      function findCombatPetMatch(entry) {
+        if (!entry || entry.super !== "combat" || !entry.item) return null;
+        const candidates = COMBAT_PET_ITEM_LOOKUP[normalizeLookupName(entry.item)] || [];
+        return candidates.find((meta) => combatPetMetadataMatches(entry, meta)) || null;
+      }
+
+      function applyCombatPetMetadata(entry, meta, petName, sequenceIndex = null) {
+        if (!entry || !meta || !petName) return;
+        entry.isCombatPet = true;
+        entry.petSource = meta.source;
+        entry.dropType = "pet";
+        entry.petName = petName;
+        entry.canonicalPetItem = meta.item;
+        if (sequenceIndex !== null) entry.combatPetSequenceIndex = sequenceIndex;
+      }
+
+      function tagCombatPetDrops(entries) {
+        const sequenceBuckets = new Map();
+        entries.forEach((entry) => {
+          const match = findCombatPetMatch(entry);
+          if (!match) return;
+          if (Array.isArray(match.sequence) && match.sequence.length) {
+            const key = normalizeLookupName(match.item);
+            if (!sequenceBuckets.has(key)) sequenceBuckets.set(key, { match, rows: [] });
+            sequenceBuckets.get(key).rows.push(entry);
+            return;
+          }
+          applyCombatPetMetadata(entry, match, match.petName);
+        });
+
+        sequenceBuckets.forEach((bucket) => {
+          bucket.rows
+            .sort((a, b) => {
+              const at = parseTs(a.ts)?.getTime() ?? 0;
+              const bt = parseTs(b.ts)?.getTime() ?? 0;
+              if (at !== bt) return at - bt;
+              return (a.sourceIndex || 0) - (b.sourceIndex || 0);
+            })
+            .forEach((entry, index) => {
+              const sequence = bucket.match.sequence || [];
+              const petName = sequence[Math.min(index, sequence.length - 1)];
+              applyCombatPetMetadata(entry, bucket.match, petName, index);
+            });
+        });
+      }
 
       const UNCLASSIFIED_HINT_RULES = [
         {
@@ -4197,9 +4662,11 @@
         appState.ui.currentPage = 0;
         document.querySelectorAll(".dp-btn").forEach((b) => b.classList.toggle("active", b.dataset.p === p));
         const now = new Date(); now.setHours(23, 59, 59, 999);
+        const startOfToday = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
         const ago = (days) => { const d = new Date(); d.setDate(d.getDate() - days); d.setHours(0, 0, 0, 0); return d; };
         appState.ui.dateTo = null;
-        if (p === "7d") { appState.ui.dateFrom = ago(7); appState.ui.dateTo = now; }
+        if (p === "today") { appState.ui.dateFrom = startOfToday(); appState.ui.dateTo = now; }
+        else if (p === "7d") { appState.ui.dateFrom = ago(7); appState.ui.dateTo = now; }
         else if (p === "30d") { appState.ui.dateFrom = ago(30); appState.ui.dateTo = now; }
         else if (p === "90d") { appState.ui.dateFrom = ago(90); appState.ui.dateTo = now; }
         else if (p === "1y") { appState.ui.dateFrom = ago(365); appState.ui.dateTo = now; }
@@ -4453,25 +4920,24 @@
       function getRangeLabel() {
         if (appState.ui.datePreset === "custom" && appState.ui.dateFrom) return formatShortDate(appState.ui.dateFrom);
         return {
+          today: "Today",
           "7d": "7d",
           "30d": "30d",
           "90d": "90d",
           "1y": "1yr",
-          all: "All Time",
+          all: "All",
         }[appState.ui.datePreset] || "Custom";
       }
 
       function exportVisibleEntries() {
         const q = getCurrentSearchQuery().toLowerCase();
         const rows = appState.data.entries.filter((entry) => {
-          const searchContent = `${entry.title || ""} ${entry.details || ""}`.toLowerCase();
           if (appState.ui.activeFilter !== "all" && entry.super !== appState.ui.activeFilter) return false;
-          if (q && !searchContent.includes(q)) return false;
           if (!entryMatchesGlobalSearchAndDate(entry)) return false;
           return true;
         });
         const csv = [
-          ["timestamp", "section", "type", "title", "details", "monster", "skill", "item", "killCount"],
+          ["timestamp", "section", "type", "title", "details", "monster", "skill", "item", "petName", "petSource", "dropType", "killCount"],
           ...rows.map((entry) => [
             entry.ts || "",
             entry.super || "",
@@ -4481,6 +4947,9 @@
             entry.monster || "",
             entry.skill || "",
             entry.item || "",
+            entry.petName || "",
+            entry.petSource || "",
+            entry.dropType || "",
             entry.killCount || "",
           ]),
         ].map((row) => row.map(escapeCsv).join(",")).join("\n");
@@ -4501,9 +4970,88 @@
 
       function formatShortDate(dateLike) { const d = dateLike instanceof Date ? dateLike : parseTs(dateLike); if (!d) return "—"; return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }); }
       function getCurrentSearchQuery() { const input = document.getElementById("search"); return input ? input.value.trim() : ""; }
+
+      function tokenizeSearchClause(clause) {
+        const tokens = [];
+        String(clause || "").replace(/"([^"]+)"|'([^']+)'|(\S+)/g, (_match, dq, sq, bare) => {
+          tokens.push((dq || sq || bare || "").trim());
+          return "";
+        });
+        return tokens.filter(Boolean);
+      }
+
+      function normalizeSearchValue(value) {
+        return String(value || "").toLowerCase().trim();
+      }
+
+      function entrySearchHaystack(entry) {
+        return normalizeSearchValue([
+          entry.title,
+          entry.details,
+          entry.skill,
+          entry.monster,
+          entry.item,
+          entry.petName,
+          entry.petSource,
+          entry.dropType,
+          entry.canonicalPetItem,
+          entry.super,
+          entry.sub,
+          getCategoryLabel(entry.super),
+          getAllLogEntryBadge(entry),
+        ].filter(Boolean).join(" "));
+      }
+
+      function entryMatchesSearchOperator(entry, rawKey, rawValue) {
+        const key = normalizeSearchValue(rawKey);
+        const value = normalizeSearchValue(rawValue);
+        if (!value) return true;
+        const has = (field) => normalizeSearchValue(field).includes(value);
+        if (["skill", "sk"].includes(key)) return has(entry.skill) || (entry.super === "skills" && entrySearchHaystack(entry).includes(value));
+        if (["boss", "monster", "mob", "npc"].includes(key)) return has(entry.monster);
+        if (["drop", "item", "loot"].includes(key)) return has(entry.item) || has(entry.canonicalPetItem) || ((entry.super === "combat" || entry.super === "clues") && entrySearchHaystack(entry).includes(value));
+        if (["pet", "petname"].includes(key)) return has(entry.petName) || (entry.isCombatPet && entrySearchHaystack(entry).includes(value)) || (entry.super === "skills" && entry.sub === "pet" && entrySearchHaystack(entry).includes(value));
+        if (["clue", "tier"].includes(key)) return entry.super === "clues" && (has(entry.sub) || entrySearchHaystack(entry).includes(value));
+        if (["category", "cat", "section"].includes(key)) return has(entry.super) || has(getCategoryLabel(entry.super));
+        if (key === "type") {
+          if (value === "drop") return (entry.super === "combat" || entry.super === "clues") && !!entry.item;
+          if (value === "pet") return (entry.super === "skills" && entry.sub === "pet") || !!entry.isCombatPet;
+          if (["milestone", "milestones"].includes(value)) return allLogEntryMatchesQuickFiltersForId(entry, "milestones");
+          if (["quest", "completion", "complete", "questcomplete"].includes(value)) return entry.super === "quests" && entry.sub === "completion";
+          if (["xp", "level", "total"].includes(value)) return entry.super === "skills" && (entry.sub === value || (value === "xp" && is200mXpEntry(entry)));
+          return has(entry.sub) || has(getAllLogEntryBadge(entry)) || has(entry.super);
+        }
+        return entrySearchHaystack(entry).includes(`${key}:${value}`) || entrySearchHaystack(entry).includes(value);
+      }
+
+      function entryMatchesSearchToken(entry, token) {
+        const op = token.match(/^([a-zA-Z]+):(.+)$/);
+        if (op) return entryMatchesSearchOperator(entry, op[1], op[2]);
+        return entrySearchHaystack(entry).includes(normalizeSearchValue(token));
+      }
+
+      function entryMatchesSearch(entry, query = getCurrentSearchQuery()) {
+        const q = String(query || "").trim();
+        if (!q) return true;
+        const legacyHaystack = entrySearchHaystack(entry);
+        if (legacyHaystack.includes(normalizeSearchValue(q))) return true;
+        const clauses = q.split(/\s+OR\s+/i).map((part) => part.trim()).filter(Boolean);
+        return clauses.some((clause) => {
+          const tokens = tokenizeSearchClause(clause);
+          return tokens.length > 0 && tokens.every((token) => entryMatchesSearchToken(entry, token));
+        });
+      }
+
+      function renderSearchState(matchCount = 0) {
+        const q = getCurrentSearchQuery();
+        const clearBtn = document.getElementById("search-clear-btn");
+        const countEl = document.getElementById("search-match-count");
+        if (clearBtn) clearBtn.classList.toggle("hidden", !q);
+        if (countEl) countEl.textContent = `${Number(matchCount || 0).toLocaleString()} ${Number(matchCount || 0) === 1 ? "match" : "matches"}`;
+      }
       function getSelectedSkillGroupLabel() { if (appState.filters.selectedSkills.size === 0) return "all"; const selected = [...appState.filters.selectedSkills].sort().join("|"); for (const [groupName, skills] of Object.entries(SKILL_GROUPS)) { if (selected === skills.filter((skill) => SKILLS.includes(skill)).sort().join("|")) return groupName; } return [...appState.filters.selectedSkills].join(","); }
       function applySkillSelectionFromState(value) { appState.filters.selectedSkills.clear(); if (!value || value === "all") return; if (SKILL_GROUPS[value]) { SKILL_GROUPS[value].forEach((skill) => appState.filters.selectedSkills.add(skill)); return; } value.split(",").map((skill) => skill.trim()).filter((skill) => SKILLS.includes(skill)).forEach((skill) => appState.filters.selectedSkills.add(skill)); }
-      function buildUrlStateParams() { const params = new URLSearchParams(); params.set("section", appState.ui.activeFilter); params.set("range", appState.ui.datePreset || "all"); const q = getCurrentSearchQuery(); if (q) params.set("q", q); if (appState.ui.datePreset === "custom" && appState.ui.dateFrom) params.set("day", appState.ui.dateFrom.toISOString().slice(0, 10)); if (appState.ui.activeFilter === "skills") { params.set("skills", getSelectedSkillGroupLabel()); params.set("skillFilters", Object.entries(appState.filters.skillSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); } if (appState.ui.activeFilter === "all") { params.set("allView", appState.allLogs.viewMode); params.set("allTypes", Object.entries(appState.allLogs.typeFilters).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); params.set("allQuick", Object.entries(appState.allLogs.quickFilters).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); } if (appState.ui.activeFilter === "clues") { params.set("clue", appState.clues.selectedType); params.set("clueMode", appState.clues.mode); } if (appState.ui.activeFilter === "quests") params.set("questFilters", Object.entries(appState.filters.questSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); if (appState.ui.activeFilter === "combat") { if (appState.combat.selectedBoss) params.set("boss", appState.combat.selectedBoss); if (appState.combat.selectedSlayer) params.set("slayer", appState.combat.selectedSlayer); } return params; }
+      function buildUrlStateParams() { const params = new URLSearchParams(); params.set("section", appState.ui.activeFilter); params.set("range", appState.ui.datePreset || "all"); const q = getCurrentSearchQuery(); if (q) params.set("q", q); if (appState.ui.datePreset === "custom" && appState.ui.dateFrom) params.set("day", formatDateKeyLocal(appState.ui.dateFrom)); if (appState.ui.activeFilter === "skills") { params.set("skills", getSelectedSkillGroupLabel()); params.set("skillFilters", Object.entries(appState.filters.skillSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); } if (appState.ui.activeFilter === "all") { params.set("allView", appState.allLogs.viewMode); params.set("allTypes", Object.entries(appState.allLogs.typeFilters).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); params.set("allQuick", Object.entries(appState.allLogs.quickFilters).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); } if (appState.ui.activeFilter === "clues") { params.set("clue", appState.clues.selectedType); params.set("clueMode", appState.clues.mode); } if (appState.ui.activeFilter === "quests") params.set("questFilters", Object.entries(appState.filters.questSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); if (appState.ui.activeFilter === "combat") { if (appState.combat.selectedBoss) params.set("boss", appState.combat.selectedBoss); if (appState.combat.selectedSlayer) params.set("slayer", appState.combat.selectedSlayer); } return params; }
       function updateUrlState() { if (appState.flags.suppressUrlStateUpdate) return; const nextHash = "#" + buildUrlStateParams().toString(); if (window.location.hash !== nextHash) history.replaceState(null, "", nextHash); }
       function applyUrlState() { if (!window.location.hash) return; const params = new URLSearchParams(window.location.hash.slice(1)); appState.flags.suppressUrlStateUpdate = true; appState.ui.activeFilter = params.get("section") || appState.ui.activeFilter; const search = document.getElementById("search"); if (search) search.value = params.get("q") || ""; const range = params.get("range") || "all"; if (range === "custom" && params.get("day")) setCustomDateRange(params.get("day")); else setDatePreset(range); applySkillSelectionFromState(params.get("skills")); const skillFilters = params.get("skillFilters"); if (skillFilters !== null) { const enabled = new Set(skillFilters.split(",").filter(Boolean)); Object.keys(appState.filters.skillSubs).forEach((key) => { appState.filters.skillSubs[key] = enabled.has(key); }); } if (params.get("allView")) appState.allLogs.viewMode = params.get("allView"); const allTypes = params.get("allTypes"); if (allTypes !== null) { const enabled = new Set(allTypes.split(",").filter(Boolean)); Object.keys(appState.allLogs.typeFilters).forEach((key) => { appState.allLogs.typeFilters[key] = enabled.has(key); }); } const allQuick = params.get("allQuick"); if (allQuick !== null) { const enabled = new Set(allQuick.split(",").filter(Boolean)); Object.keys(appState.allLogs.quickFilters).forEach((key) => { appState.allLogs.quickFilters[key] = enabled.has(key); }); } if (params.get("clue")) appState.clues.selectedType = params.get("clue"); if (params.get("clueMode")) appState.clues.mode = params.get("clueMode"); const questFilters = params.get("questFilters"); if (questFilters !== null) { const enabled = new Set(questFilters.split(",").filter(Boolean)); Object.keys(appState.filters.questSubs).forEach((key) => { appState.filters.questSubs[key] = enabled.has(key); }); } if (params.get("boss")) appState.combat.selectedBoss = params.get("boss"); if (params.get("slayer")) appState.combat.selectedSlayer = params.get("slayer"); appState.flags.suppressUrlStateUpdate = false; render(); }
       function resetAllFilters() { appState.flags.suppressUrlStateUpdate = true; appState.ui.activeFilter = "all"; appState.ui.currentPage = 0; const search = document.getElementById("search"); if (search) search.value = ""; appState.filters.selectedSkills.clear(); appState.filters.skillSubs = { xp: true, level: true, pet: true, total: true, m200: true }; appState.filters.clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true }; appState.filters.questSubs = { milestone: true, completion: true }; resetAllLogControls(false); appState.clues.selectedType = "easy"; appState.clues.mode = "loot"; appState.clues.selectedLootItem = null; appState.combat.bossLoot = null; appState.combat.slayerLoot = null; appState.combat.bossKillcount = false; appState.combat.slayerKillcount = false; appState.flags.suppressUrlStateUpdate = false; setDatePreset("all"); }
@@ -4850,6 +5398,8 @@
               <div><span class="summary-label">Monster</span><span class="summary-value">${escapeHtml(entry.monster || "—")}</span></div>
               <div><span class="summary-label">Skill</span><span class="summary-value">${escapeHtml(entry.skill || "—")}</span></div>
               <div><span class="summary-label">Item</span><span class="summary-value">${escapeHtml(entry.item || "—")}</span></div>
+              <div><span class="summary-label">Pet</span><span class="summary-value">${escapeHtml(entry.petName || "—")}</span></div>
+              <div><span class="summary-label">Pet source</span><span class="summary-value">${escapeHtml(entry.petSource || "—")}</span></div>
               <div><span class="summary-label">Killcount</span><span class="summary-value">${escapeHtml(entry.killCount || 0)}</span></div>
               <div><span class="summary-label">Confidence</span><span class="summary-value">${escapeHtml(summary.confidence)}</span></div>
               <div><span class="summary-label">Reason</span><span class="summary-value">${escapeHtml(summary.reason)}</span></div>
@@ -4889,6 +5439,8 @@
               <div><span class="summary-label">Monster</span><span class="summary-value">${escapeHtml(entry.monster || "—")}</span></div>
               <div><span class="summary-label">Skill</span><span class="summary-value">${escapeHtml(entry.skill || "—")}</span></div>
               <div><span class="summary-label">Item</span><span class="summary-value">${escapeHtml(entry.item || "—")}</span></div>
+              <div><span class="summary-label">Pet</span><span class="summary-value">${escapeHtml(entry.petName || "—")}</span></div>
+              <div><span class="summary-label">Pet source</span><span class="summary-value">${escapeHtml(entry.petSource || "—")}</span></div>
               <div><span class="summary-label">Killcount</span><span class="summary-value">${escapeHtml(entry.killCount || 0)}</span></div>
               <div><span class="summary-label">Confidence</span><span class="summary-value">${escapeHtml(summary.confidence)}</span></div>
               <div><span class="summary-label">Reason</span><span class="summary-value">${escapeHtml(summary.reason)}</span></div>
@@ -5165,7 +5717,7 @@
           if (!d) continue;
           if (appState.ui.dateFrom && d < appState.ui.dateFrom) continue;
           if (appState.ui.dateTo && d > appState.ui.dateTo) continue;
-          const key = d.toISOString().slice(0, 10);
+          const key = formatDateKeyLocal(d);
           counts[key] = (counts[key] || 0) + 1;
         }
 
@@ -5239,11 +5791,11 @@
             const date = new Date(startDate);
             date.setDate(date.getDate() + w * 7 + d);
             if (date > anchor) continue;
-            const key = date.toISOString().slice(0, 10);
+            const key = formatDateKeyLocal(date);
             const count = counts[key] || 0;
             const x = padLeft + w * step;
             const y = padTop + d * step;
-            cells += `<rect x="${x}" y="${y}" width="${cs}" height="${cs}" rx="2" fill="${getCellColor(count)}"><title>${key}: ${count} event${count !== 1 ? "s" : ""}</title></rect>`;
+            cells += `<rect x="${x}" y="${y}" width="${cs}" height="${cs}" rx="2" fill="${getCellColor(count)}" data-action="set-heatmap-day" data-day="${key}"><title>${key}: ${count} event${count !== 1 ? "s" : ""}</title></rect>`;
             if (d === 0 && date.getMonth() !== lastMonth) {
               lastMonth = date.getMonth();
               monthLabels += `<text x="${x}" y="${padTop - 5}" font-size="8" fill="${textColor}" font-family="-apple-system,BlinkMacSystemFont,sans-serif">${MONTHS[lastMonth]}</text>`;
@@ -5272,6 +5824,11 @@
           `${catLabel}Activity Heatmap`;
       }
 
+      function setHeatmapDay(dayKey) {
+        if (!dayKey || dayKey === "unknown") return;
+        setCustomDateRange(dayKey);
+      }
+
       // ── Delegated UI actions ─────────────────────────────────────────
       // Rendered controls use data-action attributes instead of inline onclick
       // handlers. This keeps markup reusable and routes behavior through one
@@ -5281,6 +5838,7 @@
         "toggle-debug": () => toggleDebugMode(),
         "refresh-data": () => refreshData(),
         "set-date-preset": (el) => setDatePreset(el.dataset.p || "all"),
+        "set-heatmap-day": (el) => setHeatmapDay(el.dataset.day),
         "toggle-debug-individual-entries": () => toggleDebugIndividualEntries(),
         "copy-parser-warnings": () => copyParserWarnings(),
         "export-parser-warnings": () => exportParserWarnings(),
@@ -5373,8 +5931,37 @@
 
       // ── Keyboard shortcuts ──
       document.addEventListener("keydown", (e) => {
-        if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT")
+        const targetTag = e.target.tagName;
+        const isEditable = ["INPUT", "SELECT", "TEXTAREA"].includes(targetTag);
+        const search = document.getElementById("search");
+
+        if (e.key === "/" && !isEditable) {
+          e.preventDefault();
+          if (search) search.focus();
           return;
+        }
+
+        if (e.key === "Enter" && e.target.id === "search") {
+          clearTimeout(searchDebounceTimer);
+          appState.ui.currentPage = 0;
+          render();
+          return;
+        }
+
+        if (e.key === "Escape") {
+          if (appState.debug.activeEntryIndex !== null) {
+            closeEntryDebugDrawer();
+            return;
+          }
+          if (search && search.value) {
+            search.value = "";
+            appState.ui.currentPage = 0;
+            render();
+            return;
+          }
+        }
+
+        if (isEditable) return;
         const map = {
           1: "all",
           2: "skills",
@@ -5384,14 +5971,6 @@
           6: "misc",
         };
         if (map[e.key]) setFilter(map[e.key]);
-        if (e.key === "Escape") {
-          if (appState.debug.activeEntryIndex !== null) {
-            closeEntryDebugDrawer();
-            return;
-          }
-          document.getElementById("search").value = "";
-          render();
-        }
       });
 
       // ── CSV Upload (manual override) ──
@@ -5617,16 +6196,22 @@
             }
             if (SKILL_EVENT_RE.test(details)) {
               d.super = "skills";
+              const skillingPet = parseSkillingPet(details);
+              if (skillingPet) {
+                d.sub = "pet";
+                d.skill = SKILLS.includes(skillingPet.skill) ? skillingPet.skill : skillingPet.skill;
+                d.petName = skillingPet.petName;
+                return d;
+              }
               SKILLS.forEach((s) => {
                 if (details.includes(s)) d.skill = s;
               });
-              d.sub = details.includes("experience points")
+              const detailLower = details.toLowerCase();
+              d.sub = detailLower.includes("experience points")
                 ? "xp"
-                : details.includes("While skilling")
-                  ? "pet"
-                  : details.includes("total level of")
-                    ? "total"
-                    : "level";
+                : detailLower.includes("total level of")
+                  ? "total"
+                  : "level";
               return d;
             }
 
@@ -5793,6 +6378,10 @@
               return clone;
             });
           });
+
+        // Combat pet tagging happens after shared-boss expansion so sequence-based pets
+        // such as Araxyte egg are assigned against the full parsed dataset.
+        tagCombatPetDrops(appState.data.entries);
 
         // Killcounts are intentionally not deduped here; extractApproxKillCount() mirrors the row-level Sheets tally.
         rebuildParsedIndexes();
@@ -6107,9 +6696,7 @@
       }
 
       function entryMatchesGlobalSearchAndDate(e) {
-        const q = getCurrentSearchQuery().toLowerCase();
-        const searchContent = `${e.title || ""} ${e.details || ""}`.toLowerCase();
-        if (q && !searchContent.includes(q)) return false;
+        if (!entryMatchesSearch(e)) return false;
         if (appState.ui.dateFrom || appState.ui.dateTo) {
           const d = parseTs(e.ts);
           if (!d) return false;
@@ -6401,7 +6988,7 @@
             <div class="entry-content">
                 <span class="cat-dot" style="background:var(--color-quest)"></span>
                 <div class="entry-text-stack">
-                    <span class="entry-title">${escapeHtml(e.title)}</span>
+                    <span class="entry-title">${renderAllLogEntryTitleHtml(e)}</span>
                     <span class="entry-details">${escapeHtml(e.details)}</span>
                 </div>
             </div>
@@ -6610,23 +7197,25 @@
         return !!appState.allLogs.typeFilters[e.super];
       }
 
+      function allLogEntryMatchesQuickFiltersForId(e, id) {
+        if (id === "milestones") {
+          return (
+            (e.super === "skills" && (e.sub === "xp" || e.sub === "level" || e.sub === "total" || is200mXpEntry(e))) ||
+            (e.super === "quests" && e.sub === "milestone")
+          );
+        }
+        if (id === "drops") return (e.super === "combat" || e.super === "clues") && !!e.item;
+        if (id === "pets") return (e.super === "skills" && e.sub === "pet") || !!e.isCombatPet;
+        if (id === "questCompletes") return e.super === "quests" && e.sub === "completion";
+        return false;
+      }
+
       function allLogEntryMatchesQuickFilters(e) {
         const active = Object.entries(appState.allLogs.quickFilters)
           .filter(([, enabled]) => enabled)
           .map(([id]) => id);
         if (!active.length) return true;
-        return active.some((id) => {
-          if (id === "milestones") {
-            return (
-              (e.super === "skills" && (e.sub === "xp" || e.sub === "level" || e.sub === "total" || is200mXpEntry(e))) ||
-              (e.super === "quests" && e.sub === "milestone")
-            );
-          }
-          if (id === "drops") return (e.super === "combat" || e.super === "clues") && !!e.item;
-          if (id === "pets") return e.super === "skills" && e.sub === "pet";
-          if (id === "questCompletes") return e.super === "quests" && e.sub === "completion";
-          return false;
-        });
+        return active.some((id) => allLogEntryMatchesQuickFiltersForId(e, id));
       }
 
       function getAllLogXpMilestoneValue(entry) {
@@ -6837,6 +7426,48 @@
         return CATEGORY_CONFIG[cat]?.label || "Misc";
       }
 
+
+      function renderPetNameSuffixHtml(petName) {
+        return petName ? ` <span class="pet-name-inline">(${escapeHtml(petName)})</span>` : "";
+      }
+
+      function getUniquePetNamesFromEntries(entries) {
+        const names = [];
+        entries
+          .slice()
+          .sort((a, b) => {
+            const ai = typeof a.combatPetSequenceIndex === "number" ? a.combatPetSequenceIndex : 9999;
+            const bi = typeof b.combatPetSequenceIndex === "number" ? b.combatPetSequenceIndex : 9999;
+            if (ai !== bi) return ai - bi;
+            const at = parseTs(a.ts)?.getTime() ?? 0;
+            const bt = parseTs(b.ts)?.getTime() ?? 0;
+            return at - bt;
+          })
+          .forEach((entry) => {
+            if (entry.petName && !names.includes(entry.petName)) names.push(entry.petName);
+          });
+        return names;
+      }
+
+      function renderPetNamesSuffixHtml(petNames) {
+        const names = (petNames || []).filter(Boolean);
+        return names.length ? ` <span class="pet-name-inline">(${names.map(escapeHtml).join(" / ")})</span>` : "";
+      }
+
+      function renderCombatPetBadgeHtml(isPet) {
+        return isPet ? '<span class="skill-milestone-badge combat-pet-badge">Pet</span>' : "";
+      }
+
+      function renderCombatEntryItemHtml(entry) {
+        const label = entry?.item || entry?.title || "Drop";
+        return `${renderCombatPetBadgeHtml(!!entry?.isCombatPet)}${escapeHtml(label)}${entry?.isCombatPet ? renderPetNameSuffixHtml(entry.petName) : ""}`;
+      }
+
+      function renderAllLogEntryTitleHtml(e) {
+        if (e.isCombatPet && e.item) return `${escapeHtml(e.item)}${renderPetNameSuffixHtml(e.petName)}`;
+        return escapeHtml(e.title);
+      }
+
       function getAllLogEntryBadge(e) {
         if (e.super === "skills") {
           if (e.sub === "pet") return "Pet";
@@ -6844,7 +7475,7 @@
           if (is200mXpEntry(e)) return "200M XP";
           return "Skill";
         }
-        if (e.super === "combat") return e.item ? "Drop" : "Combat";
+        if (e.super === "combat") return e.isCombatPet ? "Pet" : e.item ? "Drop" : "Combat";
         if (e.super === "clues") return e.item ? "Clue Loot" : "Clue";
         if (e.super === "quests") return e.sub === "completion" ? "Quest" : "Milestone";
         return "Misc";
@@ -6931,7 +7562,7 @@
 
       function render() {
 
-        const q = document.getElementById("search").value.toLowerCase();
+        const q = getCurrentSearchQuery();
         const list = document.getElementById("list");
         const headerWrap = document.getElementById("list-pane-header-wrap");
         const combatView = document.getElementById("combat-view");
@@ -6982,17 +7613,10 @@
 
         // Base filter (category + search + date)
         let filtered = appState.data.entries.filter((e) => {
-          const searchContent = (e.title + " " + e.details).toLowerCase();
           if (appState.ui.activeFilter !== "all" && e.super !== appState.ui.activeFilter) return false;
-          if (q && !searchContent.includes(q)) return false;
-          if (appState.ui.dateFrom || appState.ui.dateTo) {
-            const d = parseTs(e.ts);
-            if (!d) return false;
-            if (appState.ui.dateFrom && d < appState.ui.dateFrom) return false;
-            if (appState.ui.dateTo && d > appState.ui.dateTo) return false;
-          }
-          return true;
+          return entryMatchesGlobalSearchAndDate(e);
         });
+        renderSearchState(filtered.length);
 
         // Additional sub-filtering only for skills in the list view
         let listFiltered = filtered;
@@ -7170,7 +7794,7 @@
             .sort((a, b) => new Date(b.ts) - new Date(a.ts));
           lootListEl.innerHTML = `
             <div class="loot-row log-row clickable back-btn" data-action="toggle-loot-drilldown" data-monster-type="${escapeHtml(type)}" role="button" tabindex="0">← Back to ${escapeHtml(currentMonster)}</div>
-            ${itemHistory.map((h) => `<div class="loot-row log-row"><span class="loot-name">${h.title}</span><span class="loot-ts">${h.ts}</span></div>`).join("")}`;
+            ${itemHistory.map((h) => `<div class="loot-row log-row"><span class="loot-name">${h.isCombatPet ? renderCombatEntryItemHtml(h) : escapeHtml(h.title)}</span><span class="loot-ts">${escapeHtml(h.ts)}</span></div>`).join("")}`;
           return;
         }
 
@@ -7185,8 +7809,12 @@
         }
         const grouped = drops.reduce((acc, curr) => {
           const key = curr.item;
-          if (!acc[key]) acc[key] = { count: 0, lastTs: curr.ts, name: key };
+          if (!acc[key]) acc[key] = { count: 0, lastTs: curr.ts, name: key, isCombatPet: false, petRows: [] };
           acc[key].count++;
+          if (curr.isCombatPet) {
+            acc[key].isCombatPet = true;
+            acc[key].petRows.push(curr);
+          }
           if (new Date(curr.ts) > new Date(acc[key].lastTs))
             acc[key].lastTs = curr.ts;
           return acc;
@@ -7196,13 +7824,14 @@
         );
 
         lootListEl.innerHTML = sortedDrops
-          .map(
-            (g) => `
+          .map((g) => {
+            const petNames = getUniquePetNamesFromEntries(g.petRows || []);
+            return `
         <div class="loot-row log-row clickable" data-action="toggle-loot-drilldown" data-monster-type="${escapeHtml(type)}" data-item="${escapeHtml(g.name)}" role="button" tabindex="0">
-            <span class="loot-name"><span class="loot-count">${g.count}x</span>${g.name}</span>
-            <span class="loot-ts">${g.count > 1 ? "View History" : g.lastTs}</span>
-        </div>`,
-          )
+            <span class="loot-name">${renderCombatPetBadgeHtml(g.isCombatPet)}<span class="loot-count">${g.count}x</span>${escapeHtml(g.name)}${renderPetNamesSuffixHtml(petNames)}</span>
+            <span class="loot-ts">${g.count > 1 ? "View History" : escapeHtml(g.lastTs)}</span>
+        </div>`;
+          })
           .join("");
       }
 
