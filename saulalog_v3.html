@@ -1,11 +1,11 @@
 <!doctype html>
 
 <!--
-  Saulalog v3.38
-  - Tightened skilling pet parsing and captures pet names.
-  - Added boss and Slayer combat pet tagging from known unlock items.
-  - Shows Pet badges and inline pet names in Combat and All Logs.
-  - Makes pet names searchable and extends the Pets quick filter across Skills + Combat.
+  Saulalog v3.39 — Combat parser fixes
+  - Fixed Osseous singular Rex Matriarch parsing.
+  - Preserved generic Rex Matriarch parsing for Rathis, Orikalka, and Pthentraken.
+  - Added defeated boss killcount parsing for Queen Black Dragon and Twin Furies.
+  - Preserved All Logs controls, milestone collapse, Day view grouping, Compact view alignment, and section-colored accent lines.
 -->
 
 <html lang="en">
@@ -1493,21 +1493,6 @@
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.7px;
-      }
-
-      .combat-pet-badge {
-        color: var(--color-combat);
-        margin-right: 6px;
-        margin-bottom: 0;
-        vertical-align: middle;
-      }
-      .pet-name-inline {
-        color: var(--color-text-light);
-        font-size: 11px;
-        font-weight: 700;
-        margin-left: 2px;
-        text-transform: none;
-        letter-spacing: 0;
       }
 
       /* Clue type summary rows */
@@ -3267,7 +3252,7 @@
       }
 
 
-      /* v3.38: All Logs controls, milestone collapse, Search + Range cleanup, pet parsing, and section-colored row accents. */
+      /* v3.39: All Logs controls, milestone collapse, Search + Range cleanup, fixed Day grouping, and section-colored row accents. */
       .all-log-controls {
         width: 100%;
         background: var(--color-surface);
@@ -3512,7 +3497,7 @@
       }
 
 
-      /* v3.38: Search + Range cleanup */
+      /* v3.39: Search + Range cleanup */
       .enhanced-search-wrap {
         position: relative;
         display: flex;
@@ -3896,7 +3881,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.38";
+      const APP_VERSION = "3.39";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -3989,7 +3974,7 @@
         // Specific Rex Matriarchs activity from Ancient experimental dinosaurs is Osseous.
         // Keep this before the generic Rex Matriarch alias below.
         {
-          match: /Ancient experimental dinosaurs:\s*Rex Matriarchs/i,
+          match: /\b(?:An?\s+)?ancient experimental dinosaurs?:\s*(?:a\s+)?Rex Matriarchs?\b/i,
           canonical: "Osseous",
         },
 
@@ -4163,12 +4148,10 @@
       // parser fixes can be made in one place without hunting through processData().
       const CLUE_LOOT_RE =
         /(?:I got|received|found) (?:a |an |some )?(.+?)(?:\s+out of it|\.|$)/i;
-      const SKILLING_PET_RE =
-        /^While skilling,\s*I found\s+(.+?),\s+the\s+(.+?)\s+pet\.$/i;
       const SKILL_EVENT_RE =
-        /experience points in the|I levelled|level 99|While skilling,\s*I found\s+.+?,\s+the\s+.+?\s+pet\.|achieved at least level|total level of/i;
+        /experience points in the|I levelled|level 99|While skilling|achieved at least level|total level of/i;
       const COMBAT_TRIGGER_RE =
-        /killed|dropped|looted|found|surviving|defeating|battling|freeing|diving|exploring|plundering|hibernation/i;
+        /killed|defeated|dropped|looted|found|surviving|defeating|battling|freeing|diving|exploring|plundering|hibernation/i;
       const QUEST_MILESTONE_RE = /quest points?|Quest Complete/i;
       const SONG_UNLOCK_RE = /unlocked a total of \d+ songs/i;
 
@@ -4207,369 +4190,6 @@
         /After defeating .+?, I found (?:a pair of |some |an |a )?([^.!]+)/i,
         /I looted (?:a pair of |some |an |a )?([^.!]+)/i,
       ];
-
-      // Combat pets are normal-looking item drops in the Activity Log.
-      // Keep boss and Slayer configs separate so the parser can preserve source metadata.
-      const BOSS_PET_ITEMS = {
-        "King black dragon scale": {
-                "boss": "King Black Dragon",
-                "petName": "King Black Dragonling"
-        },
-        "Kalphite egg": {
-                "boss": "Kalphite Queen",
-                "petName": "Kalphite Grublet"
-        },
-        "Shrivelled dagannoth claw": {
-                "boss": "Dagannoth Rex",
-                "petName": "Rex hatchling"
-        },
-        "Dagannoth egg": {
-                "boss": "Dagannoth Prime",
-                "petName": "Prime hatchling"
-        },
-        "Dagannoth scale": {
-                "boss": "Dagannoth Supreme",
-                "petName": "Supreme hatchling"
-        },
-        "Ribs of chaos": {
-                "boss": "Chaos Elemental",
-                "petName": "Ellie"
-        },
-        "Rotten fang": {
-                "boss": "Giant mole",
-                "petName": "Molly"
-        },
-        "Giant feather": {
-                "boss": "Kree'arra",
-                "petName": "Chick'arra"
-        },
-        "Auburn lock": {
-                "boss": "Commander Zilyana",
-                "petName": "Commander Miniana"
-        },
-        "Decaying tooth": {
-                "boss": "General Graardor",
-                "petName": "General Awwdor"
-        },
-        "Severed hoof": {
-                "boss": "K'ril Tsutsaroth",
-                "petName": "K'ril Tinyroth"
-        },
-        "Blood-soaked feather": {
-                "boss": "Nex",
-                "petName": "Nexterminator"
-        },
-        "Blood tentacle": {
-                "boss": "Nex, Angel of Death",
-                "petName": "Reeves"
-        },
-        "Corporeal bone": {
-                "boss": "Corporeal Beast",
-                "petName": "Corporeal Puppy"
-        },
-        "Volcanic shard": {
-                "boss": "Har-Aken",
-                "petName": "Shrimpy"
-        },
-        "Queen Black Dragon scale": {
-                "boss": "Queen Black Dragon",
-                "petName": "Queen Black Dragonling"
-        },
-        "Kalphite claw": {
-                "boss": "Kalphite King",
-                "petName": "Kalphite Grubling"
-        },
-        "Corrupted Ascension signet I": {
-                "boss": "Legio Primus",
-                "petName": "Legio Primulus"
-        },
-        "Corrupted Ascension signet II": {
-                "boss": "Legio Secundus",
-                "petName": "Legio Secundulus"
-        },
-        "Corrupted Ascension signet III": {
-                "boss": "Legio Tertius",
-                "petName": "Legio Tertiolus"
-        },
-        "Corrupted Ascension signet IV": {
-                "boss": "Legio Quartus",
-                "petName": "Legio Quartulus"
-        },
-        "Corrupted Ascension signet V": {
-                "boss": "Legio Quintus",
-                "petName": "Legio Quintulus"
-        },
-        "Corrupted Ascension signet VI": {
-                "boss": "Legio Sextus",
-                "petName": "Legio Sextulus"
-        },
-        "Ancient summoning stone": {
-                "boss": "Vorago",
-                "petName": "Vitalis"
-        },
-        "Ancient artefact": {
-                "boss": "Vorago",
-                "petName": "Bombi"
-        },
-        "Araxyte egg": {
-                "boss": "Araxxi",
-                "sequence": [
-                        "Barry",
-                        "Mallory"
-                ]
-        },
-        "Durzag's helmet": {
-                "boss": "Beastmaster Durzag",
-                "petName": "Diddyzag"
-        },
-        "Yakamaru's helmet": {
-                "boss": "Yakamaru",
-                "petName": "Yakaminu"
-        },
-        "Faceless mask": {
-                "boss": "Gregorovic",
-                "petName": "Greg"
-        },
-        "Twisted antler": {
-                "boss": "Helwyr",
-                "petName": "Lilwyr"
-        },
-        "Avaryss' braid": {
-                "boss": "The Twin Furies",
-                "petName": "Ava"
-        },
-        "Nymora's braid": {
-                "boss": "The Twin Furies",
-                "petName": "Nylessa"
-        },
-        "Imbued blade slice": {
-                "boss": "Vindicta",
-                "petName": "Vindiddy"
-        },
-        "Glimmering scale": {
-                "boss": "Vindicta",
-                "petName": "Rawrvek"
-        },
-        "Telos' tendril": {
-                "boss": "Telos, the Warden",
-                "petName": "Tess"
-        },
-        "Soul fragment": {
-                "boss": "The Magister",
-                "petName": "The Minister"
-        },
-        "Imbued bark shard": {
-                "boss": "Solak, Guardian of the Grove",
-                "petName": "Solly"
-        },
-        "Chipped black stone crystal": {
-                "boss": "Seiryu the Azure Serpent",
-                "petName": "Kuroryu"
-        },
-        "Inert black stone crystal": {
-                "boss": "Black stone dragon",
-                "petName": "Bisdi"
-        },
-        "Umbral urn": {
-                "boss": "The Ambassador",
-                "petName": "Ambi"
-        },
-        "Broken shackle": {
-                "boss": "Raksha, the Shadow Colossus",
-                "petName": "Raklette"
-        },
-        "Pristine Bagrada rex egg": {
-                "boss": "Orikalka",
-                "petName": "Bagra"
-        },
-        "Pristine Pavosaurus rex egg": {
-                "boss": "Pthentraken",
-                "petName": "Pavo"
-        },
-        "Pristine Corbicula rex egg": {
-                "boss": "Rathis",
-                "petName": "Corbi"
-        },
-        "Kerapac's mask piece": {
-                "boss": "Kerapac, the bound",
-                "petName": "Kerry"
-        },
-        "Glacor core": {
-                "boss": "Arch-Glacor",
-                "petName": "Gladys"
-        },
-        "Croesus's enriched root": {
-                "boss": "Croesus",
-                "petName": "Little Sus"
-        },
-        "TzKal-Zuk's armour piece": {
-                "boss": "TzKal-Zuk",
-                "petName": "Little Zuk"
-        },
-        "Jewels of Zamorak": {
-                "boss": "Zamorak, Lord of Chaos",
-                "petName": "Zammo the Rak"
-        },
-        "Hermod's armour spike": {
-                "boss": "Hermod, the Spirit of War",
-                "petName": "Herman"
-        },
-        "Miso's collar": {
-                "boss": "Rasial, the First Necromancer",
-                "petName": "Miso"
-        },
-        "Vorkath's claw": {
-                "boss": "Zemouregal & Vorkath",
-                "petName": "Vorki"
-        },
-        "Calcified heart": {
-                "boss": "Osseous",
-                "petName": "Baby Osseous"
-        },
-        "Clawdia's shell clippings": {
-                "boss": "Clawdia",
-                "petName": "Clawdie"
-        },
-        "Nefthys' tooth": {
-                "boss": "Nakatra, Devourer Eternal",
-                "petName": "Neffie"
-        },
-        "Fragment of the Gate": {
-                "boss": "The Gate of Elidinis",
-                "petName": "Edie"
-        },
-        "Amascut's promise": {
-                "boss": "Amascut, the Devourer",
-                "petName": "Amaskitty"
-        },
-        "Snowverload's nose": {
-                "boss": "Snowverload",
-                "petName": "Snowdrop"
-        },
-        "Mhekarnahz's eye": {
-                "boss": "Flesh-hatcher Mhekarnahz",
-                "petName": "Flesh-hatchling Mhekarnahz"
-        },
-        "Ivar's loincloth": {
-                "boss": "Ivar, King of Bones",
-                "petName": "Ivarsson"
-        },
-        "Silverquill's blood-filled cyst": {
-                "boss": "Silverquill, the Dreadhog",
-                "petName": "Needlemouse"
-        }
-};
-
-      const SLAYER_PET_ITEMS = {
-        "Edimmu": {
-                "monster": "Edimmu",
-                "petName": "Eddy"
-        },
-        "Soulgazer's charm": {
-                "monster": "Soulgazer",
-                "petName": "Baby Soulgazer"
-        },
-        "Item": {
-                "monster": "Slasher demon",
-                "petName": "Nipper demon",
-                "requiresMonsterMatch": true
-        }
-};
-
-      function normalizeLookupName(value) {
-        return String(value || "")
-          .toLowerCase()
-          .replace(/['’]/g, "")
-          .replace(/[^a-z0-9]+/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-      }
-
-      function parseSkillingPet(details) {
-        const match = String(details || "").match(SKILLING_PET_RE);
-        if (!match) return null;
-        return {
-          petName: match[1].trim(),
-          skill: match[2].trim(),
-        };
-      }
-
-      function buildCombatPetItemLookup(configs) {
-        const lookup = {};
-        const add = (source, item, meta) => {
-          const key = normalizeLookupName(item);
-          if (!key) return;
-          if (!lookup[key]) lookup[key] = [];
-          lookup[key].push({
-            ...meta,
-            source,
-            item,
-          });
-        };
-        Object.entries(configs.boss || {}).forEach(([item, meta]) => add("boss", item, meta));
-        Object.entries(configs.slayer || {}).forEach(([item, meta]) => add("slayer", item, meta));
-        return lookup;
-      }
-
-      const COMBAT_PET_ITEM_LOOKUP = buildCombatPetItemLookup({
-        boss: BOSS_PET_ITEMS,
-        slayer: SLAYER_PET_ITEMS,
-      });
-
-      function combatPetMetadataMatches(entry, meta) {
-        if (!entry || !meta) return false;
-        const expectedMonster = meta.monster || meta.boss || "";
-        if (meta.requiresMonsterMatch || meta.source === "slayer") {
-          return normalizeLookupName(entry.monster) === normalizeLookupName(expectedMonster);
-        }
-        return true;
-      }
-
-      function findCombatPetMatch(entry) {
-        if (!entry || entry.super !== "combat" || !entry.item) return null;
-        const candidates = COMBAT_PET_ITEM_LOOKUP[normalizeLookupName(entry.item)] || [];
-        return candidates.find((meta) => combatPetMetadataMatches(entry, meta)) || null;
-      }
-
-      function applyCombatPetMetadata(entry, meta, petName, sequenceIndex = null) {
-        if (!entry || !meta || !petName) return;
-        entry.isCombatPet = true;
-        entry.petSource = meta.source;
-        entry.dropType = "pet";
-        entry.petName = petName;
-        entry.canonicalPetItem = meta.item;
-        if (sequenceIndex !== null) entry.combatPetSequenceIndex = sequenceIndex;
-      }
-
-      function tagCombatPetDrops(entries) {
-        const sequenceBuckets = new Map();
-        entries.forEach((entry) => {
-          const match = findCombatPetMatch(entry);
-          if (!match) return;
-          if (Array.isArray(match.sequence) && match.sequence.length) {
-            const key = normalizeLookupName(match.item);
-            if (!sequenceBuckets.has(key)) sequenceBuckets.set(key, { match, rows: [] });
-            sequenceBuckets.get(key).rows.push(entry);
-            return;
-          }
-          applyCombatPetMetadata(entry, match, match.petName);
-        });
-
-        sequenceBuckets.forEach((bucket) => {
-          bucket.rows
-            .sort((a, b) => {
-              const at = parseTs(a.ts)?.getTime() ?? 0;
-              const bt = parseTs(b.ts)?.getTime() ?? 0;
-              if (at !== bt) return at - bt;
-              return (a.sourceIndex || 0) - (b.sourceIndex || 0);
-            })
-            .forEach((entry, index) => {
-              const sequence = bucket.match.sequence || [];
-              const petName = sequence[Math.min(index, sequence.length - 1)];
-              applyCombatPetMetadata(entry, bucket.match, petName, index);
-            });
-        });
-      }
 
       const UNCLASSIFIED_HINT_RULES = [
         {
@@ -4932,12 +4552,14 @@
       function exportVisibleEntries() {
         const q = getCurrentSearchQuery().toLowerCase();
         const rows = appState.data.entries.filter((entry) => {
+          const searchContent = `${entry.title || ""} ${entry.details || ""}`.toLowerCase();
           if (appState.ui.activeFilter !== "all" && entry.super !== appState.ui.activeFilter) return false;
+          if (q && !searchContent.includes(q)) return false;
           if (!entryMatchesGlobalSearchAndDate(entry)) return false;
           return true;
         });
         const csv = [
-          ["timestamp", "section", "type", "title", "details", "monster", "skill", "item", "petName", "petSource", "dropType", "killCount"],
+          ["timestamp", "section", "type", "title", "details", "monster", "skill", "item", "killCount"],
           ...rows.map((entry) => [
             entry.ts || "",
             entry.super || "",
@@ -4947,9 +4569,6 @@
             entry.monster || "",
             entry.skill || "",
             entry.item || "",
-            entry.petName || "",
-            entry.petSource || "",
-            entry.dropType || "",
             entry.killCount || "",
           ]),
         ].map((row) => row.map(escapeCsv).join(",")).join("\n");
@@ -4991,10 +4610,6 @@
           entry.skill,
           entry.monster,
           entry.item,
-          entry.petName,
-          entry.petSource,
-          entry.dropType,
-          entry.canonicalPetItem,
           entry.super,
           entry.sub,
           getCategoryLabel(entry.super),
@@ -5009,13 +4624,12 @@
         const has = (field) => normalizeSearchValue(field).includes(value);
         if (["skill", "sk"].includes(key)) return has(entry.skill) || (entry.super === "skills" && entrySearchHaystack(entry).includes(value));
         if (["boss", "monster", "mob", "npc"].includes(key)) return has(entry.monster);
-        if (["drop", "item", "loot"].includes(key)) return has(entry.item) || has(entry.canonicalPetItem) || ((entry.super === "combat" || entry.super === "clues") && entrySearchHaystack(entry).includes(value));
-        if (["pet", "petname"].includes(key)) return has(entry.petName) || (entry.isCombatPet && entrySearchHaystack(entry).includes(value)) || (entry.super === "skills" && entry.sub === "pet" && entrySearchHaystack(entry).includes(value));
+        if (["drop", "item", "loot"].includes(key)) return has(entry.item) || ((entry.super === "combat" || entry.super === "clues") && entrySearchHaystack(entry).includes(value));
         if (["clue", "tier"].includes(key)) return entry.super === "clues" && (has(entry.sub) || entrySearchHaystack(entry).includes(value));
         if (["category", "cat", "section"].includes(key)) return has(entry.super) || has(getCategoryLabel(entry.super));
         if (key === "type") {
           if (value === "drop") return (entry.super === "combat" || entry.super === "clues") && !!entry.item;
-          if (value === "pet") return (entry.super === "skills" && entry.sub === "pet") || !!entry.isCombatPet;
+          if (value === "pet") return entry.super === "skills" && entry.sub === "pet";
           if (["milestone", "milestones"].includes(value)) return allLogEntryMatchesQuickFiltersForId(entry, "milestones");
           if (["quest", "completion", "complete", "questcomplete"].includes(value)) return entry.super === "quests" && entry.sub === "completion";
           if (["xp", "level", "total"].includes(value)) return entry.super === "skills" && (entry.sub === value || (value === "xp" && is200mXpEntry(entry)));
@@ -5398,8 +5012,6 @@
               <div><span class="summary-label">Monster</span><span class="summary-value">${escapeHtml(entry.monster || "—")}</span></div>
               <div><span class="summary-label">Skill</span><span class="summary-value">${escapeHtml(entry.skill || "—")}</span></div>
               <div><span class="summary-label">Item</span><span class="summary-value">${escapeHtml(entry.item || "—")}</span></div>
-              <div><span class="summary-label">Pet</span><span class="summary-value">${escapeHtml(entry.petName || "—")}</span></div>
-              <div><span class="summary-label">Pet source</span><span class="summary-value">${escapeHtml(entry.petSource || "—")}</span></div>
               <div><span class="summary-label">Killcount</span><span class="summary-value">${escapeHtml(entry.killCount || 0)}</span></div>
               <div><span class="summary-label">Confidence</span><span class="summary-value">${escapeHtml(summary.confidence)}</span></div>
               <div><span class="summary-label">Reason</span><span class="summary-value">${escapeHtml(summary.reason)}</span></div>
@@ -5439,8 +5051,6 @@
               <div><span class="summary-label">Monster</span><span class="summary-value">${escapeHtml(entry.monster || "—")}</span></div>
               <div><span class="summary-label">Skill</span><span class="summary-value">${escapeHtml(entry.skill || "—")}</span></div>
               <div><span class="summary-label">Item</span><span class="summary-value">${escapeHtml(entry.item || "—")}</span></div>
-              <div><span class="summary-label">Pet</span><span class="summary-value">${escapeHtml(entry.petName || "—")}</span></div>
-              <div><span class="summary-label">Pet source</span><span class="summary-value">${escapeHtml(entry.petSource || "—")}</span></div>
               <div><span class="summary-label">Killcount</span><span class="summary-value">${escapeHtml(entry.killCount || 0)}</span></div>
               <div><span class="summary-label">Confidence</span><span class="summary-value">${escapeHtml(summary.confidence)}</span></div>
               <div><span class="summary-label">Reason</span><span class="summary-value">${escapeHtml(summary.reason)}</span></div>
@@ -6196,22 +5806,16 @@
             }
             if (SKILL_EVENT_RE.test(details)) {
               d.super = "skills";
-              const skillingPet = parseSkillingPet(details);
-              if (skillingPet) {
-                d.sub = "pet";
-                d.skill = SKILLS.includes(skillingPet.skill) ? skillingPet.skill : skillingPet.skill;
-                d.petName = skillingPet.petName;
-                return d;
-              }
               SKILLS.forEach((s) => {
                 if (details.includes(s)) d.skill = s;
               });
-              const detailLower = details.toLowerCase();
-              d.sub = detailLower.includes("experience points")
+              d.sub = details.includes("experience points")
                 ? "xp"
-                : detailLower.includes("total level of")
-                  ? "total"
-                  : "level";
+                : details.includes("While skilling")
+                  ? "pet"
+                  : details.includes("total level of")
+                    ? "total"
+                    : "level";
               return d;
             }
 
@@ -6378,10 +5982,6 @@
               return clone;
             });
           });
-
-        // Combat pet tagging happens after shared-boss expansion so sequence-based pets
-        // such as Araxyte egg are assigned against the full parsed dataset.
-        tagCombatPetDrops(appState.data.entries);
 
         // Killcounts are intentionally not deduped here; extractApproxKillCount() mirrors the row-level Sheets tally.
         rebuildParsedIndexes();
@@ -6988,7 +6588,7 @@
             <div class="entry-content">
                 <span class="cat-dot" style="background:var(--color-quest)"></span>
                 <div class="entry-text-stack">
-                    <span class="entry-title">${renderAllLogEntryTitleHtml(e)}</span>
+                    <span class="entry-title">${escapeHtml(e.title)}</span>
                     <span class="entry-details">${escapeHtml(e.details)}</span>
                 </div>
             </div>
@@ -7205,7 +6805,7 @@
           );
         }
         if (id === "drops") return (e.super === "combat" || e.super === "clues") && !!e.item;
-        if (id === "pets") return (e.super === "skills" && e.sub === "pet") || !!e.isCombatPet;
+        if (id === "pets") return e.super === "skills" && e.sub === "pet";
         if (id === "questCompletes") return e.super === "quests" && e.sub === "completion";
         return false;
       }
@@ -7426,48 +7026,6 @@
         return CATEGORY_CONFIG[cat]?.label || "Misc";
       }
 
-
-      function renderPetNameSuffixHtml(petName) {
-        return petName ? ` <span class="pet-name-inline">(${escapeHtml(petName)})</span>` : "";
-      }
-
-      function getUniquePetNamesFromEntries(entries) {
-        const names = [];
-        entries
-          .slice()
-          .sort((a, b) => {
-            const ai = typeof a.combatPetSequenceIndex === "number" ? a.combatPetSequenceIndex : 9999;
-            const bi = typeof b.combatPetSequenceIndex === "number" ? b.combatPetSequenceIndex : 9999;
-            if (ai !== bi) return ai - bi;
-            const at = parseTs(a.ts)?.getTime() ?? 0;
-            const bt = parseTs(b.ts)?.getTime() ?? 0;
-            return at - bt;
-          })
-          .forEach((entry) => {
-            if (entry.petName && !names.includes(entry.petName)) names.push(entry.petName);
-          });
-        return names;
-      }
-
-      function renderPetNamesSuffixHtml(petNames) {
-        const names = (petNames || []).filter(Boolean);
-        return names.length ? ` <span class="pet-name-inline">(${names.map(escapeHtml).join(" / ")})</span>` : "";
-      }
-
-      function renderCombatPetBadgeHtml(isPet) {
-        return isPet ? '<span class="skill-milestone-badge combat-pet-badge">Pet</span>' : "";
-      }
-
-      function renderCombatEntryItemHtml(entry) {
-        const label = entry?.item || entry?.title || "Drop";
-        return `${renderCombatPetBadgeHtml(!!entry?.isCombatPet)}${escapeHtml(label)}${entry?.isCombatPet ? renderPetNameSuffixHtml(entry.petName) : ""}`;
-      }
-
-      function renderAllLogEntryTitleHtml(e) {
-        if (e.isCombatPet && e.item) return `${escapeHtml(e.item)}${renderPetNameSuffixHtml(e.petName)}`;
-        return escapeHtml(e.title);
-      }
-
       function getAllLogEntryBadge(e) {
         if (e.super === "skills") {
           if (e.sub === "pet") return "Pet";
@@ -7475,7 +7033,7 @@
           if (is200mXpEntry(e)) return "200M XP";
           return "Skill";
         }
-        if (e.super === "combat") return e.isCombatPet ? "Pet" : e.item ? "Drop" : "Combat";
+        if (e.super === "combat") return e.item ? "Drop" : "Combat";
         if (e.super === "clues") return e.item ? "Clue Loot" : "Clue";
         if (e.super === "quests") return e.sub === "completion" ? "Quest" : "Milestone";
         return "Misc";
@@ -7794,7 +7352,7 @@
             .sort((a, b) => new Date(b.ts) - new Date(a.ts));
           lootListEl.innerHTML = `
             <div class="loot-row log-row clickable back-btn" data-action="toggle-loot-drilldown" data-monster-type="${escapeHtml(type)}" role="button" tabindex="0">← Back to ${escapeHtml(currentMonster)}</div>
-            ${itemHistory.map((h) => `<div class="loot-row log-row"><span class="loot-name">${h.isCombatPet ? renderCombatEntryItemHtml(h) : escapeHtml(h.title)}</span><span class="loot-ts">${escapeHtml(h.ts)}</span></div>`).join("")}`;
+            ${itemHistory.map((h) => `<div class="loot-row log-row"><span class="loot-name">${h.title}</span><span class="loot-ts">${h.ts}</span></div>`).join("")}`;
           return;
         }
 
@@ -7809,12 +7367,8 @@
         }
         const grouped = drops.reduce((acc, curr) => {
           const key = curr.item;
-          if (!acc[key]) acc[key] = { count: 0, lastTs: curr.ts, name: key, isCombatPet: false, petRows: [] };
+          if (!acc[key]) acc[key] = { count: 0, lastTs: curr.ts, name: key };
           acc[key].count++;
-          if (curr.isCombatPet) {
-            acc[key].isCombatPet = true;
-            acc[key].petRows.push(curr);
-          }
           if (new Date(curr.ts) > new Date(acc[key].lastTs))
             acc[key].lastTs = curr.ts;
           return acc;
@@ -7824,14 +7378,13 @@
         );
 
         lootListEl.innerHTML = sortedDrops
-          .map((g) => {
-            const petNames = getUniquePetNamesFromEntries(g.petRows || []);
-            return `
+          .map(
+            (g) => `
         <div class="loot-row log-row clickable" data-action="toggle-loot-drilldown" data-monster-type="${escapeHtml(type)}" data-item="${escapeHtml(g.name)}" role="button" tabindex="0">
-            <span class="loot-name">${renderCombatPetBadgeHtml(g.isCombatPet)}<span class="loot-count">${g.count}x</span>${escapeHtml(g.name)}${renderPetNamesSuffixHtml(petNames)}</span>
-            <span class="loot-ts">${g.count > 1 ? "View History" : escapeHtml(g.lastTs)}</span>
-        </div>`;
-          })
+            <span class="loot-name"><span class="loot-count">${g.count}x</span>${g.name}</span>
+            <span class="loot-ts">${g.count > 1 ? "View History" : g.lastTs}</span>
+        </div>`,
+          )
           .join("");
       }
 
