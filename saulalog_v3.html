@@ -1,10 +1,11 @@
 <!doctype html>
 
 <!--
-  Saulalog v3.35
-  - All Logs cleanup: type toggles, quick filters, and Day/Category/Compact views.
-  - Added section-colored left accent lines to All, Skills, Clues, Quests, and Misc rows.
-  - Kept All Logs focused on the feed by removing extra summary/card clutter.
+  Saulalog v3.37
+  - Collapsed All Logs skill XP milestones to the highest/latest milestone per skill.
+  - Fixed All Logs Day view grouping for non-native timestamp formats.
+  - Kept Compact view badges inline beside row titles.
+  - Preserved All Logs controls and section-colored accent lines.
 -->
 
 <html lang="en">
@@ -3251,7 +3252,7 @@
       }
 
 
-      /* v3.35: Cleaner All Logs controls and section-colored row accents. */
+      /* v3.37: Cleaner All Logs controls, milestone collapse, fixed Day grouping, and section-colored row accents. */
       .all-log-controls {
         width: 100%;
         background: var(--color-surface);
@@ -3435,6 +3436,25 @@
 
       .entry.log-row.compact-log-entry .entry-details {
         display: none;
+      }
+
+      .entry.log-row.compact-log-entry .entry-text-stack {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+
+      .entry.log-row.compact-log-entry .skill-milestone-badge {
+        flex: 0 0 auto;
+        margin-bottom: 0;
+      }
+
+      .entry.log-row.compact-log-entry .entry-title {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .entry.log-row.compact-log-entry {
@@ -3776,7 +3796,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.35";
+      const APP_VERSION = "3.37";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -4352,7 +4372,16 @@
 
       function getDateKey(ts) {
         const d = parseTs(ts);
-        return d ? d.toISOString().slice(0, 10) : "unknown";
+        return d ? formatDateKeyLocal(d) : "unknown";
+      }
+
+      function formatDateKeyLocal(dateLike) {
+        const d = dateLike instanceof Date ? dateLike : parseTs(dateLike);
+        if (!d) return "unknown";
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, "0");
+        const day = String(d.getDate()).padStart(2, "0");
+        return `${y}-${m}-${day}`;
       }
 
       function rebuildParsedIndexes() {
@@ -6600,8 +6629,104 @@
         });
       }
 
+      function getAllLogXpMilestoneValue(entry) {
+        if (!entry || entry.super !== "skills") return null;
+        const text = `${entry.title || ""} ${entry.details || ""}`;
+        const fromDetails = parseXpFromDetails(entry.details || "");
+        if (fromDetails !== null) return fromDetails;
+        const m = text.match(/(\d+(?:\.\d+)?)\s*m\s*(?:xp|experience)?/i);
+        if (m) return Math.round(Number(m[1]) * 1_000_000);
+        const explicit = text.match(/([\d,]+)\s*(?:XP|experience points)/i);
+        if (explicit) return parseInt(explicit[1].replace(/,/g, ""), 10);
+        return is200mXpEntry(entry) ? 200_000_000 : null;
+      }
+
+      function getAllLogSkillLevelValue(entry) {
+        if (!entry || entry.super !== "skills") return null;
+        const text = `${entry.title || ""} ${entry.details || ""}`;
+        const levelMatch = text.match(/(?:level(?:led)?(?:\s+(?:my\s+)?\w+\s+skill,?\s+reaching)?|reached|reaching|level)\s+(\d{1,3})\b/i);
+        if (levelMatch) return parseInt(levelMatch[1], 10);
+        return null;
+      }
+
+      function getAllLogTotalLevelValue(entry) {
+        if (!entry || entry.super !== "skills" || entry.sub !== "total") return null;
+        const text = `${entry.title || ""} ${entry.details || ""}`;
+        const totalMatch = text.match(/total level(?:\s+of)?\s+(\d{2,4})\b/i);
+        return totalMatch ? parseInt(totalMatch[1], 10) : null;
+      }
+
+      function compareAllLogMilestoneEntries(a, b) {
+        const axp = getAllLogXpMilestoneValue(a);
+        const bxp = getAllLogXpMilestoneValue(b);
+        if (axp !== null || bxp !== null) {
+          if (axp !== null && bxp !== null && axp !== bxp) return axp - bxp;
+          if (axp !== null && bxp === null) return 1;
+          if (axp === null && bxp !== null) return -1;
+        }
+        const aLevel = getAllLogSkillLevelValue(a);
+        const bLevel = getAllLogSkillLevelValue(b);
+        if (aLevel !== null || bLevel !== null) {
+          if (aLevel !== null && bLevel !== null && aLevel !== bLevel) return aLevel - bLevel;
+          if (aLevel !== null && bLevel === null) return 1;
+          if (aLevel === null && bLevel !== null) return -1;
+        }
+        const at = parseTs(a.ts)?.getTime() ?? 0;
+        const bt = parseTs(b.ts)?.getTime() ?? 0;
+        if (at !== bt) return at - bt;
+        return (a.sourceIndex || 0) - (b.sourceIndex || 0);
+      }
+
+      function collapseAllLogSkillMilestones(entries) {
+        if (!appState.allLogs.quickFilters.milestones) return entries;
+
+        const bestBySkill = new Map();
+        let bestTotalLevel = null;
+        const passthrough = [];
+
+        entries.forEach((entry) => {
+          const isSkillMilestone = entry.super === "skills" &&
+            (entry.sub === "xp" || entry.sub === "level" || entry.sub === "total" || is200mXpEntry(entry));
+
+          if (!isSkillMilestone) {
+            passthrough.push(entry);
+            return;
+          }
+
+          if (entry.sub === "total" && !entry.skill) {
+            const currentTotal = bestTotalLevel ? getAllLogTotalLevelValue(bestTotalLevel) : null;
+            const nextTotal = getAllLogTotalLevelValue(entry);
+            const currentTime = bestTotalLevel ? (parseTs(bestTotalLevel.ts)?.getTime() ?? 0) : -Infinity;
+            const nextTime = parseTs(entry.ts)?.getTime() ?? 0;
+            if (
+              !bestTotalLevel ||
+              (nextTotal !== null && (currentTotal === null || nextTotal > currentTotal)) ||
+              (nextTotal === currentTotal && nextTime > currentTime)
+            ) {
+              bestTotalLevel = entry;
+            }
+            return;
+          }
+
+          if (!entry.skill) {
+            passthrough.push(entry);
+            return;
+          }
+
+          const current = bestBySkill.get(entry.skill);
+          if (!current || compareAllLogMilestoneEntries(entry, current) > 0) {
+            bestBySkill.set(entry.skill, entry);
+          }
+        });
+
+        if (bestTotalLevel) passthrough.push(bestTotalLevel);
+        bestBySkill.forEach((entry) => passthrough.push(entry));
+        return passthrough;
+      }
+
       function applyAllLogControls(entries) {
-        return entries.filter((e) => allLogEntryMatchesType(e) && allLogEntryMatchesQuickFilters(e));
+        const filtered = entries.filter((e) => allLogEntryMatchesType(e) && allLogEntryMatchesQuickFilters(e));
+        return collapseAllLogSkillMilestones(filtered);
       }
 
       function getAllLogTypeCount(entries, type) {
@@ -6774,7 +6899,7 @@
         }
         const groups = mode === "category"
           ? groupEntriesBy(visible, (e) => e.super || "misc")
-          : groupEntriesBy(visible, (e) => getDateKey(e));
+          : groupEntriesBy(visible, (e) => getDateKey(e.ts));
         let keys = [...groups.keys()];
         if (mode === "category") {
           keys.sort((a, b) => CATEGORY_ORDER.indexOf(a) - CATEGORY_ORDER.indexOf(b));
@@ -6903,10 +7028,14 @@
         } else {
           let display = [...listFiltered];
           if (appState.ui.activeFilter === "all") display = applyAllLogControls(display);
+          const entryTime = (entry) => {
+            const d = parseTs(entry.ts);
+            return d ? d.getTime() : 0;
+          };
           if (appState.ui.sortOrder === "oldest")
-            display.sort((a, b) => new Date(a.ts) - new Date(b.ts));
+            display.sort((a, b) => entryTime(a) - entryTime(b));
           else
-            display.sort((a, b) => new Date(b.ts) - new Date(a.ts));
+            display.sort((a, b) => entryTime(b) - entryTime(a));
 
           if (appState.ui.activeFilter === "all") {
             renderAllLogControls(listFiltered, display.length);
@@ -7337,8 +7466,83 @@
       }
 
       function parseTs(tsStr) {
-        const d = new Date(tsStr);
-        return isNaN(d.getTime()) ? null : d;
+        if (tsStr instanceof Date) return Number.isNaN(tsStr.getTime()) ? null : tsStr;
+        const raw = String(tsStr ?? "").trim();
+        if (!raw) return null;
+
+        const clean = raw
+          .replace(/\u00a0/g, " ")
+          .replace(/[–—]/g, "-")
+          .replace(/(\d)(st|nd|rd|th)\b/gi, "$1")
+          .replace(/\s+/g, " ")
+          .trim();
+
+        const makeDate = (year, monthIndex, day, hour = 0, minute = 0, second = 0, meridiem = "") => {
+          let h = Number(hour || 0);
+          const min = Number(minute || 0);
+          const sec = Number(second || 0);
+          const ap = String(meridiem || "").toLowerCase();
+          if (ap === "pm" && h < 12) h += 12;
+          if (ap === "am" && h === 12) h = 0;
+          const d = new Date(Number(year), Number(monthIndex), Number(day), h, min, sec);
+          return Number.isNaN(d.getTime()) ? null : d;
+        };
+
+        const monthMap = {
+          jan: 0, january: 0,
+          feb: 1, february: 1,
+          mar: 2, march: 2,
+          apr: 3, april: 3,
+          may: 4,
+          jun: 5, june: 5,
+          jul: 6, july: 6,
+          aug: 7, august: 7,
+          sep: 8, sept: 8, september: 8,
+          oct: 9, october: 9,
+          nov: 10, november: 10,
+          dec: 11, december: 11,
+        };
+
+        // Excel / Google Sheets serial dates occasionally appear when CSVs are exported
+        // with raw date values instead of formatted text.
+        if (/^\d{5}(?:\.\d+)?$/.test(clean)) {
+          const serial = Number(clean);
+          const ms = Math.round((serial - 25569) * 86400 * 1000);
+          const d = new Date(ms);
+          return Number.isNaN(d.getTime()) ? null : d;
+        }
+
+        // YYYY-MM-DD, YYYY/MM/DD, or YYYY.MM.DD with optional time.
+        let m = clean.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})(?:[ T,]+(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*(am|pm)?)?$/i);
+        if (m) return makeDate(m[1], Number(m[2]) - 1, m[3], m[4], m[5], m[6], m[7]);
+
+        // DD-Mon-YYYY / DD Mon YYYY with optional time.
+        m = clean.match(/^(\d{1,2})[-\s]([A-Za-z]{3,9})[-\s,]+(\d{4})(?:[ T,]+(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*(am|pm)?)?$/i);
+        if (m && monthMap[m[2].toLowerCase()] !== undefined) {
+          return makeDate(m[3], monthMap[m[2].toLowerCase()], m[1], m[4], m[5], m[6], m[7]);
+        }
+
+        // Mon DD, YYYY / Mon DD YYYY with optional time.
+        m = clean.match(/^([A-Za-z]{3,9})\s+(\d{1,2}),?\s+(\d{4})(?:[ T,]+(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*(am|pm)?)?$/i);
+        if (m && monthMap[m[1].toLowerCase()] !== undefined) {
+          return makeDate(m[3], monthMap[m[1].toLowerCase()], m[2], m[4], m[5], m[6], m[7]);
+        }
+
+        // US-style numeric dates from Google Sheets exports. If the first number
+        // is greater than 12, treat it as day/month/year as a safety fallback.
+        m = clean.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})(?:[ T,]+(\d{1,2})(?::(\d{2}))?(?::(\d{2}))?\s*(am|pm)?)?$/i);
+        if (m) {
+          let first = Number(m[1]);
+          let second = Number(m[2]);
+          let year = Number(m[3]);
+          if (year < 100) year += year >= 70 ? 1900 : 2000;
+          const month = first > 12 ? second : first;
+          const day = first > 12 ? first : second;
+          return makeDate(year, month - 1, day, m[4], m[5], m[6], m[7]);
+        }
+
+        const nativeDate = new Date(clean);
+        return Number.isNaN(nativeDate.getTime()) ? null : nativeDate;
       }
 
       // Returns all XP milestone entries for a skill, sorted oldest-first
