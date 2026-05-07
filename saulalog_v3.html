@@ -1,11 +1,10 @@
 <!doctype html>
 
 <!--
-  Saulalog v3.34
-  - Skills section cleanup: grouped skill cards, selected-skill chips, and skill search.
-  - Added Total Level as a visible Skills filter.
-  - Added Skills summary cards and clearer empty-state recovery actions.
-  - Lightened Skills filter pill weight and shortened the chart pet legend to "Pet".
+  Saulalog v3.35
+  - All Logs cleanup: type toggles, quick filters, and Day/Category/Compact views.
+  - Added section-colored left accent lines to All, Skills, Clues, Quests, and Misc rows.
+  - Kept All Logs focused on the feed by removing extra summary/card clutter.
 -->
 
 <html lang="en">
@@ -2964,7 +2963,7 @@
 
 
 
-      /* v3.34: Skills section cleanup */
+      /* Skills section cleanup carried forward from the previous release */
       .skill-picker {
         gap: 10px;
       }
@@ -3251,6 +3250,232 @@
         }
       }
 
+
+      /* v3.35: Cleaner All Logs controls and section-colored row accents. */
+      .all-log-controls {
+        width: 100%;
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-panel);
+        box-shadow: var(--shadow-panel);
+        padding: 12px 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+
+      .all-log-control-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .all-log-control-group {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        flex-wrap: wrap;
+        min-width: 0;
+      }
+
+      .all-log-control-group.primary {
+        flex: 1 1 auto;
+      }
+
+      .all-log-label {
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      .all-log-status {
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .all-log-type-pill,
+      .all-log-quick-pill,
+      .all-log-view-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text-dim);
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .all-log-type-pill.active,
+      .all-log-quick-pill.active {
+        background: var(--pill-color, var(--color-ui));
+        border-color: var(--pill-color, var(--color-ui));
+        color: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .all-log-view-btn.active {
+        background: var(--color-ui);
+        border-color: var(--color-ui);
+        color: #fff;
+      }
+
+      body.dark-mode .all-log-type-pill.active,
+      body.dark-mode .all-log-quick-pill.active,
+      body.dark-mode .all-log-view-btn.active {
+        color: #121212;
+      }
+
+      .all-log-pill-count {
+        display: inline-block;
+        padding: 1px 6px;
+        border-radius: 8px;
+        background: var(--color-bg-sub);
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .all-log-type-pill.active .all-log-pill-count {
+        background: rgba(255, 255, 255, 0.25);
+        color: #fff;
+      }
+
+      body.dark-mode .all-log-type-pill.active .all-log-pill-count {
+        background: rgba(0, 0, 0, 0.2);
+        color: #121212;
+      }
+
+      .all-log-title-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+      }
+
+      .all-log-subtitle {
+        color: var(--color-text-dim);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      .all-log-day-group {
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .all-log-day-group:last-child {
+        border-bottom: none;
+      }
+
+      .all-log-day-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 7px 15px;
+        background: var(--color-bg-sub);
+        color: var(--color-text-dim);
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .all-log-day-count {
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: none;
+        white-space: nowrap;
+      }
+
+      .log-row.accent-entry {
+        --entry-accent: var(--color-misc);
+        position: relative;
+      }
+
+      .entry.log-row.accent-entry {
+        padding-left: 24px;
+      }
+
+      .dual-entry.log-row.accent-entry,
+      .loot-row.log-row.accent-entry {
+        padding-left: 16px;
+      }
+
+      .log-row.accent-entry::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: 12px;
+        bottom: 12px;
+        width: 3px;
+        border-radius: 3px;
+        background: var(--entry-accent);
+      }
+
+      .entry.log-row.accent-entry .cat-dot {
+        display: none;
+      }
+
+      .entry.log-row.compact-log-entry .entry-details {
+        display: none;
+      }
+
+      .entry.log-row.compact-log-entry {
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+
+      .all-log-empty-state {
+        margin: 0;
+        padding: 28px 16px;
+        color: var(--color-text-light);
+        font-size: 12px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .all-log-empty-actions {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+
+      @media (max-width: 760px) {
+        .all-log-control-line {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .all-log-control-group {
+          align-items: flex-start;
+        }
+
+        .all-log-day-header {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 3px;
+        }
+      }
+
 </style>
   </head>
   <body>
@@ -3527,6 +3752,7 @@
             <div class="dual-col-body" id="skill-entry-list"></div>
           </div>
         </div>
+        <div class="all-log-controls hidden" id="all-log-controls"></div>
         <div class="entries list-pane-header-shell hidden" id="list-pane-header-wrap">
           <div class="list-pane-header" id="list-pane-header"></div>
         </div>
@@ -3550,7 +3776,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.34";
+      const APP_VERSION = "3.35";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -3748,6 +3974,11 @@
           clueSubs: { easy: true, medium: true, hard: true, elite: true, master: true },
           questSubs: { milestone: true, completion: true },
           selectedSkills: new Set(),
+        },
+        allLogs: {
+          viewMode: "day",
+          typeFilters: { skills: true, combat: true, clues: true, quests: true, misc: true },
+          quickFilters: { milestones: false, drops: false, pets: false, questCompletes: false },
         },
         clues: {
           selectedType: "easy",
@@ -4243,10 +4474,10 @@
       function getCurrentSearchQuery() { const input = document.getElementById("search"); return input ? input.value.trim() : ""; }
       function getSelectedSkillGroupLabel() { if (appState.filters.selectedSkills.size === 0) return "all"; const selected = [...appState.filters.selectedSkills].sort().join("|"); for (const [groupName, skills] of Object.entries(SKILL_GROUPS)) { if (selected === skills.filter((skill) => SKILLS.includes(skill)).sort().join("|")) return groupName; } return [...appState.filters.selectedSkills].join(","); }
       function applySkillSelectionFromState(value) { appState.filters.selectedSkills.clear(); if (!value || value === "all") return; if (SKILL_GROUPS[value]) { SKILL_GROUPS[value].forEach((skill) => appState.filters.selectedSkills.add(skill)); return; } value.split(",").map((skill) => skill.trim()).filter((skill) => SKILLS.includes(skill)).forEach((skill) => appState.filters.selectedSkills.add(skill)); }
-      function buildUrlStateParams() { const params = new URLSearchParams(); params.set("section", appState.ui.activeFilter); params.set("range", appState.ui.datePreset || "all"); const q = getCurrentSearchQuery(); if (q) params.set("q", q); if (appState.ui.datePreset === "custom" && appState.ui.dateFrom) params.set("day", appState.ui.dateFrom.toISOString().slice(0, 10)); if (appState.ui.activeFilter === "skills") { params.set("skills", getSelectedSkillGroupLabel()); params.set("skillFilters", Object.entries(appState.filters.skillSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); } if (appState.ui.activeFilter === "clues") { params.set("clue", appState.clues.selectedType); params.set("clueMode", appState.clues.mode); } if (appState.ui.activeFilter === "quests") params.set("questFilters", Object.entries(appState.filters.questSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); if (appState.ui.activeFilter === "combat") { if (appState.combat.selectedBoss) params.set("boss", appState.combat.selectedBoss); if (appState.combat.selectedSlayer) params.set("slayer", appState.combat.selectedSlayer); } return params; }
+      function buildUrlStateParams() { const params = new URLSearchParams(); params.set("section", appState.ui.activeFilter); params.set("range", appState.ui.datePreset || "all"); const q = getCurrentSearchQuery(); if (q) params.set("q", q); if (appState.ui.datePreset === "custom" && appState.ui.dateFrom) params.set("day", appState.ui.dateFrom.toISOString().slice(0, 10)); if (appState.ui.activeFilter === "skills") { params.set("skills", getSelectedSkillGroupLabel()); params.set("skillFilters", Object.entries(appState.filters.skillSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); } if (appState.ui.activeFilter === "all") { params.set("allView", appState.allLogs.viewMode); params.set("allTypes", Object.entries(appState.allLogs.typeFilters).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); params.set("allQuick", Object.entries(appState.allLogs.quickFilters).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); } if (appState.ui.activeFilter === "clues") { params.set("clue", appState.clues.selectedType); params.set("clueMode", appState.clues.mode); } if (appState.ui.activeFilter === "quests") params.set("questFilters", Object.entries(appState.filters.questSubs).filter(([, enabled]) => enabled).map(([key]) => key).join(",")); if (appState.ui.activeFilter === "combat") { if (appState.combat.selectedBoss) params.set("boss", appState.combat.selectedBoss); if (appState.combat.selectedSlayer) params.set("slayer", appState.combat.selectedSlayer); } return params; }
       function updateUrlState() { if (appState.flags.suppressUrlStateUpdate) return; const nextHash = "#" + buildUrlStateParams().toString(); if (window.location.hash !== nextHash) history.replaceState(null, "", nextHash); }
-      function applyUrlState() { if (!window.location.hash) return; const params = new URLSearchParams(window.location.hash.slice(1)); appState.flags.suppressUrlStateUpdate = true; appState.ui.activeFilter = params.get("section") || appState.ui.activeFilter; const search = document.getElementById("search"); if (search) search.value = params.get("q") || ""; const range = params.get("range") || "all"; if (range === "custom" && params.get("day")) setCustomDateRange(params.get("day")); else setDatePreset(range); applySkillSelectionFromState(params.get("skills")); const skillFilters = params.get("skillFilters"); if (skillFilters !== null) { const enabled = new Set(skillFilters.split(",").filter(Boolean)); Object.keys(appState.filters.skillSubs).forEach((key) => { appState.filters.skillSubs[key] = enabled.has(key); }); } if (params.get("clue")) appState.clues.selectedType = params.get("clue"); if (params.get("clueMode")) appState.clues.mode = params.get("clueMode"); const questFilters = params.get("questFilters"); if (questFilters !== null) { const enabled = new Set(questFilters.split(",").filter(Boolean)); Object.keys(appState.filters.questSubs).forEach((key) => { appState.filters.questSubs[key] = enabled.has(key); }); } if (params.get("boss")) appState.combat.selectedBoss = params.get("boss"); if (params.get("slayer")) appState.combat.selectedSlayer = params.get("slayer"); appState.flags.suppressUrlStateUpdate = false; render(); }
-      function resetAllFilters() { appState.flags.suppressUrlStateUpdate = true; appState.ui.activeFilter = "all"; appState.ui.currentPage = 0; const search = document.getElementById("search"); if (search) search.value = ""; appState.filters.selectedSkills.clear(); appState.filters.skillSubs = { xp: true, level: true, pet: true, total: true, m200: true }; appState.filters.clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true }; appState.filters.questSubs = { milestone: true, completion: true }; appState.clues.selectedType = "easy"; appState.clues.mode = "loot"; appState.clues.selectedLootItem = null; appState.combat.bossLoot = null; appState.combat.slayerLoot = null; appState.combat.bossKillcount = false; appState.combat.slayerKillcount = false; appState.flags.suppressUrlStateUpdate = false; setDatePreset("all"); }
+      function applyUrlState() { if (!window.location.hash) return; const params = new URLSearchParams(window.location.hash.slice(1)); appState.flags.suppressUrlStateUpdate = true; appState.ui.activeFilter = params.get("section") || appState.ui.activeFilter; const search = document.getElementById("search"); if (search) search.value = params.get("q") || ""; const range = params.get("range") || "all"; if (range === "custom" && params.get("day")) setCustomDateRange(params.get("day")); else setDatePreset(range); applySkillSelectionFromState(params.get("skills")); const skillFilters = params.get("skillFilters"); if (skillFilters !== null) { const enabled = new Set(skillFilters.split(",").filter(Boolean)); Object.keys(appState.filters.skillSubs).forEach((key) => { appState.filters.skillSubs[key] = enabled.has(key); }); } if (params.get("allView")) appState.allLogs.viewMode = params.get("allView"); const allTypes = params.get("allTypes"); if (allTypes !== null) { const enabled = new Set(allTypes.split(",").filter(Boolean)); Object.keys(appState.allLogs.typeFilters).forEach((key) => { appState.allLogs.typeFilters[key] = enabled.has(key); }); } const allQuick = params.get("allQuick"); if (allQuick !== null) { const enabled = new Set(allQuick.split(",").filter(Boolean)); Object.keys(appState.allLogs.quickFilters).forEach((key) => { appState.allLogs.quickFilters[key] = enabled.has(key); }); } if (params.get("clue")) appState.clues.selectedType = params.get("clue"); if (params.get("clueMode")) appState.clues.mode = params.get("clueMode"); const questFilters = params.get("questFilters"); if (questFilters !== null) { const enabled = new Set(questFilters.split(",").filter(Boolean)); Object.keys(appState.filters.questSubs).forEach((key) => { appState.filters.questSubs[key] = enabled.has(key); }); } if (params.get("boss")) appState.combat.selectedBoss = params.get("boss"); if (params.get("slayer")) appState.combat.selectedSlayer = params.get("slayer"); appState.flags.suppressUrlStateUpdate = false; render(); }
+      function resetAllFilters() { appState.flags.suppressUrlStateUpdate = true; appState.ui.activeFilter = "all"; appState.ui.currentPage = 0; const search = document.getElementById("search"); if (search) search.value = ""; appState.filters.selectedSkills.clear(); appState.filters.skillSubs = { xp: true, level: true, pet: true, total: true, m200: true }; appState.filters.clueSubs = { easy: true, medium: true, hard: true, elite: true, master: true }; appState.filters.questSubs = { milestone: true, completion: true }; resetAllLogControls(false); appState.clues.selectedType = "easy"; appState.clues.mode = "loot"; appState.clues.selectedLootItem = null; appState.combat.bossLoot = null; appState.combat.slayerLoot = null; appState.combat.bossKillcount = false; appState.combat.slayerKillcount = false; appState.flags.suppressUrlStateUpdate = false; setDatePreset("all"); }
       function syncDebugIndividualEntryState() {
         document.body.classList.toggle(
           "debug-individual-entries",
@@ -5028,6 +5259,7 @@
         "remove-skill": (el) => removeSkillFromSelection(el.dataset.skill),
         "reset-skill-subfilters": () => resetSkillSubFilters(),
         "clear-range-filter": () => clearRangeFilter(),
+        "clear-search-filter": () => clearSearchFilter(),
         "reset-xp-chart": () => resetXpChart(),
         "close-entry-debug": () => closeEntryDebugDrawer(),
         "export-visible-entries": () => exportVisibleEntries(),
@@ -5047,6 +5279,10 @@
         "toggle-loot-drilldown": (el) => toggleLootDrilldown(el.dataset.monsterType, el.dataset.item || null),
         "toggle-skill-group": (el) => toggleSkillGroup(el.dataset.skillGroup),
         "toggle-skill": (el) => toggleSkill(el.dataset.skill),
+        "toggle-all-log-type": (el) => toggleAllLogType(el.dataset.logType),
+        "toggle-all-log-quick-filter": (el) => toggleAllLogQuickFilter(el.dataset.quickFilter),
+        "set-all-log-view": (el) => setAllLogView(el.dataset.viewMode),
+        "reset-all-log-controls": () => resetAllLogControls(),
       };
 
       function selectMonsterKillcount(type, monster) {
@@ -6053,7 +6289,7 @@
         }
 
         const makeEntry = (e) => `
-        <div class="dual-entry log-row skill-log-entry" id="skill-entry-${escapeHtml(e.sourceIndex)}" data-source-index="${escapeHtml(e.sourceIndex)}">
+        <div class="dual-entry log-row accent-entry skill-log-entry" style="--entry-accent:var(--color-skill)" id="skill-entry-${escapeHtml(e.sourceIndex)}" data-source-index="${escapeHtml(e.sourceIndex)}">
             ${isSkillBigMilestone(e) ? `<span class="skill-milestone-badge">${escapeHtml(getSkillMilestoneType(e))}</span>` : ""}
             <div class="dual-entry-title">${escapeHtml(e.title)}</div>
             <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
@@ -6132,7 +6368,7 @@
           entryCount.textContent = `${visibleEntries.length.toLocaleString()} entries`;
 
         const makeEntry = (e) => `
-        <div class="entry quest-log-entry log-row">
+        <div class="entry quest-log-entry log-row accent-entry" style="--entry-accent:var(--color-quest)">
             <div class="entry-content">
                 <span class="cat-dot" style="background:var(--color-quest)"></span>
                 <div class="entry-text-stack">
@@ -6217,7 +6453,7 @@
             entryCount.textContent = `${logs.length.toLocaleString()} ${selectedLabel} completions`;
 
           const makeClueLogEntry = (e) => `
-        <div class="loot-row log-row">
+        <div class="loot-row log-row accent-entry" style="--entry-accent:var(--color-clue)">
             <span class="loot-name">${escapeHtml(e.details)}</span>
             <span class="loot-ts">${escapeHtml(e.ts)}</span>
         </div>`;
@@ -6241,7 +6477,7 @@
             entryCount.textContent = `${history.length.toLocaleString()} ${selectedLabel} loot entries`;
 
           const makeHistoryEntry = (e) => `
-                <div class="loot-row log-row">
+                <div class="loot-row log-row accent-entry" style="--entry-accent:var(--color-clue)">
                     <span class="loot-name">${escapeHtml(e.item)}</span>
                     <span class="loot-ts">${escapeHtml(e.ts)}</span>
                 </div>`;
@@ -6276,7 +6512,7 @@
           entryCount.textContent = `${grouped.length.toLocaleString()} ${selectedLabel} loot items`;
 
         const makeGroupedLootEntry = (g) => `
-                <div class="loot-row ${g.count > 1 ? "clickable" : ""}" ${g.count > 1 ? `data-action="select-clue-loot-item" data-item="${escapeHtml(g.name)}" role="button" tabindex="0"` : ""}>
+                <div class="loot-row log-row accent-entry ${g.count > 1 ? "clickable" : ""}" style="--entry-accent:var(--color-clue)" ${g.count > 1 ? `data-action="select-clue-loot-item" data-item="${escapeHtml(g.name)}" role="button" tabindex="0"` : ""}>
                     <span class="loot-name">${g.count > 1 ? `<span class="loot-count" style="color:var(--color-clue);">${g.count}x</span>` : ""}${escapeHtml(g.name)}</span>
                     <span class="loot-ts">${g.count > 1 ? "View History" : escapeHtml(g.lastTs)}</span>
                 </div>`;
@@ -6291,6 +6527,283 @@
       }
 
 
+      const ALL_LOG_TYPE_OPTIONS = [
+        { id: "skills", label: "Skills", color: "var(--color-skill)" },
+        { id: "combat", label: "Combat", color: "var(--color-combat)" },
+        { id: "clues", label: "Clues", color: "var(--color-clue)" },
+        { id: "quests", label: "Quests", color: "var(--color-quest)" },
+        { id: "misc", label: "Misc", color: "var(--color-misc)" },
+      ];
+
+      const ALL_LOG_QUICK_FILTER_OPTIONS = [
+        { id: "milestones", label: "Milestones" },
+        { id: "drops", label: "Drops" },
+        { id: "pets", label: "Pets" },
+        { id: "questCompletes", label: "Quest completes" },
+      ];
+
+      const ALL_LOG_VIEW_OPTIONS = [
+        { id: "day", label: "Day" },
+        { id: "category", label: "Category" },
+        { id: "compact", label: "Compact" },
+      ];
+
+      function toggleAllLogType(type) {
+        if (!type || !(type in appState.allLogs.typeFilters)) return;
+        appState.allLogs.typeFilters[type] = !appState.allLogs.typeFilters[type];
+        appState.ui.currentPage = 0;
+        render();
+      }
+
+      function toggleAllLogQuickFilter(filter) {
+        if (!filter || !(filter in appState.allLogs.quickFilters)) return;
+        appState.allLogs.quickFilters[filter] = !appState.allLogs.quickFilters[filter];
+        appState.ui.currentPage = 0;
+        render();
+      }
+
+      function setAllLogView(mode) {
+        if (!ALL_LOG_VIEW_OPTIONS.some((option) => option.id === mode)) return;
+        appState.allLogs.viewMode = mode;
+        appState.ui.currentPage = 0;
+        render();
+      }
+
+      function resetAllLogControls(shouldRender = true) {
+        appState.allLogs.viewMode = "day";
+        appState.allLogs.typeFilters = { skills: true, combat: true, clues: true, quests: true, misc: true };
+        appState.allLogs.quickFilters = { milestones: false, drops: false, pets: false, questCompletes: false };
+        appState.ui.currentPage = 0;
+        if (shouldRender) render();
+      }
+
+      function allLogEntryMatchesType(e) {
+        return !!appState.allLogs.typeFilters[e.super];
+      }
+
+      function allLogEntryMatchesQuickFilters(e) {
+        const active = Object.entries(appState.allLogs.quickFilters)
+          .filter(([, enabled]) => enabled)
+          .map(([id]) => id);
+        if (!active.length) return true;
+        return active.some((id) => {
+          if (id === "milestones") {
+            return (
+              (e.super === "skills" && (e.sub === "xp" || e.sub === "level" || e.sub === "total" || is200mXpEntry(e))) ||
+              (e.super === "quests" && e.sub === "milestone")
+            );
+          }
+          if (id === "drops") return (e.super === "combat" || e.super === "clues") && !!e.item;
+          if (id === "pets") return e.super === "skills" && e.sub === "pet";
+          if (id === "questCompletes") return e.super === "quests" && e.sub === "completion";
+          return false;
+        });
+      }
+
+      function applyAllLogControls(entries) {
+        return entries.filter((e) => allLogEntryMatchesType(e) && allLogEntryMatchesQuickFilters(e));
+      }
+
+      function getAllLogTypeCount(entries, type) {
+        return entries.filter((e) => e.super === type && allLogEntryMatchesQuickFilters(e)).length;
+      }
+
+      function getAllLogActiveTypeLabel() {
+        const active = ALL_LOG_TYPE_OPTIONS.filter((option) => appState.allLogs.typeFilters[option.id]);
+        if (active.length === ALL_LOG_TYPE_OPTIONS.length) return "All types";
+        if (!active.length) return "No types";
+        if (active.length <= 2) return active.map((option) => option.label).join(" + ");
+        return active.length + " types";
+      }
+
+      function getAllLogActiveQuickLabel() {
+        const active = ALL_LOG_QUICK_FILTER_OPTIONS.filter((option) => appState.allLogs.quickFilters[option.id]);
+        if (!active.length) return "No quick filters";
+        if (active.length <= 2) return active.map((option) => option.label).join(" + ");
+        return active.length + " quick filters";
+      }
+
+      function getAllLogSubtitle() {
+        const parts = [];
+        const q = getCurrentSearchQuery();
+        if (q) parts.push(q);
+        parts.push(getRangeLabel());
+        parts.push(getAllLogActiveTypeLabel());
+        const quick = getAllLogActiveQuickLabel();
+        if (quick !== "No quick filters") parts.push(quick);
+        return parts.join(" · ");
+      }
+
+      function renderAllLogControls(countBase, visibleCount) {
+        const el = document.getElementById("all-log-controls");
+        if (!el) return;
+        const typePills = ALL_LOG_TYPE_OPTIONS.map((option) => renderActionElement({
+          tag: "button",
+          className: `all-log-type-pill ${appState.allLogs.typeFilters[option.id] ? "active" : ""}`,
+          action: "toggle-all-log-type",
+          dataset: { logType: option.id },
+          attrs: {
+            style: `--pill-color:${option.color}`,
+            "aria-pressed": appState.allLogs.typeFilters[option.id] ? "true" : "false",
+          },
+          html: `${escapeHtml(option.label)}<span class="all-log-pill-count">${getAllLogTypeCount(countBase, option.id).toLocaleString()}</span>`,
+        })).join("");
+        const quickPills = ALL_LOG_QUICK_FILTER_OPTIONS.map((option) => renderActionElement({
+          tag: "button",
+          className: `all-log-quick-pill ${appState.allLogs.quickFilters[option.id] ? "active" : ""}`,
+          action: "toggle-all-log-quick-filter",
+          dataset: { quickFilter: option.id },
+          attrs: { "aria-pressed": appState.allLogs.quickFilters[option.id] ? "true" : "false" },
+          html: escapeHtml(option.label),
+        })).join("");
+        const viewButtons = ALL_LOG_VIEW_OPTIONS.map((option) => renderActionElement({
+          tag: "button",
+          className: `all-log-view-btn ${appState.allLogs.viewMode === option.id ? "active" : ""}`,
+          action: "set-all-log-view",
+          dataset: { viewMode: option.id },
+          attrs: { "aria-pressed": appState.allLogs.viewMode === option.id ? "true" : "false" },
+          html: escapeHtml(option.label),
+        })).join("");
+        el.innerHTML = `
+          <div class="all-log-control-line">
+            <div class="all-log-control-group primary">
+              <span class="all-log-label">Show types</span>
+              ${typePills}
+            </div>
+            <div class="all-log-control-group">
+              <span class="all-log-label">View</span>
+              ${viewButtons}
+            </div>
+          </div>
+          <div class="all-log-control-line">
+            <div class="all-log-control-group primary">
+              <span class="all-log-label">Quick filters</span>
+              ${quickPills}
+            </div>
+            <div class="all-log-control-group">
+              <span class="all-log-status">${visibleCount.toLocaleString()} ${visibleCount === 1 ? "entry" : "entries"} · ${appState.ui.sortOrder === "oldest" ? "oldest" : "newest"} first</span>
+              <button class="mini-action-btn" data-action="reset-all-log-controls" type="button">Reset</button>
+            </div>
+          </div>`;
+      }
+
+      function renderAllLogHeader(count) {
+        const header = document.getElementById("list-pane-header");
+        if (!header) return;
+        const modeLabel = ALL_LOG_VIEW_OPTIONS.find((option) => option.id === appState.allLogs.viewMode)?.label || "Day";
+        header.innerHTML = `
+          <div class="all-log-title-stack">
+            <span class="list-pane-title">All Logs</span>
+            <span class="all-log-subtitle">${escapeHtml(getAllLogSubtitle())}</span>
+          </div>
+          <div class="list-header-right">
+            <span class="entry-count">${getLogCountLabel(count)} · ${escapeHtml(modeLabel)} view</span>
+          </div>`;
+      }
+
+      function formatAllLogGroupDate(key) {
+        if (key === "unknown") return "Unknown date";
+        const d = new Date(key + "T00:00:00");
+        if (Number.isNaN(d.getTime())) return key;
+        return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+      }
+
+      function getCategoryLabel(cat) {
+        return CATEGORY_CONFIG[cat]?.label || "Misc";
+      }
+
+      function getAllLogEntryBadge(e) {
+        if (e.super === "skills") {
+          if (e.sub === "pet") return "Pet";
+          if (e.sub === "total") return "Total";
+          if (is200mXpEntry(e)) return "200M XP";
+          return "Skill";
+        }
+        if (e.super === "combat") return e.item ? "Drop" : "Combat";
+        if (e.super === "clues") return e.item ? "Clue Loot" : "Clue";
+        if (e.super === "quests") return e.sub === "completion" ? "Quest" : "Milestone";
+        return "Misc";
+      }
+
+      function renderAllLogEntry(e, compact = false) {
+        const side = compact ? formatShortDate(e.ts) : escapeHtml(e.ts);
+        return `
+          <div class="entry log-row accent-entry ${compact ? "compact-log-entry" : ""}" style="--entry-accent:${getColor(e.super)}">
+            <div class="entry-content">
+              <span class="cat-dot" style="background:${getColor(e.super)}"></span>
+              <div class="entry-text-stack">
+                <span class="skill-milestone-badge" style="color:${getColor(e.super)}">${escapeHtml(getAllLogEntryBadge(e))}</span>
+                <span class="entry-title">${escapeHtml(e.title)}</span>
+                <span class="entry-details">${escapeHtml(e.details)}</span>
+              </div>
+            </div>
+            ${renderEntryDebugButton(e.sourceIndex)}
+            <span class="entry-ts">${side}</span>
+          </div>`;
+      }
+
+      function groupEntriesBy(entries, keyFn) {
+        const groups = new Map();
+        entries.forEach((entry) => {
+          const key = keyFn(entry);
+          if (!groups.has(key)) groups.set(key, []);
+          groups.get(key).push(entry);
+        });
+        return groups;
+      }
+
+      function renderAllLogGrouped(entries, mode) {
+        const compact = mode === "compact";
+        const pageEnd = (appState.ui.currentPage + 1) * PAGE_SIZE;
+        const visible = entries.slice(0, pageEnd);
+        const hasMore = entries.length > pageEnd;
+        if (!visible.length) {
+          return `
+            <div class="all-log-empty-state">
+              <div>No All Logs entries match: ${escapeHtml(getAllLogSubtitle())}</div>
+              <div class="all-log-empty-actions">
+                <button class="mini-action-btn" data-action="clear-search-filter" type="button">Clear search</button>
+                <button class="mini-action-btn" data-action="clear-range-filter" type="button">Clear range</button>
+                <button class="mini-action-btn" data-action="reset-all-log-controls" type="button">Show all types</button>
+              </div>
+            </div>`;
+        }
+        if (compact) {
+          return visible.map((e) => renderAllLogEntry(e, true)).join("") +
+            (hasMore ? `<button class="load-more-btn" data-action="load-more" type="button">Load more — showing ${visible.length.toLocaleString()} of ${entries.length.toLocaleString()}</button>` : "");
+        }
+        const groups = mode === "category"
+          ? groupEntriesBy(visible, (e) => e.super || "misc")
+          : groupEntriesBy(visible, (e) => getDateKey(e));
+        let keys = [...groups.keys()];
+        if (mode === "category") {
+          keys.sort((a, b) => CATEGORY_ORDER.indexOf(a) - CATEGORY_ORDER.indexOf(b));
+        } else {
+          keys.sort((a, b) => {
+            if (a === "unknown") return 1;
+            if (b === "unknown") return -1;
+            return appState.ui.sortOrder === "oldest"
+              ? new Date(a) - new Date(b)
+              : new Date(b) - new Date(a);
+          });
+        }
+        const body = keys.map((key) => {
+          const rows = groups.get(key) || [];
+          const title = mode === "category" ? getCategoryLabel(key) : formatAllLogGroupDate(key);
+          const meta = `${rows.length.toLocaleString()} ${rows.length === 1 ? "entry" : "entries"}`;
+          return `
+            <div class="all-log-day-group">
+              <div class="all-log-day-header">
+                <span>${escapeHtml(title)}</span>
+                <span class="all-log-day-count">${meta}</span>
+              </div>
+              ${rows.map((e) => renderAllLogEntry(e)).join("")}
+            </div>`;
+        }).join("");
+        return body + (hasMore ? `<button class="load-more-btn" data-action="load-more" type="button">Load more — showing ${visible.length.toLocaleString()} of ${entries.length.toLocaleString()}</button>` : "");
+      }
+
+
       function render() {
 
         const q = document.getElementById("search").value.toLowerCase();
@@ -6301,6 +6814,7 @@
         const clueView = document.getElementById("clue-view");
         const skillView = document.getElementById("skill-view");
         const skillControls = document.getElementById("skill-controls");
+        const allLogControls = document.getElementById("all-log-controls");
         const statsBar = document.getElementById("stats-bar");
         const heatmapSlot = document.getElementById("heatmap-default-slot");
 
@@ -6308,6 +6822,7 @@
         // category pane instead of stacking debug metrics above it.
         if (appState.flags.debugMode) {
           if (skillControls) skillControls.classList.add("hidden");
+          if (allLogControls) allLogControls.classList.add("hidden");
           if (combatView) combatView.classList.add("hidden");
           if (questView) questView.classList.add("hidden");
           if (clueView) clueView.classList.add("hidden");
@@ -6327,6 +6842,7 @@
         if (heatmapSlot) heatmapSlot.classList.remove("hidden");
 
         if (skillControls) skillControls.classList.toggle("hidden", appState.ui.activeFilter !== "skills");
+        if (allLogControls) allLogControls.classList.toggle("hidden", appState.ui.activeFilter !== "all");
         combatView.classList.toggle("hidden", appState.ui.activeFilter !== "combat");
         questView.classList.toggle("hidden", appState.ui.activeFilter !== "quests");
         clueView.classList.toggle("hidden", appState.ui.activeFilter !== "clues");
@@ -6386,35 +6902,31 @@
           renderSkillPanel(filtered);
         } else {
           let display = [...listFiltered];
+          if (appState.ui.activeFilter === "all") display = applyAllLogControls(display);
           if (appState.ui.sortOrder === "oldest")
             display.sort((a, b) => new Date(a.ts) - new Date(b.ts));
+          else
+            display.sort((a, b) => new Date(b.ts) - new Date(a.ts));
 
-          const pageEnd = (appState.ui.currentPage + 1) * PAGE_SIZE;
-          const visible = display.slice(0, pageEnd);
-          const hasMore = display.length > pageEnd;
+          if (appState.ui.activeFilter === "all") {
+            renderAllLogControls(listFiltered, display.length);
+            renderAllLogHeader(display.length);
+            list.innerHTML = renderAllLogGrouped(display, appState.allLogs.viewMode);
+          } else {
+            const pageEnd = (appState.ui.currentPage + 1) * PAGE_SIZE;
+            const visible = display.slice(0, pageEnd);
+            const hasMore = display.length > pageEnd;
 
-          list.innerHTML =
-            visible
-              .map(
-                (e) => `
-            <div class="entry log-row">
-                <div class="entry-content">
-                    <span class="cat-dot" style="background:${getColor(e.super)}"></span>
-                    <div class="entry-text-stack">
-                        <span class="entry-title">${escapeHtml(e.title)}</span>
-                        <span class="entry-details">${escapeHtml(e.details)}</span>
-                    </div>
-                </div>
-                ${renderEntryDebugButton(e.sourceIndex)}
-                <span class="entry-ts">${escapeHtml(e.ts)}</span>
-            </div>`,
-              )
-              .join("") +
-            (hasMore
-              ? `<button class="load-more-btn" data-action="load-more" type="button">Load more — showing ${visible.length.toLocaleString()} of ${display.length.toLocaleString()}</button>`
-              : "");
+            list.innerHTML =
+              visible
+                .map((e) => renderAllLogEntry(e, false))
+                .join("") +
+              (hasMore
+                ? `<button class="load-more-btn" data-action="load-more" type="button">Load more — showing ${visible.length.toLocaleString()} of ${display.length.toLocaleString()}</button>`
+                : "");
 
-          renderListHeader(listFiltered, filtered);
+            renderListHeader(listFiltered, filtered);
+          }
         }
 
         document.getElementById("footer").textContent =
