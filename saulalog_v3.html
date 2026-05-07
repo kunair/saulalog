@@ -1,10 +1,11 @@
 <!doctype html>
 
 <!--
-  Saulalog v3.33
-  - Smoothed sticky control hover/active feedback.
-  - Made the search field fill the available toolbar space up to the Range controls.
-  - Matched Quest log rows to the All/Misc entry-row styling.
+  Saulalog v3.34
+  - Skills section cleanup: grouped skill cards, selected-skill chips, and skill search.
+  - Added Total Level as a visible Skills filter.
+  - Added Skills summary cards and clearer empty-state recovery actions.
+  - Lightened Skills filter pill weight and shortened the chart pet legend to "Pet".
 -->
 
 <html lang="en">
@@ -550,7 +551,7 @@
         margin-left: 4px;
       }
 
-      /* Pet marker annotation */
+      /* Pet annotation */
       .xp-pet-note {
         font-size: 10px;
         color: var(--color-text-light);
@@ -2962,6 +2963,294 @@
       }
 
 
+
+      /* v3.34: Skills section cleanup */
+      .skill-picker {
+        gap: 10px;
+      }
+
+      .skill-picker-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+      }
+
+      .skill-picker-search {
+        width: min(300px, 100%);
+        height: 29px;
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        background: var(--color-surface);
+        color: var(--color-text);
+        padding: 5px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        outline: none;
+      }
+
+      .skill-picker-search::placeholder {
+        color: var(--color-text-light);
+      }
+
+      .skill-picker-search:focus {
+        border-color: var(--color-ui);
+        box-shadow: 0 0 0 2px var(--color-ui-glow);
+      }
+
+      .skill-picker-top {
+        padding-bottom: 0;
+        border-bottom: 0;
+      }
+
+      .selected-skill-strip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        min-height: 0;
+      }
+
+      .selected-skill-strip.hidden {
+        display: none !important;
+      }
+
+      .selected-skill-label {
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .selected-skill-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 9px;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        background: var(--color-surface);
+        color: var(--color-text-dim);
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .selected-skill-chip:hover {
+        border-color: var(--color-skill);
+        color: var(--color-skill);
+      }
+
+      .selected-skill-remove {
+        color: var(--color-text-light);
+        font-weight: 900;
+      }
+
+      .skill-grouped-list {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .skill-group-card {
+        --group-color: var(--color-skill);
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        border-radius: 10px;
+        padding: 10px;
+        min-width: 0;
+        box-shadow: var(--shadow-panel);
+      }
+
+      .skill-group-card.active {
+        border-color: var(--group-color);
+        box-shadow: inset 0 0 0 1px var(--group-color), var(--shadow-panel);
+      }
+
+      .skill-group-card-header {
+        width: 100%;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 8px;
+        border: 0;
+        background: transparent;
+        color: var(--group-color);
+        text-align: left;
+        cursor: pointer;
+        padding: 0;
+      }
+
+      .skill-group-card-title {
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.9px;
+      }
+
+      .skill-group-card-count {
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .skill-group-card-skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+
+      .skill-group-card .sk-btn {
+        font-weight: 600;
+        padding: 5px 9px;
+      }
+
+      .skill-group-card .sk-btn.active {
+        background: var(--group-color);
+        border-color: var(--group-color);
+      }
+
+      .skill-group-empty {
+        color: var(--color-text-light);
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.35;
+      }
+
+      .skill-summary-grid {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 8px;
+        width: 100%;
+      }
+
+      .skill-summary-card {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        border-radius: 10px;
+        padding: 9px 10px;
+        min-width: 0;
+        box-shadow: var(--shadow-panel);
+      }
+
+      .skill-summary-label {
+        display: block;
+        color: var(--color-text-light);
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 0.9px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+
+      .skill-summary-value {
+        display: block;
+        color: var(--color-text);
+        font-size: 15px;
+        font-weight: 900;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .skill-summary-note {
+        display: block;
+        margin-top: 3px;
+        color: var(--color-text-light);
+        font-size: 10px;
+        font-weight: 700;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .skill-chart-state {
+        margin-bottom: 8px;
+      }
+
+      .skill-filter-context .b-pill.pill-skill {
+        font-weight: 500;
+      }
+
+      .skill-filter-context .b-pill.pill-skill .b-pill-count {
+        font-weight: 600;
+      }
+
+      .skill-empty-state {
+        text-align: center;
+        padding: 30px 14px;
+        color: var(--color-text-dim);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .skill-empty-title {
+        color: var(--color-text);
+        font-size: 13px;
+        font-weight: 900;
+        margin-bottom: 5px;
+      }
+
+      .skill-empty-actions {
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+      }
+
+      .skill-empty-actions .mini-action-btn {
+        border-radius: 9px;
+      }
+
+      .skill-entry-focused {
+        background: var(--color-bg-sub);
+        border-radius: 8px;
+        box-shadow: inset 3px 0 0 var(--color-skill);
+      }
+
+      .xp-legend-item[role="button"] {
+        cursor: pointer;
+      }
+
+      .xp-legend-item[role="button"]:hover {
+        color: var(--color-skill);
+      }
+
+      @media (max-width: 920px) {
+        .skill-grouped-list,
+        .skill-summary-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .skill-picker-heading {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .skill-picker-search {
+          width: 100%;
+        }
+
+        .skill-grouped-list,
+        .skill-summary-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
 </style>
   </head>
   <body>
@@ -3116,15 +3405,18 @@
       <div id="pills" style="display: none"></div>
       <div class="sub-controls skill-sec hidden" id="skill-controls">
         <div class="skill-picker" id="skill-picker">
-          <div class="skill-picker-top">
-            <button
-              class="skill-all-btn active"
-              id="skill-btn-all"
-              data-action="clear-skill-selection"
-            >
-              All Skills
-            </button>
+          <div class="skill-picker-heading">
+            <span>Skills · grouped picker</span>
+            <input
+              aria-label="Search skills"
+              class="skill-picker-search"
+              id="skill-picker-search"
+              placeholder="Search skills..."
+              type="search"
+            />
           </div>
+          <div class="skill-picker-top"></div>
+          <div class="selected-skill-strip" id="selected-skill-strip"></div>
           <div class="skill-grouped-list" id="skill-grouped-view"></div>
         </div>
       </div>
@@ -3186,6 +3478,7 @@
         <!-- Skills dual-column panel -->
 
         <div class="dual-panel hidden skill-xp-panel" id="skill-view">
+          <div class="skill-summary-grid" id="skill-summary-grid"></div>
           <div class="dual-col skill-history-col">
             <div class="dual-col-header">
               <span>XP History</span>
@@ -3218,7 +3511,7 @@
                 <canvas id="xp-chart"></canvas>
               </div>
               <div class="xp-pet-note" id="xp-pet-note" style="display: none">
-                ⭐ = Skilling pet obtained
+                ⭐ = Pet
               </div>
             </div>
           </div>
@@ -3257,7 +3550,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.33";
+      const APP_VERSION = "3.34";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -4732,6 +5025,9 @@
         "copy-parser-warnings": () => copyParserWarnings(),
         "export-parser-warnings": () => exportParserWarnings(),
         "clear-skill-selection": () => clearSkillSelection(),
+        "remove-skill": (el) => removeSkillFromSelection(el.dataset.skill),
+        "reset-skill-subfilters": () => resetSkillSubFilters(),
+        "clear-range-filter": () => clearRangeFilter(),
         "reset-xp-chart": () => resetXpChart(),
         "close-entry-debug": () => closeEntryDebugDrawer(),
         "export-visible-entries": () => exportVisibleEntries(),
@@ -4794,6 +5090,7 @@
 
       function handleAppInput(event) {
         if (event.target.id === "search") debouncedSearchRender();
+        if (event.target.id === "skill-picker-search") buildSkillPicker();
       }
 
       function handleActionKeydown(event) {
@@ -5532,6 +5829,7 @@
           { id: "xp", label: "XP Milestones" },
           { id: "pet", label: "Skilling Pets" },
           { id: "level", label: "Level Ups" },
+          { id: "total", label: "Total Level" },
         ];
       }
 
@@ -5628,9 +5926,7 @@
         // dedicated 200m bubble can be toggled independently.
         if (is200mXpEntry(e)) return !!appState.filters.skillSubs.m200;
 
-        // Total-level entries no longer have their own visible filter bubble;
-        // keep them included whenever the selected skill/group matches.
-        if (e.sub === "total") return true;
+        if (e.sub === "total") return !!appState.filters.skillSubs.total;
 
         return !!appState.filters.skillSubs[e.sub];
       }
@@ -5655,15 +5951,71 @@
 
 
       function renderSkillSummaryDetails(selectedBase, visibleEntries) {
+        const summaryGrid = document.getElementById("skill-summary-grid");
         const chartState = document.getElementById("skill-chart-state");
-        if (!chartState) return;
-
-        // Keep the Skills pane compact: filter bubbles already carry counts,
-        // so this helper only explains the chart state instead of rendering cards.
-        chartState.textContent =
-          "Showing XP milestone history for " +
-          getSkillSelectionLabel() +
-          ". Empty charts mean no matching XP milestone logs in the current range.";
+        const selectionLabel = getSkillSelectionLabel();
+        const sortedBase = selectedBase
+          .slice()
+          .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+        const latest = sortedBase[0] || null;
+        const selectedGroups = new Set(
+          [...appState.filters.selectedSkills].map(getSkillGroupName).filter(Boolean),
+        );
+        const selectionNote = appState.filters.selectedSkills.size === 0
+          ? "all groups"
+          : selectedGroups.size === 1
+            ? [...selectedGroups][0] + " group"
+            : selectedGroups.size + " groups";
+        const cards = [
+          {
+            label: "Selection",
+            value: selectionLabel,
+            note: selectionNote,
+          },
+          {
+            label: "Latest",
+            value: latest ? getSkillMilestoneType(latest) : "—",
+            note: latest ? formatShortDate(latest.ts) : "no matching logs",
+          },
+          {
+            label: "Level ups",
+            value: selectedBase.filter((e) => e.sub === "level").length.toLocaleString(),
+            note: "selected range",
+          },
+          {
+            label: "XP milestones",
+            value: selectedBase.filter((e) => e.sub === "xp" && !is200mXpEntry(e)).length.toLocaleString(),
+            note: "not counting 200m",
+          },
+          {
+            label: "Pets",
+            value: selectedBase.filter((e) => e.sub === "pet").length.toLocaleString(),
+            note: "skilling pet logs",
+          },
+          {
+            label: "Total level",
+            value: selectedBase.filter((e) => e.sub === "total").length.toLocaleString(),
+            note: "milestone logs",
+          },
+        ];
+        if (summaryGrid) {
+          summaryGrid.innerHTML = cards
+            .map(
+              (card) => `
+                <div class="skill-summary-card">
+                  <span class="skill-summary-label">${escapeHtml(card.label)}</span>
+                  <span class="skill-summary-value" title="${escapeHtml(card.value)}">${escapeHtml(card.value)}</span>
+                  <span class="skill-summary-note" title="${escapeHtml(card.note)}">${escapeHtml(card.note)}</span>
+                </div>`,
+            )
+            .join("");
+        }
+        if (chartState) {
+          chartState.textContent =
+            "Showing XP milestone history for " +
+            selectionLabel +
+            ". Empty charts mean no matching XP milestone logs in the current range.";
+        }
       }
       function renderSkillPanel(entries) {
         const selectionLabel = getSkillSelectionLabel();
@@ -5701,7 +6053,8 @@
         }
 
         const makeEntry = (e) => `
-        <div class="dual-entry log-row">
+        <div class="dual-entry log-row skill-log-entry" id="skill-entry-${escapeHtml(e.sourceIndex)}" data-source-index="${escapeHtml(e.sourceIndex)}">
+            ${isSkillBigMilestone(e) ? `<span class="skill-milestone-badge">${escapeHtml(getSkillMilestoneType(e))}</span>` : ""}
             <div class="dual-entry-title">${escapeHtml(e.title)}</div>
             <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
             <div class="dual-entry-ts">${escapeHtml(e.ts)}
@@ -5709,9 +6062,24 @@
             </div>
         </div>`;
 
+        const activeFilters = getSkillFilterOptions()
+          .filter((filter) => appState.filters.skillSubs[filter.id])
+          .map((filter) => filter.label)
+          .join(", ");
+        const emptyState = `
+          <div class="skill-empty-state">
+            <div class="skill-empty-title">No skill entries match the current view.</div>
+            <div>No skill entries match: ${escapeHtml(selectionLabel)} · ${escapeHtml(getRangeLabel())} · ${escapeHtml(activeFilters || "no skill entry types")}</div>
+            <div class="skill-empty-actions">
+              <button class="mini-action-btn" data-action="clear-skill-selection" type="button">Clear skill filters</button>
+              <button class="mini-action-btn" data-action="clear-range-filter" type="button">Clear range</button>
+              <button class="mini-action-btn" data-action="reset-skill-subfilters" type="button">Show all skill entry types</button>
+            </div>
+          </div>`;
+
         entryEl.innerHTML = skillEntries.length
           ? sortEntries(skillEntries).map(makeEntry).join("")
-          : `<div class="dual-empty">No skill entries found for ${escapeHtml(selectionLabel)}</div>`;
+          : emptyState;
       }
 
       function renderPaginatedRows(rows, renderRow, emptyHtml) {
@@ -6242,55 +6610,101 @@
         );
       }
 
+      function getSkillPickerSearchQuery() {
+        const input = document.getElementById("skill-picker-search");
+        return input ? input.value.trim().toLowerCase() : "";
+      }
+
+      function getOrderedGroupSkillRows(groupName, summary) {
+        return (SKILL_GROUPS[groupName] || [])
+          .filter((skill) => SKILLS.includes(skill))
+          .map((skill) => ({
+            skill,
+            groupName,
+            count: summary[skill]?.count || 0,
+            lastTime: summary[skill]?.lastTime ?? -Infinity,
+          }))
+          .sort((a, b) => {
+            if (b.lastTime !== a.lastTime) return b.lastTime - a.lastTime;
+            if (b.count !== a.count) return b.count - a.count;
+            return SKILLS.indexOf(a.skill) - SKILLS.indexOf(b.skill);
+          });
+      }
+
+      function renderSelectedSkillStrip() {
+        const strip = document.getElementById("selected-skill-strip");
+        if (!strip) return;
+        if (appState.filters.selectedSkills.size === 0) {
+          strip.classList.add("hidden");
+          strip.innerHTML = "";
+          return;
+        }
+        const selected = [...appState.filters.selectedSkills].sort(
+          (a, b) => SKILLS.indexOf(a) - SKILLS.indexOf(b),
+        );
+        strip.classList.remove("hidden");
+        strip.innerHTML = `
+          <span class="selected-skill-label">Selected</span>
+          ${selected
+            .map(
+              (skill) => `<span class="selected-skill-chip" data-action="remove-skill" data-skill="${escapeHtml(skill)}" role="button" tabindex="0" title="Remove ${escapeHtml(skill)}">
+                ${escapeHtml(skill)}<span class="selected-skill-remove">×</span>
+              </span>`,
+            )
+            .join("")}
+          <button class="mini-action-btn" data-action="clear-skill-selection" type="button">Clear skills</button>`;
+      }
+
       function buildSkillPicker(contextEntries = null) {
         const top = document.querySelector(".skill-picker-top");
         const groupedList = document.getElementById("skill-grouped-view");
-        const { top: recentSkills, rest: otherSkills, summary } =
-          getRecentSkillRows(contextEntries);
+        if (!top || !groupedList) return;
+        const summary = summarizeSkillLogs(contextEntries);
+        const skillSearch = getSkillPickerSearchQuery();
         const allSkillLogCount = SKILLS.reduce(
           (total, skill) => total + (summary[skill]?.count || 0),
           0,
         );
 
         top.innerHTML = `
-        <button class="skill-all-btn ${appState.filters.selectedSkills.size === 0 ? "active" : ""}" id="skill-btn-all" data-action="clear-skill-selection" type="button">
+          <button class="skill-all-btn ${appState.filters.selectedSkills.size === 0 ? "active" : ""}" id="skill-btn-all" data-action="clear-skill-selection" type="button">
             All Skills<span class="b-pill-count">${allSkillLogCount.toLocaleString()}</span>
-        </button>
-        ${Object.entries(SKILL_GROUPS)
+          </button>`;
+
+        renderSelectedSkillStrip();
+
+        const groupHtml = Object.entries(SKILL_GROUPS)
           .map(([groupName]) => {
-            const active = isGroupFullySelected(groupName);
             const count = getSkillGroupEntryCount(summary, groupName);
-            return `<span class="b-pill skill-group-pill ${active ? "active" : ""}" data-group="${escapeHtml(groupName)}" data-action="toggle-skill-group" data-skill-group="${escapeHtml(groupName)}" role="button" tabindex="0">
-                ${escapeHtml(groupName)}<span class="b-pill-count">${count.toLocaleString()}</span>
-            </span>`;
+            const groupColor = GROUP_COLORS[groupName]?.[document.body.classList.contains("dark-mode") ? "dark" : "light"] || "var(--color-skill)";
+            const groupRows = getOrderedGroupSkillRows(groupName, summary).filter(({ skill }) =>
+              !skillSearch || skill.toLowerCase().includes(skillSearch) || groupName.toLowerCase().includes(skillSearch),
+            );
+            const groupHasSelection = appState.filters.selectedSkills.size > 0 &&
+              (SKILL_GROUPS[groupName] || []).some((skill) => appState.filters.selectedSkills.has(skill));
+            if (skillSearch && !groupRows.length) return "";
+            const skillButtons = groupRows.length
+              ? groupRows
+                  .map(({ skill, count }) => {
+                    const active = appState.filters.selectedSkills.has(skill);
+                    return `<button class="sk-btn ${active ? "active" : ""}" style="--group-color:${groupColor}" data-group="${escapeHtml(groupName)}" title="${escapeHtml(groupName)} · ${count.toLocaleString()} matching logs" data-action="toggle-skill" data-skill="${escapeHtml(skill)}" type="button">
+                      ${escapeHtml(skill)}<span class="b-pill-count">${count.toLocaleString()}</span>
+                    </button>`;
+                  })
+                  .join("")
+              : '<div class="skill-group-empty">No matching skill logs in this range.</div>';
+            return `
+              <div class="skill-group-card ${groupHasSelection || isGroupFullySelected(groupName) ? "active" : ""}" style="--group-color:${groupColor}">
+                <button class="skill-group-card-header" data-action="toggle-skill-group" data-skill-group="${escapeHtml(groupName)}" type="button" title="Select ${escapeHtml(groupName)} skills">
+                  <span class="skill-group-card-title">${escapeHtml(groupName)}</span>
+                  <span class="skill-group-card-count">${count.toLocaleString()} logs</span>
+                </button>
+                <div class="skill-group-card-skills">${skillButtons}</div>
+              </div>`;
           })
-          .join("")}`;
+          .join("");
 
-        const skillButton = ({ skill, groupName, count }) => {
-          const active = appState.filters.selectedSkills.size === 0 || appState.filters.selectedSkills.has(skill);
-          return `<button class="sk-btn ${active ? "active" : ""}" data-group="${escapeHtml(groupName)}" title="${escapeHtml(groupName)}" data-action="toggle-skill" data-skill="${escapeHtml(skill)}" type="button">
-                ${escapeHtml(skill)}<span class="b-pill-count">${count.toLocaleString()}</span>
-            </button>`;
-        };
-
-        const moreSelect = otherSkills.length
-          ? `<div class="skill-more-wrap">
-                <select id="skill-more" data-action="set-skill-filter">
-                    <option value="">More skills...</option>
-                    ${otherSkills
-                      .map(
-                        ({ skill, count }) =>
-                          `<option value="${skill}" ${appState.filters.selectedSkills.size === 1 && appState.filters.selectedSkills.has(skill) ? "selected" : ""}>${skill} (${count.toLocaleString()})</option>`,
-                      )
-                      .join("")}
-                </select>
-            </div>`
-          : "";
-
-        groupedList.innerHTML = `<div class="skill-skills-row">
-        ${recentSkills.map(skillButton).join("")}
-        ${moreSelect}
-    </div>`;
+        groupedList.innerHTML = groupHtml || '<div class="skill-group-empty">No skills match your skill search.</div>';
       }
 
       function toggleSkill(skill) {
@@ -6302,6 +6716,29 @@
           xpChart = null;
         }
         render();
+      }
+
+      function removeSkillFromSelection(skill) {
+        if (!skill) return;
+        appState.filters.selectedSkills.delete(skill);
+        buildSkillPicker();
+        if (xpChart) {
+          xpChart.destroy();
+          xpChart = null;
+        }
+        render();
+      }
+
+      function focusSkillEntryBySourceIndex(sourceIndex) {
+        if (sourceIndex === null || sourceIndex === undefined) return;
+        const el = document.getElementById("skill-entry-" + sourceIndex);
+        if (!el) return;
+        document.querySelectorAll(".skill-entry-focused").forEach((node) =>
+          node.classList.remove("skill-entry-focused"),
+        );
+        el.classList.add("skill-entry-focused");
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        window.setTimeout(() => el.classList.remove("skill-entry-focused"), 2400);
       }
 
       function toggleSkillGroup(groupName) {
@@ -6405,7 +6842,7 @@
           .filter(
             (e) => e.super === "skills" && e.sub === "pet" && e.skill === skill,
           )
-          .map((e) => ({ date: parseTs(e.ts), ts: e.ts }))
+          .map((e) => ({ date: parseTs(e.ts), ts: e.ts, sourceIndex: e.sourceIndex }))
           .filter((e) => e.date !== null);
       }
 
@@ -6433,6 +6870,7 @@
           y: e.xp,
           label: `${skill}: ${e.xp.toLocaleString()} XP`,
           isPet: false,
+          sourceIndex: e.sourceIndex,
         }));
 
         // If the skill has reached 200M XP, extend the line flat at 200M up to today
@@ -6455,7 +6893,7 @@
           }
         }
 
-        // Pet markers — placed at the pet date, y = last known XP at that time
+        // Pet points — placed at the pet date, y = last known XP at that time
         const petEntries = getPetEntries(skill);
         const petPoints = petEntries
           .map((pe) => {
@@ -6464,8 +6902,9 @@
               ? {
                   x: pe.date,
                   y,
-                  label: `🐾 ${skill} pet obtained!`,
+                  label: `🐾 ${skill} pet`,
                   isPet: true,
+                  sourceIndex: pe.sourceIndex,
                 }
               : null;
           })
@@ -6549,6 +6988,7 @@
                 y: totalXp,
                 label: `Total XP: ${totalXp.toLocaleString()}`,
                 isPet: false,
+                sourceIndex: entry.sourceIndex,
               });
             }
           }
@@ -6670,19 +7110,19 @@
             lineDatasets
               .map(
                 (d) => `
-            <div class="xp-legend-item">
+            <div class="xp-legend-item" data-action="toggle-skill" data-skill="${escapeHtml(d.label)}" role="button" tabindex="0" title="Toggle ${escapeHtml(d.label)}">
                 <div class="xp-legend-swatch" style="background:${d.borderColor}"></div>
-                ${d.label}
+                ${escapeHtml(d.label)}
             </div>
         `,
               )
               .join("") +
             (hasPets
-              ? `<div class="xp-legend-item"><span style="font-size:14px;line-height:1">⭐</span> Pet obtained</div>`
+              ? `<div class="xp-legend-item"><span style="font-size:14px;line-height:1">⭐</span> Pet</div>`
               : "");
         } else {
           legendEl.innerHTML = hasPets
-            ? `<div class="xp-legend-item"><span style="font-size:14px;line-height:1">⭐</span> Pet obtained</div>`
+            ? `<div class="xp-legend-item"><span style="font-size:14px;line-height:1">⭐</span> Pet</div>`
             : "";
         }
 
@@ -6754,6 +7194,13 @@
             responsive: true,
             maintainAspectRatio: false,
             interaction: { mode: "nearest", intersect: false, axis: "x" },
+            onClick: (event, elements, chart) => {
+              if (!elements || !elements.length) return;
+              const point = elements[0];
+              const dataset = chart.data.datasets[point.datasetIndex];
+              const raw = dataset && dataset.data ? dataset.data[point.index] : null;
+              if (raw && raw.sourceIndex !== undefined) focusSkillEntryBySourceIndex(raw.sourceIndex);
+            },
             plugins: {
               legend: { display: false },
               tooltip: {
