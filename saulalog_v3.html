@@ -1,12 +1,13 @@
 <!doctype html>
 
 <!--
-  Saulalog v3.40 — Unified pets + combat parser fixes
+  Saulalog v3.41 — Ambassador alias
   - Keeps tightened skilling pet parsing and combat pet tagging.
   - Restores boss/Slayer pet badges, inline pet names, pet search, and Pets quick filter support.
   - Fixes Osseous singular Rex Matriarch parsing.
   - Adds defeated boss killcount parsing for Queen Black Dragon and Twin Furies.
   - Corrects Hermod pet unlock item metadata to piece of Hermod's armour.
+  - Adds Kranon/Ambassador alias parsing for The Ambassador kill entries.
 -->
 
 <html lang="en">
@@ -3268,7 +3269,7 @@
       }
 
 
-      /* v3.40: Unified pet parsing/tagging, All Logs controls, Search + Range cleanup, and combat parser fixes. */
+      /* v3.41: Ambassador alias update on the v3.40 unified pets + combat parser fixes baseline. */
       .all-log-controls {
         width: 100%;
         background: var(--color-surface);
@@ -3513,7 +3514,7 @@
       }
 
 
-      /* v3.40: Search + Range cleanup */
+      /* v3.41: Search + Range cleanup retained from v3.40 baseline */
       .enhanced-search-wrap {
         position: relative;
         display: flex;
@@ -3897,7 +3898,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.40";
+      const APP_VERSION = "3.41";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -3958,6 +3959,7 @@
         "Rasial",
         "Solak",
         "Telos",
+        "The Ambassador",
         "Twin Furies",
         "Vindicta",
         "Vorago",
@@ -4022,6 +4024,10 @@
           match:
             /phantom born from the God Wars:\s*Hermod,\s*the Spirit of War\b/i,
           canonical: "Hermod, the Spirit of War",
+        },
+        {
+          match: /\bKranon(?:\s+the\s+Ambassador)?\b/i,
+          canonical: "The Ambassador",
         },
         // Add more grouped-boss aliases here as they come up.
       ];
