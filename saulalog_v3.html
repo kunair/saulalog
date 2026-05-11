@@ -1,13 +1,15 @@
 <!doctype html>
 
 <!--
-  Saulalog v3.41 — Ambassador alias
+  Saulalog v3.43 — Ambassador Shadow Reef + Kranon title alias
   - Keeps tightened skilling pet parsing and combat pet tagging.
   - Restores boss/Slayer pet badges, inline pet names, pet search, and Pets quick filter support.
   - Fixes Osseous singular Rex Matriarch parsing.
   - Adds defeated boss killcount parsing for Queen Black Dragon and Twin Furies.
   - Corrects Hermod pet unlock item metadata to piece of Hermod's armour.
-  - Adds Kranon/Ambassador alias parsing for The Ambassador kill entries.
+  - Adds Shadow Reef alias parsing for The Ambassador loot/activity entries.
+  - Keeps Kranon the Ambassador as an Ambassador alias for boss kill text.
+  - Does not match standalone Kranon, so Kranon book/item titles remain item text.
 -->
 
 <html lang="en">
@@ -3269,7 +3271,7 @@
       }
 
 
-      /* v3.41: Ambassador alias update on the v3.40 unified pets + combat parser fixes baseline. */
+      /* v3.43: Ambassador aliases now match Shadow Reef and Kranon the Ambassador, but not standalone Kranon. */
       .all-log-controls {
         width: 100%;
         background: var(--color-surface);
@@ -3514,7 +3516,7 @@
       }
 
 
-      /* v3.41: Search + Range cleanup retained from v3.40 baseline */
+      /* v3.43: Search + Range cleanup retained from v3.40 baseline */
       .enhanced-search-wrap {
         position: relative;
         display: flex;
@@ -3898,7 +3900,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.41";
+      const APP_VERSION = "3.43";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -4025,8 +4027,17 @@
             /phantom born from the God Wars:\s*Hermod,\s*the Spirit of War\b/i,
           canonical: "Hermod, the Spirit of War",
         },
+        // The Ambassador can appear through two safe contexts:
+        // 1) Shadow Reef activity, which should group Shadow Reef loot/activity under The Ambassador.
+        // 2) The full boss title "Kranon the Ambassador" in kill text.
+        // Do not match standalone "Kranon": it can appear inside book/item names such as
+        // "Kranon's Ancient Journal", and item text should not accidentally become a boss match.
         {
-          match: /\bKranon(?:\s+the\s+Ambassador)?\b/i,
+          match: /\bShadow Reef\b/i,
+          canonical: "The Ambassador",
+        },
+        {
+          match: /\bKranon\s+the\s+Ambassador\b/i,
           canonical: "The Ambassador",
         },
         // Add more grouped-boss aliases here as they come up.
