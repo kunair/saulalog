@@ -1,7 +1,7 @@
 <!doctype html>
 
 <!--
-  Saulalog v3.43 — Ambassador Shadow Reef + Kranon title alias
+  Saulalog v3.44 — Search bar UX cleanup
   - Keeps tightened skilling pet parsing and combat pet tagging.
   - Restores boss/Slayer pet badges, inline pet names, pet search, and Pets quick filter support.
   - Fixes Osseous singular Rex Matriarch parsing.
@@ -10,6 +10,7 @@
   - Adds Shadow Reef alias parsing for The Ambassador loot/activity entries.
   - Keeps Kranon the Ambassador as an Ambassador alias for boss kill text.
   - Does not match standalone Kranon, so Kranon book/item titles remain item text.
+  - Cleans up the global Search bar: theme-safe text, one custom clear button, and softer focus state.
 -->
 
 <html lang="en">
@@ -3271,7 +3272,7 @@
       }
 
 
-      /* v3.43: Ambassador aliases now match Shadow Reef and Kranon the Ambassador, but not standalone Kranon. */
+      /* v3.44: Ambassador aliases still match Shadow Reef and Kranon the Ambassador, but not standalone Kranon. */
       .all-log-controls {
         width: 100%;
         background: var(--color-surface);
@@ -3516,43 +3517,97 @@
       }
 
 
-      /* v3.43: Search + Range cleanup retained from v3.40 baseline */
+      /* v3.44: Search bar UX cleanup. The global search uses a plain text input inside
+         one themed wrapper so dark mode text remains readable, focus uses a soft
+         ring instead of a heavy border, and only our custom clear button appears. */
       .enhanced-search-wrap {
-        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 62px;
+        align-items: center;
+        gap: 8px;
+      }
+      .search-box {
+        height: 34px;
+        min-width: 0;
         display: flex;
         align-items: center;
-        gap: 6px;
-      }
-      .enhanced-search-wrap #search {
-        padding-right: 34px;
-      }
-      .search-clear-btn {
-        position: absolute;
-        right: 74px;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
+        gap: 7px;
         border: 1px solid var(--color-border);
         background: var(--color-bg-sub);
+        border-radius: 12px;
+        padding: 0 9px;
+        color: var(--color-text);
+        transition: box-shadow 0.12s ease, background-color 0.12s ease;
+      }
+      .search-box:focus-within {
+        border-color: var(--color-border);
+        background: var(--color-surface);
+        box-shadow: 0 0 0 3px var(--color-ui-glow);
+      }
+      .search-icon {
+        flex: 0 0 auto;
+        color: var(--color-text-light);
+        font-size: 13px;
+        font-weight: 900;
+        line-height: 1;
+      }
+      .enhanced-search-wrap #search {
+        flex: 1;
+        min-width: 0;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        padding: 0;
+        border: 0;
+        outline: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+        color: var(--color-text);
+        -webkit-text-fill-color: var(--color-text);
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+      .enhanced-search-wrap #search:hover,
+      .enhanced-search-wrap #search:focus {
+        border: 0;
+        outline: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+      .enhanced-search-wrap #search::placeholder {
+        color: var(--color-text-light);
+        opacity: 1;
+      }
+      .enhanced-search-wrap #search::-webkit-search-cancel-button,
+      .enhanced-search-wrap #search::-webkit-search-decoration {
+        -webkit-appearance: none;
+        appearance: none;
+        display: none;
+      }
+      .search-clear-btn {
+        flex: 0 0 auto;
+        width: 20px;
+        height: 20px;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
         color: var(--color-text-light);
         cursor: pointer;
         font-size: 15px;
         font-weight: 800;
-        line-height: 18px;
+        line-height: 1;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.12s ease;
+        transition: background-color 0.12s ease, color 0.12s ease;
       }
       .search-clear-btn:hover {
-        border-color: var(--color-ui);
-        color: var(--color-ui);
-        background: var(--color-surface);
+        color: var(--color-text);
+        background: var(--color-border);
       }
       .search-match-count {
-        flex: 0 0 62px;
         color: var(--color-text-light);
         font-size: 10px;
         font-weight: 800;
@@ -3647,20 +3702,23 @@
         <!-- Search and global date range controls stick with category cards while scrolling. -->
         <div class="toolbar-row">
           <div class="search-wrap enhanced-search-wrap">
-            <input
-              aria-label="Search logs"
-              id="search"
-              placeholder="Search logs... try skill:Necromancy, boss:Rasial, type:pet"
-              type="search"
-            />
-            <button
-              class="search-clear-btn hidden"
-              id="search-clear-btn"
-              data-action="clear-search-filter"
-              type="button"
-              title="Clear search"
-              aria-label="Clear search"
-            >×</button>
+            <div class="search-box">
+              <span class="search-icon" aria-hidden="true">⌕</span>
+              <input
+                aria-label="Search logs"
+                id="search"
+                placeholder="Search logs... try skill:Necromancy, boss:Rasial, type:pet"
+                type="text"
+              />
+              <button
+                class="search-clear-btn hidden"
+                id="search-clear-btn"
+                data-action="clear-search-filter"
+                type="button"
+                title="Clear search"
+                aria-label="Clear search"
+              >×</button>
+            </div>
             <span class="search-match-count" id="search-match-count" aria-live="polite"></span>
           </div>
           <div class="range-wrap">
@@ -3900,7 +3958,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.43";
+      const APP_VERSION = "3.44";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -8712,7 +8770,7 @@
 
           var search = document.getElementById("search");
           if (search) {
-            try { search.setAttribute("type", "search"); } catch (_) {}
+            try { search.setAttribute("type", "text"); } catch (_) {}
             if (!search.hasAttribute("aria-label")) search.setAttribute("aria-label", "Search logs");
           }
 
