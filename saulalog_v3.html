@@ -1,7 +1,7 @@
 <!doctype html>
 
 <!--
-  Saulalog v3.44 — Search bar UX cleanup
+  Saulalog v3.45 — Titleless boss aliases
   - Keeps tightened skilling pet parsing and combat pet tagging.
   - Restores boss/Slayer pet badges, inline pet names, pet search, and Pets quick filter support.
   - Fixes Osseous singular Rex Matriarch parsing.
@@ -3958,7 +3958,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "3.44";
+      const APP_VERSION = "3.45";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -4076,6 +4076,18 @@
         { match: /\bSeiryus?\b/i, canonical: "Seiryu the Azure Serpent" },
         { match: /\bHar['’]Aken\b/i, canonical: "Har-Aken" },
         { match: /\bFight Kiln\b/i, canonical: "Har-Aken" },
+        // Some activity-log killcount rows drop the leading "The" from boss names.
+        // Keep the canonical display names stable, but allow titleless singular/plural wording
+        // only in kill/defeat contexts. The possessive guard prevents item/book text such as
+        // "Ambassador's journal" or "Magister's journal" from becoming a boss match.
+        {
+          match: /\b(?:killed|defeated)\s+(?:(?:\d+|a|an|the)\s+)?Ambassadors?\b(?!['’]s)/i,
+          canonical: "The Ambassador",
+        },
+        {
+          match: /\b(?:killed|defeated)\s+(?:(?:\d+|a|an|the)\s+)?Magisters?\b(?!['’]s)/i,
+          canonical: "Magister",
+        },
         {
           match: /\bHermods?,\s*Spirits? of War\b/i,
           canonical: "Hermod, the Spirit of War",
@@ -4085,7 +4097,7 @@
             /phantom born from the God Wars:\s*Hermod,\s*the Spirit of War\b/i,
           canonical: "Hermod, the Spirit of War",
         },
-        // The Ambassador can appear through two safe contexts:
+        // The Ambassador can also appear through two safe contexts:
         // 1) Shadow Reef activity, which should group Shadow Reef loot/activity under The Ambassador.
         // 2) The full boss title "Kranon the Ambassador" in kill text.
         // Do not match standalone "Kranon": it can appear inside book/item names such as
