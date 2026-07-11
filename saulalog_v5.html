@@ -2,32 +2,29 @@
 
 <!--
   ═══════════════════════════════════════════════════════════════════════════
-  Saulalog v4.2 — "Cohesive section accents preview"
+  Saulalog v5 — cohesive activity ledger
   ═══════════════════════════════════════════════════════════════════════════
 
-  Buttons now match the boss-ledger preview exactly. v4.1 unified the
-  recipe but used a filled background at rest, which read heavier than the
-  preview. v4.2 switches to the preview's outlined-transparent treatment:
+  v5 establishes the current homepage and navigation model:
 
-    · At rest:   transparent background, 1px rule border, dim text
-    · On hover:  border strengthens, text deepens to ink (background stays clear)
-    · On active: ink fill, paper text (the only filled state)
+    · Combat drops remain the dominant homepage focus.
+    · Skills and Quests appear as supporting activity-ledger sections.
+    · Combat, Skills, and Quests share one section structure with restrained
+      red, green, and blue accents.
+    · Featured Skill and Quest entries remain single records without trailing
+      dotted dividers; recent entries retain separators only between rows.
+    · The compact Today strip summarizes activity types beneath the header.
+    · Drill-in pages retain their full filters, search, ranges, and history.
 
-  Applies uniformly to every chip in the app — date presets, sort controls,
-  filter pills, skill picker buttons, boss/monster bubbles, debug actions,
-  refresh/upload, and all the existing button classes (.b-pill, .sk-btn,
-  .skill-all-btn, .skill-group-pill, .sort-btn, .cmode-btn, .all-log-*,
-  .debug-action-btn). Date preset frame keeps its grouped-tab look from the
-  preview. Search box matches the preview's 36px height / 7px radius.
-
-  Nothing else changes — same data model, same routing, same panels.
+  Existing data sources, cached Google Sheets payloads, theme preference, and
+  parsing behavior remain compatible with prior versions.
 -->
 
 <html lang="en">
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Saulalog</title>
+    <title>Saulalog v5</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -8255,10 +8252,15 @@
       }
 
       .home-support-recent-list {
-        border-top: 1px solid var(--color-rule);
+        border-top: 0;
       }
 
-      .home-support-feature,
+      /* Featured blocks contain exactly one record, so they do not need a
+         trailing divider. Dotted rules are reserved for separation between
+         individual recent-list records. */
+      .home-support-feature {
+        border-bottom: 0;
+      }
       .home-support-row {
         border-bottom-color: var(--color-rule);
       }
@@ -8273,7 +8275,7 @@
   </head>
   <body>
     <div class="wrap" role="main">
-      <!-- v4 breadcrumb row — collapses to "Saulalog" alone on home,
+      <!-- v5 breadcrumb row — collapses to "Saulalog" alone on home,
            "Saulalog › Combat" on a drill-in. -->
       <div class="breadcrumb-row">
         <nav class="breadcrumb" aria-label="Breadcrumb" id="breadcrumb">
@@ -8284,7 +8286,7 @@
         <div class="app-meta">
           <span class="app-meta-item" id="header-loaded-label">Loaded —</span>
           <span class="app-meta-sep" aria-hidden="true">·</span>
-          <span class="app-meta-item app-meta-version" id="header-version-label">v4.2 · cohesive section accents preview</span>
+          <span class="app-meta-item app-meta-version" id="header-version-label">v5</span>
           <div class="app-header-actions">
             <button
               class="icon-btn"
@@ -8382,7 +8384,7 @@
         </div>
       </div>
 
-      <!-- Home view — the v4 achievement showcase. Hidden on drill-ins. -->
+      <!-- Home view — the v5 activity ledger. Hidden on drill-ins. -->
       <section class="home-view" id="home-view" aria-label="Home dashboard">
 
         <div class="home-session-strip" id="home-session-strip" aria-label="Today activity summary">
@@ -8554,7 +8556,7 @@
         </section>
       </div>
 
-      <!-- Heatmap is home-only in v4. Drill-ins focus on category content. -->
+      <!-- Heatmap is home-only in v5. Drill-ins focus on category content. -->
 
       <div class="sub-controls skill-sec hidden" id="skill-controls">
         <div class="skill-picker" id="skill-picker">
@@ -8704,7 +8706,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "4.2";
+      const APP_VERSION = "5";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -9654,7 +9656,7 @@
         if (!panel) return;
         panel.innerHTML = `
           <span class="status-dot" aria-hidden="true"></span>
-          <span class="status-item"><strong>Saulalog ${APP_VERSION}</strong></span>
+          <span class="status-item"><strong>Saulalog v${APP_VERSION}</strong></span>
           <span class="status-item">Source: ${escapeHtml(lastDataSource.source)}</span>
           <span class="status-item">Rows: ${Number(lastDataSource.rows || 0).toLocaleString()}</span>
           <span class="status-item dim">Loaded: ${escapeHtml(formatDateOnly(lastDataSource.loadedAt))}</span>
@@ -10510,7 +10512,7 @@
       }
 
       // ═══════════════════════════════════════════════════════════════════
-      // v4 — Shell, home view, and stats pillars rendering
+      // v5 — Shell, home view, and stats pillars rendering
       // ═══════════════════════════════════════════════════════════════════
 
       // Editorial copy for each section title and subtitle. Subtitles get the
