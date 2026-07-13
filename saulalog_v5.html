@@ -2,7 +2,7 @@
 
 <!--
   ═══════════════════════════════════════════════════════════════════════════
-  Saulalog v5 — cohesive activity ledger
+  Saulalog v5.17 — Graph metrics above
   ═══════════════════════════════════════════════════════════════════════════
 
   v5 establishes the current homepage and navigation model:
@@ -15,6 +15,11 @@
       dotted dividers; recent entries retain separators only between rows.
     · The compact Today strip summarizes activity types beneath the header.
     · Drill-in pages retain their full filters, search, ranges, and history.
+    · A site-wide design system now provides semantic color tokens, shared
+      ledger components, and one fixed Home / Combat / Skills / Quests header
+      navigation row across the primary pages.
+    · Light mode keeps the warm parchment palette; dark mode keeps the
+      charcoal-olive palette with independently tuned accent colors.
 
   Existing data sources, cached Google Sheets payloads, theme preference, and
   parsing behavior remain compatible with prior versions.
@@ -24,7 +29,7 @@
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Saulalog v5</title>
+    <title>Saulalog v5.17</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -947,7 +952,7 @@
       .parser-summary-desc {
         font-size: 11px;
         color: var(--color-text-light);
-        line-height: 1.3;
+        line-height: 1.2;
       }
       .parser-summary-count {
         font-size: 12px;
@@ -6213,75 +6218,103 @@
         gap: 18px;
         padding-top: 14px;
       }
-      .drop-feature {
+      /* Dedicated Combat-only featured drop card. This intentionally keeps
+         the bordered gradient treatment and decorative orb rather than sharing
+         the quieter Skills/Quests featured-entry component. */
+      .featured-drop-card {
         position: relative;
-        min-height: 236px;
-        padding: 24px;
+        isolation: isolate;
+        min-height: 206px;
+        padding: 22px 24px 20px;
         border: 1px solid var(--color-border);
         border-radius: 6px;
         background:
-          linear-gradient(145deg, color-mix(in srgb, var(--color-combat) 10%, transparent), transparent 48%),
+          linear-gradient(145deg, color-mix(in srgb, var(--color-combat) 11%, transparent), transparent 52%),
           var(--color-surface);
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-end;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr) auto;
+        gap: 18px;
       }
-      .drop-feature::after {
-        content: "";
+      .featured-drop-card__orb {
         position: absolute;
+        z-index: -1;
         width: 180px;
         height: 180px;
         right: -54px;
         top: -62px;
-        border: 1px solid color-mix(in srgb, var(--color-combat) 24%, var(--color-border));
+        border: 1px solid color-mix(in srgb, var(--color-combat) 25%, var(--color-border));
         border-radius: 50%;
-        box-shadow: 0 0 0 28px color-mix(in srgb, var(--color-combat) 4%, transparent), 0 0 0 56px color-mix(in srgb, var(--color-combat) 3%, transparent);
+        box-shadow:
+          0 0 0 28px color-mix(in srgb, var(--color-combat) 4.5%, transparent),
+          0 0 0 56px color-mix(in srgb, var(--color-combat) 3%, transparent);
         pointer-events: none;
       }
-      .drop-feature-kicker,
+      .featured-drop-card__label,
       .drop-support-kicker,
       .ledger-glance-label {
+        position: relative;
+        z-index: 1;
         font-family: var(--font-mono);
         font-size: 10px;
         letter-spacing: .08em;
         text-transform: uppercase;
         color: var(--color-combat);
       }
-      .drop-feature-name {
+      .featured-drop-card__body {
         position: relative;
         z-index: 1;
-        max-width: 82%;
-        margin: 10px 0 14px;
+        align-self: center;
+        min-width: 0;
+        max-width: calc(100% - 72px);
+      }
+      .featured-drop-card__title {
+        margin: 0;
         font-family: var(--font-display);
-        font-size: clamp(30px, 4vw, 48px);
+        font-size: clamp(30px, 3.3vw, 43px);
         font-weight: 600;
-        line-height: .98;
+        line-height: 1.02;
         letter-spacing: -.025em;
         color: var(--color-text);
+        overflow-wrap: anywhere;
       }
-      .drop-feature-meta {
+      .featured-drop-card__source {
+        margin-top: 8px;
+        font-family: var(--font-body);
+        font-size: 12px;
+        line-height: 1.35;
+        color: var(--color-text-dim);
+      }
+      .featured-drop-card__footer {
+        position: relative;
+        z-index: 1;
         display: flex;
         align-items: center;
-        gap: 8px;
-        flex-wrap: wrap;
-        font-family: var(--font-display);
-        font-style: italic;
-        font-size: 13px;
-        color: var(--color-text-light);
+        justify-content: space-between;
+        gap: 12px;
+        min-width: 0;
+        padding-top: 13px;
       }
-      .drop-feature-source { color: var(--color-text-dim); }
-      .drop-feature-count {
+      .featured-drop-card__status {
         display: inline-flex;
         align-items: center;
-        min-height: 22px;
-        padding: 0 8px;
-        border: 1px solid var(--color-border);
-        border-radius: 999px;
+        min-height: 23px;
+        padding: 3px 8px;
+        border: 1px solid color-mix(in srgb, var(--color-combat) 35%, var(--color-border));
+        border-radius: 4px;
         font-family: var(--font-mono);
-        font-style: normal;
-        font-size: 10px;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: .04em;
+        text-transform: uppercase;
         color: var(--color-text-dim);
+        background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+      }
+      .featured-drop-card__date {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--color-text-light);
+        white-space: nowrap;
       }
       .drop-support-list {
         display: flex;
@@ -6399,8 +6432,10 @@
       .home-cat-card[data-cat="clues"] { display: none !important; }
       @media (max-width: 760px) {
         .drop-showcase { grid-template-columns: 1fr; }
-        .drop-feature { min-height: 200px; }
-        .drop-feature-name { max-width: 100%; }
+        .featured-drop-card { min-height: 190px; padding: 20px; gap: 16px; }
+        .featured-drop-card__body { max-width: 100%; padding-right: 32px; }
+        .featured-drop-card__title { font-size: clamp(28px, 10vw, 38px); }
+        .featured-drop-card__footer { align-items: flex-start; flex-direction: column; gap: 8px; }
       }
 
 
@@ -6427,15 +6462,12 @@
       .home-col-title-sm { font-size: 18px !important; color: var(--color-text) !important; }
       .home-col-sub { line-height: 1.35; }
       .drop-showcase { display: flex; flex-direction: column; gap: 18px; height: 100%; }
-      .drop-feature { min-height: 184px; padding: 22px 24px; display: flex; flex-direction: column; }
-      .drop-feature-name { margin-top: 22px; }
-      .drop-feature-meta { margin-top: auto; padding-top: 18px; flex-wrap: wrap; }
-      .drop-feature-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
-      .drop-feature-tag {
-        display: inline-flex; align-items: center; min-height: 22px; padding: 3px 8px;
-        border: 1px solid var(--color-border); border-radius: 4px;
-        font-family: var(--font-mono); font-size: 9px; font-weight: 600;
-        color: var(--color-text-dim); letter-spacing: .04em;
+      .featured-drop-card { min-height: 206px; }
+      @media (max-width: 760px) {
+        .featured-drop-card { min-height: 190px; padding: 20px; gap: 16px; }
+        .featured-drop-card__body { max-width: 100%; padding-right: 32px; }
+        .featured-drop-card__title { font-size: clamp(28px, 10vw, 38px); }
+        .featured-drop-card__footer { align-items: flex-start; flex-direction: column; gap: 8px; }
       }
       .drop-support-list { border-top: 1px solid var(--color-rule); }
       .drop-support-row { min-height: 51px; padding: 9px 0; }
@@ -7505,6 +7537,15 @@
       }
 
 
+      /* Keep the Today strip flush with the homepage header. The header's
+         bottom rule provides the separator, so the strip does not repeat it. */
+      body[data-view="home"] .home-view {
+        padding-top: 0 !important;
+      }
+      body[data-view="home"] .home-session-strip {
+        border-top: 0;
+      }
+
       /* Homepage session strip: compact activity-type summary directly below the banner. */
       .home-session-strip {
         display: grid;
@@ -8271,7 +8312,1706 @@
         }
       }
 
-</style>
+
+      /* v5 Quest page — open ledger layout matching the homepage. */
+      .quest-single-panel {
+        display: block;
+        width: 100%;
+      }
+      .quest-single-panel.hidden {
+        display: none;
+      }
+      .quest-single-panel .dual-col {
+        min-height: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+      }
+      .quest-single-panel .dual-col-header {
+        display: none;
+      }
+      .quest-single-panel .dual-col-body {
+        display: block;
+        max-height: none;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        overflow: visible;
+      }
+      .quest-ledger-filter-row {
+        margin: 0 0 24px;
+      }
+      .quest-ledger-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 34px;
+      }
+      .quest-ledger-section {
+        --quest-ledger-accent: var(--color-quest);
+        min-width: 0;
+      }
+      .quest-ledger-section-head {
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 17px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--color-rule);
+      }
+      .quest-ledger-section-head::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -1px;
+        width: 38px;
+        height: 3px;
+        border-radius: 2px;
+        background: var(--quest-ledger-accent);
+      }
+      .quest-ledger-heading-copy {
+        min-width: 0;
+      }
+      .quest-ledger-title {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 650;
+        line-height: 1.15;
+        letter-spacing: -.01em;
+        color: var(--color-text);
+      }
+      .quest-ledger-subtitle {
+        display: block;
+        margin-top: 4px;
+        font-family: var(--font-body);
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 1.4;
+        color: var(--color-text-light);
+      }
+      .quest-ledger-count {
+        flex: 0 0 auto;
+        padding-bottom: 1px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--color-text-light);
+        white-space: nowrap;
+      }
+      .quest-ledger-feature {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr) auto;
+        column-gap: 10px;
+        row-gap: 2px;
+        align-items: start;
+        padding: 0;
+      }
+      .quest-ledger-kicker,
+      .quest-ledger-recent-label {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 600;
+        line-height: 1.35;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--quest-ledger-accent);
+      }
+      .quest-ledger-kicker {
+        grid-column: 1 / -1;
+        margin-bottom: 6px;
+      }
+      .quest-ledger-date {
+        padding-top: 2px;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        line-height: 1.2;
+        color: var(--color-text-light);
+        white-space: nowrap;
+      }
+      .quest-ledger-copy {
+        min-width: 0;
+      }
+      .quest-ledger-copy strong {
+        display: block;
+        font-family: var(--font-body);
+        font-size: 12px;
+        font-weight: 650;
+        line-height: 1.35;
+        color: var(--color-text);
+      }
+      .quest-ledger-copy small {
+        display: block;
+        margin-top: 2px;
+        font-family: var(--font-body);
+        font-size: 10px;
+        line-height: 1.4;
+        color: var(--color-text-dim);
+      }
+      .quest-ledger-recent-label {
+        margin: 18px 0 5px;
+      }
+      .quest-ledger-recent-list {
+        width: 100%;
+      }
+      .quest-ledger-row {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: start;
+        padding: 9px 0;
+        border-bottom: 1px dotted var(--color-rule);
+      }
+      .quest-ledger-row.is-last {
+        border-bottom: 0;
+      }
+      .quest-ledger-debug {
+        min-width: 20px;
+        text-align: right;
+      }
+      .quest-ledger-empty {
+        padding: 8px 0 2px;
+        font-size: 11px;
+        color: var(--color-text-light);
+      }
+      .quest-ledger-load-more {
+        width: 100%;
+        margin-top: 8px;
+      }
+      @media (max-width: 620px) {
+        .quest-ledger-section-head {
+          align-items: flex-start;
+        }
+        .quest-ledger-feature,
+        .quest-ledger-row {
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 5px 10px;
+        }
+        .quest-ledger-date {
+          grid-column: 1;
+          grid-row: 1;
+        }
+        .quest-ledger-copy {
+          grid-column: 1;
+          grid-row: 2;
+        }
+        .quest-ledger-debug {
+          grid-column: 2;
+          grid-row: 1 / span 2;
+        }
+        .quest-ledger-feature .quest-ledger-kicker {
+          grid-column: 1 / -1;
+          grid-row: 1;
+        }
+        .quest-ledger-feature .quest-ledger-date {
+          grid-row: 2;
+        }
+        .quest-ledger-feature .quest-ledger-copy {
+          grid-row: 3;
+        }
+        .quest-ledger-feature .quest-ledger-debug {
+          grid-row: 2 / span 2;
+        }
+      }
+
+
+
+      /* ═══════════════════════════════════════════════════════════════════
+         v5 site-wide design system
+         Semantic tokens and reusable page primitives. Existing --color-*
+         names remain as compatibility aliases so legacy views inherit the
+         same palette without page-specific recoloring.
+         ═══════════════════════════════════════════════════════════════════ */
+      :root {
+        color-scheme: light;
+
+        /* Light theme — warm parchment */
+        --theme-page-bg: #f5f1ea;
+        --theme-surface-primary: #fbf8f2;
+        --theme-surface-secondary: #ebe6dc;
+        --theme-surface-raised: #fffdf8;
+        --theme-border: #d8d0c2;
+        --theme-border-strong: #a89e8b;
+        --theme-text-primary: #1a1715;
+        --theme-text-secondary: #4a4540;
+        --theme-text-muted: #8b8478;
+        --theme-line: #c9c0b0;
+        --theme-line-soft: #ddd6ca;
+        --theme-focus-ring: rgba(74, 69, 64, 0.16);
+        --theme-row-hover: rgba(74, 69, 64, 0.055);
+        --theme-selection: rgba(91, 44, 135, 0.10);
+
+        --accent-all: #5b2c87;
+        --accent-combat: #a8312a;
+        --accent-skills: #2d6a3e;
+        --accent-quests: #1c4f8c;
+        --accent-clues: #b8651f;
+        --accent-misc: #545c66;
+        --accent-neutral: #4a4540;
+
+        /* Shared type, spacing, and component geometry */
+        --ds-font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+        --ds-font-body: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --ds-font-mono: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+        --ds-space-1: 4px;
+        --ds-space-2: 8px;
+        --ds-space-3: 12px;
+        --ds-space-4: 16px;
+        --ds-space-5: 24px;
+        --ds-space-6: 32px;
+        --ds-space-7: 40px;
+        --ds-control-height: 32px;
+        --ds-date-column: 104px;
+        --ds-ledger-gap: 12px;
+        --ds-section-accent-width: 38px;
+        --ds-radius-control: 6px;
+        --ds-radius-surface: 6px;
+        --ds-shadow-raised: 0 1px 0 rgba(26, 23, 21, 0.035);
+
+        /* Compatibility aliases used throughout the existing single-file app */
+        --color-bg: var(--theme-page-bg);
+        --color-surface: var(--theme-surface-primary);
+        --color-bg-sub: var(--theme-surface-secondary);
+        --color-border: var(--theme-border);
+        --color-border-strong: var(--theme-border-strong);
+        --color-text: var(--theme-text-primary);
+        --color-text-dim: var(--theme-text-secondary);
+        --color-text-light: var(--theme-text-muted);
+        --color-rule: var(--theme-line);
+        --color-all: var(--accent-all);
+        --color-combat: var(--accent-combat);
+        --color-skill: var(--accent-skills);
+        --color-quest: var(--accent-quests);
+        --color-clue: var(--accent-clues);
+        --color-misc: var(--accent-misc);
+        --color-ink: var(--theme-text-primary);
+        --color-ui: var(--theme-text-secondary);
+        --color-ui-glow: var(--theme-focus-ring);
+        --font-display: var(--ds-font-display);
+        --font-body: var(--ds-font-body);
+        --font-mono: var(--ds-font-mono);
+      }
+
+      body.dark-mode,
+      body[data-theme="dark"] {
+        color-scheme: dark;
+
+        /* Dark theme — charcoal olive, independently tuned */
+        --theme-page-bg: #15140f;
+        --theme-surface-primary: #1c1b16;
+        --theme-surface-secondary: #25241e;
+        --theme-surface-raised: #201f19;
+        --theme-border: #3a382f;
+        --theme-border-strong: #6b665a;
+        --theme-text-primary: #efeae0;
+        --theme-text-secondary: #c4bdaf;
+        --theme-text-muted: #8f8879;
+        --theme-line: #3b382f;
+        --theme-line-soft: #302e27;
+        --theme-focus-ring: rgba(196, 189, 175, 0.18);
+        --theme-row-hover: rgba(239, 234, 224, 0.055);
+        --theme-selection: rgba(185, 144, 216, 0.13);
+
+        --accent-all: #b990d8;
+        --accent-combat: #e08982;
+        --accent-skills: #87c899;
+        --accent-quests: #7eb8e8;
+        --accent-clues: #e8b073;
+        --accent-misc: #a8b0ba;
+        --accent-neutral: #c4bdaf;
+        --ds-shadow-raised: 0 1px 0 rgba(0, 0, 0, 0.28);
+      }
+
+      ::selection {
+        background: var(--theme-selection);
+        color: var(--theme-text-primary);
+      }
+
+      /* Section theme modifiers — pages only choose a semantic class. */
+      .theme-combat { --section-accent: var(--accent-combat); }
+      .theme-skills { --section-accent: var(--accent-skills); }
+      .theme-quests { --section-accent: var(--accent-quests); }
+      .theme-clues { --section-accent: var(--accent-clues); }
+      .theme-misc { --section-accent: var(--accent-misc); }
+      .theme-all { --section-accent: var(--accent-all); }
+      .ledger-section:not([class*="theme-"]) { --section-accent: var(--accent-neutral); }
+
+      /* Shared drill-in section navigation. */
+      .site-section-nav {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-top: 15px;
+        font-family: var(--ds-font-body);
+        font-size: 12px;
+        color: var(--theme-text-muted);
+      }
+      .site-section-nav a {
+        position: relative;
+        padding: 0 0 7px;
+        color: inherit;
+        text-decoration: none;
+        transition: color .12s ease;
+      }
+      .site-section-nav a:hover { color: var(--theme-text-primary); }
+      .site-section-nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        border-radius: 2px;
+        background: transparent;
+      }
+      body[data-view="home"] .site-section-nav,
+      body[data-view="debug"] .site-section-nav { display: none; }
+      body[data-view="combat"] .site-section-nav [data-filter="combat"],
+      body[data-view="skills"] .site-section-nav [data-filter="skills"],
+      body[data-view="quests"] .site-section-nav [data-filter="quests"] {
+        color: var(--theme-text-primary);
+        font-weight: 600;
+      }
+      body[data-view="combat"] .site-section-nav [data-filter="combat"]::after { background: var(--accent-combat); }
+      body[data-view="skills"] .site-section-nav [data-filter="skills"]::after { background: var(--accent-skills); }
+      body[data-view="quests"] .site-section-nav [data-filter="quests"]::after { background: var(--accent-quests); }
+
+      /* Reusable section header: title, subtitle, count/action, and accent rule. */
+      .ledger-section-head {
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: var(--ds-space-4);
+        margin: 0 0 17px;
+        padding: 0 0 10px;
+        border: 0;
+        border-bottom: 1px solid var(--theme-line);
+        background: transparent;
+      }
+      .ledger-section-head::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -1px;
+        width: var(--ds-section-accent-width);
+        height: 3px;
+        border-radius: 2px;
+        background: var(--section-accent, var(--accent-neutral));
+      }
+      .ledger-section-heading-copy { min-width: 0; }
+      .ledger-section-title {
+        margin: 0;
+        font-family: var(--ds-font-display);
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1.15;
+        letter-spacing: -.01em;
+        color: var(--theme-text-primary);
+        text-transform: none;
+      }
+      .ledger-section-subtitle {
+        display: block;
+        margin-top: 4px;
+        font-family: var(--ds-font-body);
+        font-size: 11px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 1.4;
+        letter-spacing: 0;
+        color: var(--theme-text-muted);
+        text-transform: none;
+      }
+      .ledger-section-meta {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--ds-space-3);
+        padding-bottom: 1px;
+      }
+      .ledger-section-count {
+        font-family: var(--ds-font-mono);
+        font-size: 10px;
+        font-weight: 500;
+        color: var(--theme-text-muted);
+        white-space: nowrap;
+      }
+      .ledger-section-action {
+        color: var(--theme-text-secondary);
+        text-decoration: none;
+        transition: color .12s ease;
+      }
+      .ledger-section-action:hover { color: var(--section-accent, var(--theme-text-primary)); }
+
+      /* Reusable featured record and ledger list. */
+      .ledger-kicker,
+      .ledger-recent-label {
+        display: block;
+        font-family: var(--ds-font-mono);
+        font-size: 9px;
+        font-weight: 600;
+        line-height: 1.35;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--section-accent, var(--accent-neutral));
+      }
+      .ledger-feature {
+        display: grid;
+        grid-template-columns: var(--ds-date-column) minmax(0, 1fr) auto;
+        column-gap: var(--ds-ledger-gap);
+        row-gap: 2px;
+        align-items: start;
+        padding: 0;
+        border-bottom: 0;
+      }
+      .ledger-feature .ledger-kicker {
+        grid-column: 1 / -1;
+        margin-bottom: 6px;
+      }
+      .ledger-date {
+        padding-top: 2px;
+        font-family: var(--ds-font-mono);
+        font-size: 9px;
+        line-height: 1.2;
+        font-variant-numeric: tabular-nums;
+        color: var(--theme-text-muted);
+        white-space: nowrap;
+      }
+      .ledger-copy { min-width: 0; }
+      .ledger-entry-title {
+        display: block;
+        font-family: var(--ds-font-body);
+        font-size: 12px;
+        font-weight: 650;
+        line-height: 1.35;
+        color: var(--theme-text-primary);
+        overflow-wrap: anywhere;
+      }
+      .ledger-entry-meta {
+        display: block;
+        margin-top: 2px;
+        font-family: var(--ds-font-body);
+        font-size: 10px;
+        font-weight: 400;
+        line-height: 1.4;
+        color: var(--theme-text-secondary);
+      }
+      .ledger-debug {
+        min-width: 20px;
+        text-align: right;
+      }
+      .ledger-recent-label { margin: 18px 0 5px; }
+      .ledger-list { width: 100%; }
+      .ledger-row {
+        display: grid;
+        grid-template-columns: var(--ds-date-column) minmax(0, 1fr) auto;
+        gap: var(--ds-ledger-gap);
+        align-items: start;
+        padding: 9px 0;
+        border-bottom: 1px dotted var(--theme-line);
+        background: transparent;
+      }
+      .ledger-row.is-last,
+      .ledger-row:last-child { border-bottom: 0; }
+      .ledger-empty {
+        padding: 8px 0 2px;
+        font-size: 11px;
+        color: var(--theme-text-muted);
+      }
+
+      /* Shared controls use the semantic palette rather than page colors. */
+      input[type="text"],
+      input[type="search"],
+      select,
+      .search-box,
+      .b-pill,
+      .dp-btn,
+      .mini-action-btn,
+      .load-more-btn,
+      .icon-btn {
+        border-color: var(--theme-border);
+        color: var(--theme-text-secondary);
+      }
+      input[type="text"],
+      input[type="search"],
+      select,
+      .search-box {
+        background: var(--theme-surface-primary);
+      }
+      input[type="text"]:focus,
+      input[type="search"]:focus,
+      select:focus-visible,
+      button:focus-visible,
+      a:focus-visible {
+        outline: 2px solid var(--section-accent, var(--theme-border-strong));
+        outline-offset: 2px;
+        box-shadow: none;
+      }
+      .b-pill,
+      .dp-btn,
+      .mini-action-btn,
+      .load-more-btn,
+      .icon-btn {
+        background: transparent;
+      }
+      .b-pill:hover,
+      .dp-btn:hover,
+      .mini-action-btn:hover,
+      .load-more-btn:hover,
+      .icon-btn:hover {
+        background: var(--theme-row-hover);
+        color: var(--theme-text-primary);
+      }
+
+      /* Home sections now consume the same shared header tokens. */
+      .home-combat-primary,
+      .home-skills-col,
+      .home-quests-col {
+        --home-section-accent: var(--section-accent);
+      }
+      .home-cohesive-grid .ledger-section-head,
+      .home-support-section .ledger-section-head {
+        min-height: 0;
+        margin-bottom: 13px;
+      }
+      .home-cohesive-grid .ledger-section-head::after,
+      .home-support-section .ledger-section-head::after {
+        background: var(--section-accent);
+      }
+      .home-support-feature.ledger-feature {
+        grid-template-columns: 48px minmax(0, 1fr);
+      }
+      .home-support-feature.ledger-feature .ledger-kicker { grid-column: 1 / -1; }
+
+      /* Combat: open ledger sections rather than boxed panes. */
+      body[data-view="combat"] .combat-grid {
+        gap: clamp(28px, 4vw, 48px);
+        align-items: start;
+      }
+      body[data-view="combat"] .combat-sec {
+        min-height: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+      body[data-view="combat"] .combat-section-head {
+        padding-left: 0;
+        padding-right: 0;
+      }
+      body[data-view="combat"] .combat-sec .bubble-wrap,
+      body[data-view="combat"] .combat-sec .combat-more-wrap {
+        padding: 0;
+      }
+      body[data-view="combat"] .combat-sec .combat-more-wrap { margin-top: 10px; }
+      body[data-view="combat"] .loot-container {
+        margin-top: 14px;
+        padding-top: 8px;
+        border-top: 1px solid var(--theme-line-soft);
+      }
+      body[data-view="combat"] .loot-row {
+        border-bottom-color: var(--theme-line);
+        border-radius: 0;
+      }
+      body[data-view="combat"] .loot-row.clickable:hover {
+        padding-left: 6px;
+        background: var(--theme-row-hover);
+      }
+
+      /* Skills: shared open sections; chart remains a purposeful data surface. */
+      body[data-view="skills"] .skill-xp-panel {
+        gap: clamp(28px, 4vw, 48px);
+        align-items: start;
+      }
+      body[data-view="skills"] .skill-xp-panel > .dual-col {
+        min-height: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+      body[data-view="skills"] .skill-xp-panel .dual-col-header {
+        margin: 0 0 17px;
+        padding: 0 0 10px;
+      }
+      body[data-view="skills"] .skill-xp-panel .dual-col-body {
+        margin: 0;
+        padding: 0;
+        max-height: none;
+        overflow: visible;
+      }
+      body[data-view="skills"] .skill-history-col .xp-chart-wrap {
+        padding: 14px;
+        border: 1px solid var(--theme-border);
+        border-radius: var(--ds-radius-surface);
+        background: var(--theme-surface-primary);
+        box-shadow: var(--ds-shadow-raised);
+      }
+      body[data-view="skills"] .skill-entry-toolbar {
+        margin: 0 0 10px;
+        padding: 0 0 10px;
+        border-bottom: 1px solid var(--theme-line-soft);
+      }
+      body[data-view="skills"] .skill-picker {
+        border-color: var(--theme-border);
+        background: var(--theme-surface-primary);
+      }
+      body[data-view="skills"] .skill-summary-card,
+      body[data-view="skills"] .skill-group-card {
+        background: transparent;
+        border-color: var(--theme-line-soft);
+        box-shadow: none;
+      }
+
+      /* Quest page is the reference implementation of the shared ledger. */
+      .quest-ledger-section-head,
+      .quest-ledger-feature,
+      .quest-ledger-kicker,
+      .quest-ledger-recent-label,
+      .quest-ledger-recent-list,
+      .quest-ledger-row,
+      .quest-ledger-date,
+      .quest-ledger-copy,
+      .quest-ledger-debug,
+      .quest-ledger-empty {
+        all: unset;
+      }
+      .quest-ledger-section .ledger-section-head { margin-bottom: 17px; }
+      .quest-ledger-load-more { width: 100%; margin-top: 8px; }
+
+      /* Date/title spacing is one site-wide invariant. */
+      .entry,
+      .dual-entry,
+      .loot-row {
+        column-gap: var(--ds-ledger-gap);
+      }
+      .entry {
+        grid-template-columns: var(--ds-date-column) minmax(0, 1fr) auto;
+      }
+
+      @media (max-width: 900px) {
+        body[data-view="combat"] .combat-grid,
+        body[data-view="skills"] .skill-xp-panel {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .site-section-nav {
+          gap: 16px;
+          overflow-x: auto;
+          padding-bottom: 2px;
+        }
+        .ledger-section-head {
+          align-items: flex-start;
+        }
+        .ledger-feature,
+        .ledger-row {
+          grid-template-columns: minmax(0, 1fr) auto;
+          gap: 5px 10px;
+        }
+        .ledger-feature .ledger-kicker {
+          grid-column: 1 / -1;
+          grid-row: 1;
+        }
+        .ledger-feature .ledger-date {
+          grid-column: 1;
+          grid-row: 2;
+        }
+        .ledger-feature .ledger-copy {
+          grid-column: 1;
+          grid-row: 3;
+        }
+        .ledger-feature .ledger-debug {
+          grid-column: 2;
+          grid-row: 2 / span 2;
+        }
+        .ledger-row .ledger-date {
+          grid-column: 1;
+          grid-row: 1;
+        }
+        .ledger-row .ledger-copy {
+          grid-column: 1;
+          grid-row: 2;
+        }
+        .ledger-row .ledger-debug {
+          grid-column: 2;
+          grid-row: 1 / span 2;
+        }
+        .home-support-feature.ledger-feature {
+          grid-template-columns: 44px minmax(0, 1fr);
+        }
+      }
+
+
+      /* v5 shared primary navigation — fixed placement on Home, Combat, Skills, and Quests. */
+      .page-title-block > .site-section-nav {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        margin: 17px 0 0;
+        min-height: 27px;
+        font-family: var(--ds-font-body);
+        font-size: 12px;
+        color: var(--theme-text-muted);
+      }
+      .page-title-block > .site-section-nav a {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        min-height: 27px;
+        padding: 0 0 8px;
+        color: inherit;
+        font-weight: 500;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: color .12s ease;
+      }
+      .page-title-block > .site-section-nav a:hover {
+        color: var(--theme-text-primary);
+      }
+      .page-title-block > .site-section-nav a::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 2px;
+        border-radius: 2px;
+        background: transparent;
+      }
+      body[data-view="home"] .page-title-block > .site-section-nav,
+      body[data-view="combat"] .page-title-block > .site-section-nav,
+      body[data-view="skills"] .page-title-block > .site-section-nav,
+      body[data-view="quests"] .page-title-block > .site-section-nav {
+        display: flex;
+      }
+      body[data-view="debug"] .page-title-block > .site-section-nav {
+        display: none;
+      }
+      body[data-view="home"] .site-section-nav [data-nav="home"],
+      body[data-view="combat"] .site-section-nav [data-nav="combat"],
+      body[data-view="skills"] .site-section-nav [data-nav="skills"],
+      body[data-view="quests"] .site-section-nav [data-nav="quests"] {
+        color: var(--theme-text-primary);
+        font-weight: 600;
+      }
+      body[data-view="home"] .site-section-nav [data-nav="home"]::after {
+        background: var(--theme-text-primary);
+      }
+      body[data-view="combat"] .site-section-nav [data-nav="combat"]::after {
+        background: var(--accent-combat);
+      }
+      body[data-view="skills"] .site-section-nav [data-nav="skills"]::after {
+        background: var(--accent-skills);
+      }
+      body[data-view="quests"] .site-section-nav [data-nav="quests"]::after {
+        background: var(--accent-quests);
+      }
+
+      /* Home retains right-aligned lifetime metrics while the shared nav owns a full row. */
+      body[data-view="home"] .page-title-block {
+        grid-template-areas:
+          "title metrics"
+          "subtitle metrics"
+          "nav nav";
+      }
+      body[data-view="home"] .page-title-block > .site-section-nav {
+        grid-area: nav;
+      }
+
+      @media (max-width: 700px) {
+        body[data-view="home"] .page-title-block {
+          grid-template-areas:
+            "title"
+            "subtitle"
+            "metrics"
+            "nav";
+        }
+        .page-title-block > .site-section-nav {
+          gap: 20px;
+          overflow-x: auto;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        .page-title-block > .site-section-nav::-webkit-scrollbar {
+          display: none;
+        }
+      }
+
+
+
+      /* v5: streamlined Skills page ---------------------------------- */
+      body[data-view="skills"] .skill-page {
+        width: 100%;
+        display: grid;
+        gap: clamp(36px, 5vw, 64px);
+      }
+      body[data-view="skills"] .skill-page.hidden { display: none; }
+      body[data-view="skills"] #skill-controls { display: none !important; }
+
+      .skill-overview-section,
+      .skill-log-section {
+        min-width: 0;
+      }
+      .skill-overview-content {
+        display: grid;
+        gap: 20px;
+      }
+      .skill-overview-feature {
+        display: grid;
+        grid-template-columns: var(--ds-date-column) minmax(0, 1fr);
+        gap: var(--ds-ledger-gap);
+        align-items: start;
+        padding: 2px 0 4px;
+      }
+      .skill-overview-feature .ledger-kicker {
+        grid-column: 1 / -1;
+        margin-bottom: 2px;
+      }
+      .skill-overview-feature .ledger-date { grid-column: 1; }
+      .skill-overview-feature .ledger-copy { grid-column: 2; }
+      .skill-overview-feature .ledger-entry-title {
+        font-size: clamp(22px, 2.4vw, 31px);
+        line-height: 1.05;
+        font-family: var(--font-display);
+        font-weight: 650;
+      }
+      .skill-overview-recent-label { margin-top: 2px; }
+      .skill-overview-recent .ledger-row {
+        grid-template-columns: var(--ds-date-column) minmax(0, 1fr) auto;
+      }
+
+      .skill-log-controls {
+        display: flex;
+        align-items: flex-end;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .skill-select-field {
+        display: grid;
+        gap: 6px;
+        min-width: min(260px, 100%);
+      }
+      .skill-select-field > span {
+        color: var(--theme-text-muted);
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .skill-select-field select {
+        width: 100%;
+        min-height: 38px;
+        border: 1px solid var(--theme-border);
+        border-radius: var(--ds-radius-control);
+        background: var(--theme-surface-primary);
+        color: var(--theme-text-primary);
+        padding: 7px 34px 7px 11px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .skill-select-field select:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--section-accent) 38%, transparent);
+        outline-offset: 2px;
+      }
+      body[data-view="skills"] .skill-entry-toolbar {
+        flex: 1 1 440px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+      }
+      body[data-view="skills"] .skill-entry-toolbar .list-header-pills {
+        justify-content: flex-start;
+      }
+
+      .skill-chart-surface {
+        margin: 0 0 28px;
+        padding: clamp(14px, 2vw, 20px);
+        border: 1px solid var(--theme-border);
+        border-radius: var(--ds-radius-surface);
+        background: var(--theme-surface-primary);
+        box-shadow: var(--ds-shadow-raised);
+      }
+      .skill-chart-surface.hidden { display: none; }
+      .skill-chart-surface .xp-chart-header {
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .skill-chart-state {
+        display: block;
+        margin: 4px 0 0;
+        color: var(--theme-text-muted);
+        font-size: 10px;
+        font-weight: 650;
+      }
+      .xp-chart-actions {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .skill-chart-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0;
+        margin-top: 14px;
+        border-top: 1px solid var(--theme-line-soft);
+      }
+      .skill-chart-summary-item {
+        display: grid;
+        gap: 3px;
+        min-width: 0;
+        padding: 12px 14px 0 0;
+      }
+      .skill-chart-summary-item + .skill-chart-summary-item {
+        border-left: 1px solid var(--theme-line-soft);
+        padding-left: 14px;
+      }
+      .skill-chart-summary-label {
+        color: var(--theme-text-muted);
+        font-size: 9px;
+        font-weight: 850;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+      }
+      .skill-chart-summary-value {
+        color: var(--theme-text-primary);
+        font-size: 13px;
+        font-weight: 800;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .skill-entry-list .ledger-list { width: 100%; }
+      .skill-entry-list .ledger-row {
+        grid-template-columns: var(--ds-date-column) minmax(0, 1fr) auto;
+      }
+      .skill-entry-list .ledger-entry-title { font-size: 13px; }
+      .skill-entry-list .skill-entry-type {
+        color: var(--section-accent);
+        font-weight: 800;
+      }
+      .skill-entry-list .load-more-btn { width: 100%; margin-top: 12px; }
+
+      @media (max-width: 680px) {
+        .skill-overview-feature,
+        .skill-overview-recent .ledger-row,
+        .skill-entry-list .ledger-row {
+          grid-template-columns: 1fr auto;
+        }
+        .skill-overview-feature .ledger-date,
+        .skill-overview-feature .ledger-copy {
+          grid-column: 1;
+        }
+        .skill-overview-feature .ledger-date { margin-bottom: 2px; }
+        .skill-overview-recent .ledger-date,
+        .skill-entry-list .ledger-date {
+          grid-column: 1 / -1;
+          margin-bottom: 2px;
+        }
+        .skill-log-controls { align-items: stretch; }
+        .skill-select-field,
+        body[data-view="skills"] .skill-entry-toolbar { flex-basis: 100%; }
+        .skill-chart-summary { grid-template-columns: 1fr; }
+        .skill-chart-summary-item + .skill-chart-summary-item {
+          border-left: 0;
+          border-top: 1px dotted var(--theme-line);
+          padding-left: 0;
+          margin-top: 10px;
+        }
+        .xp-chart-actions { margin-left: 0; justify-content: flex-start; }
+      }
+
+
+      /* v5: paired two-column detail pages ---------------------------- */
+      body[data-view="quests"] .quest-page {
+        display: block;
+        width: 100%;
+        min-width: 0;
+      }
+      body[data-view="quests"] .quest-page.hidden { display: none; }
+      body[data-view="quests"] #quest-list { min-width: 0; }
+      body[data-view="quests"] .quest-ledger-filter-row { display: none !important; }
+      body[data-view="quests"] .quest-ledger-stack {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(280px, .8fr);
+        gap: clamp(32px, 5vw, 64px);
+        align-items: start;
+      }
+      body[data-view="quests"] .quest-ledger-section {
+        min-width: 0;
+        margin: 0;
+      }
+      body[data-view="quests"] .quest-ledger-section + .quest-ledger-section {
+        margin-top: 0;
+      }
+      body[data-view="quests"] .quest-ledger-load-more { margin-top: 14px; }
+
+      body[data-view="skills"] .skill-page {
+        display: block;
+        width: 100%;
+      }
+      body[data-view="skills"] .skill-page.hidden { display: none; }
+      .skill-two-column {
+        display: grid;
+        grid-template-columns: minmax(285px, .76fr) minmax(0, 1.45fr);
+        gap: clamp(32px, 5vw, 64px);
+        align-items: start;
+      }
+      .skill-status-section,
+      .skill-log-section { min-width: 0; }
+      .skill-status-list {
+        display: grid;
+        min-width: 0;
+      }
+      .skill-status-sortbar {
+        display: grid;
+        grid-template-columns: minmax(110px, 1.15fr) minmax(82px, .8fr) minmax(82px, .8fr);
+        column-gap: 16px;
+        align-items: end;
+        padding: 0 0 7px;
+        border-bottom: 1px solid var(--theme-line);
+      }
+      .skill-status-sort {
+        appearance: none;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: var(--theme-text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        min-width: 0;
+        padding: 0;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 800;
+        line-height: 1.25;
+        letter-spacing: .055em;
+        text-align: left;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .skill-status-sort:hover,
+      .skill-status-sort:focus-visible {
+        color: var(--theme-text-primary);
+      }
+      .skill-status-sort:focus-visible {
+        outline: 1px solid color-mix(in srgb, var(--section-accent) 48%, transparent);
+        outline-offset: 4px;
+      }
+      .skill-status-sort.is-active {
+        color: var(--section-accent);
+      }
+      .skill-status-sort-label {
+        min-width: 0;
+      }
+      .skill-status-sort-indicator {
+        flex: 0 0 auto;
+        color: currentColor;
+        font-size: 10px;
+        line-height: 1;
+      }
+      .skill-status-empty {
+        color: var(--theme-text-muted);
+        font-size: 12px;
+        line-height: 1.6;
+        padding: 8px 0;
+      }
+      .skill-status-row {
+        appearance: none;
+        width: 100%;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        color: inherit;
+        display: grid;
+        grid-template-columns: minmax(110px, 1.15fr) minmax(82px, .8fr) minmax(82px, .8fr);
+        grid-template-areas:
+          "skill xp pet"
+          "skill xp-date pet-date";
+        column-gap: 16px;
+        row-gap: 2px;
+        align-items: start;
+        padding: 8px 0;
+        text-align: left;
+        cursor: pointer;
+        position: relative;
+      }
+      .skill-status-row + .skill-status-row {
+        border-top: 1px dotted var(--theme-line);
+      }
+      .skill-status-row:hover,
+      .skill-status-row:focus-visible {
+        background: color-mix(in srgb, var(--section-accent) 5%, transparent);
+      }
+      .skill-status-row:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--section-accent) 42%, transparent);
+        outline-offset: 3px;
+      }
+      .skill-status-row.is-active::before {
+        content: "";
+        position: absolute;
+        left: -12px;
+        top: 7px;
+        bottom: 7px;
+        width: 3px;
+        border-radius: 999px;
+        background: var(--section-accent);
+      }
+      .skill-status-xp {
+        grid-area: xp;
+        color: var(--theme-text-primary);
+        font-family: var(--font-display);
+        font-size: 16px;
+        line-height: 1.08;
+        font-weight: 700;
+        letter-spacing: -.015em;
+        white-space: nowrap;
+      }
+      .skill-status-name {
+        grid-area: skill;
+        min-width: 0;
+        color: var(--theme-text-primary);
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.3;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        align-self: center;
+      }
+      .skill-status-xp-date,
+      .skill-status-pet-date {
+        min-width: 0;
+        color: var(--theme-text-muted);
+        font-size: 9px;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+      .skill-status-xp-date { grid-area: xp-date; }
+      .skill-status-pet-date { grid-area: pet-date; }
+      .skill-status-pet {
+        grid-area: pet;
+        min-width: 0;
+        color: var(--section-accent);
+        font-family: var(--font-display);
+        font-size: 14px;
+        line-height: 1.08;
+        font-weight: 700;
+        letter-spacing: -.01em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .skill-status-pet.is-empty {
+        color: var(--theme-text-muted);
+        font-family: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0;
+        align-self: center;
+      }
+
+      @media (max-width: 880px) {
+        body[data-view="quests"] .quest-ledger-stack,
+        .skill-two-column {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 42px;
+        }
+      }
+      @media (max-width: 520px) {
+        .skill-status-sortbar,
+        .skill-status-row {
+          grid-template-columns: minmax(96px, 1.1fr) minmax(72px, .8fr) minmax(72px, .8fr);
+          column-gap: 10px;
+        }
+        .skill-status-sort { font-size: 8px; }
+        .skill-status-name { white-space: normal; }
+        .skill-status-xp { font-size: 15px; }
+        .skill-status-pet { font-size: 14px; }
+        .skill-status-xp-date,
+        .skill-status-pet-date { font-size: 9px; }
+      }
+
+
+      /* v5.1 — Combat ledger: 70/30 drops + kill-summary layout. */
+      /* v5.2 — Skills chart renders for All Skills, groups, multi-select, and single skills. */
+      body[data-view="combat"] .combat-grid {
+        --section-accent: var(--accent-combat);
+        display: grid;
+        grid-template-columns: minmax(0, 7fr) minmax(240px, 3fr);
+        gap: clamp(32px, 5vw, 58px);
+        align-items: start;
+        width: 100%;
+      }
+      body[data-view="combat"] .combat-drops-col,
+      body[data-view="combat"] .combat-kills-col {
+        min-width: 0;
+      }
+      body[data-view="combat"] .combat-tab-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 20px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid var(--theme-line-soft);
+      }
+      body[data-view="combat"] .combat-tab {
+        appearance: none;
+        position: relative;
+        margin: 0 0 -1px;
+        padding: 0 0 9px;
+        border: 0;
+        border-bottom: 2px solid transparent;
+        background: transparent;
+        color: var(--theme-text-muted);
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.2;
+        cursor: pointer;
+        transition: color 0.12s ease, border-color 0.12s ease;
+      }
+      body[data-view="combat"] .combat-tab:hover {
+        color: var(--theme-text-primary);
+      }
+      body[data-view="combat"] .combat-tab.active,
+      body[data-view="combat"] .combat-tab[aria-selected="true"] {
+        color: var(--section-accent);
+        border-bottom-color: var(--section-accent);
+      }
+      body[data-view="combat"] .combat-tab:focus-visible {
+        outline: 2px solid var(--section-accent);
+        outline-offset: 4px;
+      }
+      body[data-view="combat"] .combat-sec {
+        display: flex;
+        flex-direction: column;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+      body[data-view="combat"] .combat-sec.hidden,
+      body[data-view="combat"] .combat-sec[hidden] {
+        display: none !important;
+      }
+      body[data-view="combat"] .combat-kills-section {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+      body[data-view="combat"] .combat-kills-tab-row {
+        gap: 16px;
+      }
+      body[data-view="combat"] .combat-kills-tab-row .combat-tab {
+        font-size: 14px;
+      }
+      body[data-view="combat"] .combat-kills-list {
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid var(--theme-line-soft);
+      }
+      body[data-view="combat"] .combat-kill-row {
+        appearance: none;
+        display: grid;
+        grid-template-columns: 28px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        width: 100%;
+        padding: 11px 0;
+        border: 0;
+        border-bottom: 1px dotted var(--theme-line);
+        background: transparent;
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+        transition: background-color 0.12s ease, padding-left 0.12s ease;
+      }
+      body[data-view="combat"] .combat-kill-row:hover {
+        padding-left: 6px;
+        background: var(--theme-row-hover);
+      }
+      body[data-view="combat"] .combat-kill-row:focus-visible {
+        outline: 2px solid var(--section-accent);
+        outline-offset: 2px;
+      }
+      body[data-view="combat"] .combat-kill-index {
+        color: var(--theme-text-muted);
+        font-family: var(--font-display);
+        font-size: 12px;
+        font-style: italic;
+      }
+      body[data-view="combat"] .combat-kill-main {
+        min-width: 0;
+      }
+      body[data-view="combat"] .combat-kill-name,
+      body[data-view="combat"] .combat-kill-total {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      body[data-view="combat"] .combat-kill-name {
+        color: var(--theme-text-primary);
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 600;
+      }
+      body[data-view="combat"] .combat-kill-total {
+        margin-top: 2px;
+        color: var(--theme-text-secondary);
+        font-family: var(--font-display);
+        font-size: 11px;
+        font-style: italic;
+      }
+      body[data-view="combat"] .combat-kill-date {
+        color: var(--theme-text-muted);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+      body[data-view="combat"] .combat-kills-note,
+      body[data-view="combat"] .combat-kills-empty {
+        color: var(--theme-text-muted);
+        font-family: var(--font-display);
+        font-size: 11px;
+        font-style: italic;
+      }
+      body[data-view="combat"] .combat-kills-note {
+        padding-top: 10px;
+      }
+      body[data-view="combat"] .combat-kills-empty {
+        padding: 18px 0;
+      }
+      @media (max-width: 900px) {
+        body[data-view="combat"] .combat-grid {
+          grid-template-columns: 1fr;
+          gap: 34px;
+        }
+      }
+      @media (max-width: 620px) {
+        body[data-view="combat"] .combat-tab-row {
+          gap: 16px;
+          overflow-x: auto;
+          scrollbar-width: thin;
+        }
+        body[data-view="combat"] .combat-tab {
+          flex: 0 0 auto;
+        }
+      }
+
+
+
+      /* Reusable ledger scrollbar. Apply .ledger-scrollbar to any element that
+         owns overflow so scrollable regions use the same quiet rule-and-ink
+         treatment in both light and dark themes. */
+      .ledger-scrollbar {
+        --ledger-scrollbar-size: 10px;
+        --ledger-scrollbar-track: color-mix(in srgb, var(--color-bg-sub) 58%, transparent);
+        --ledger-scrollbar-thumb: color-mix(in srgb, var(--color-border-strong) 78%, transparent);
+        --ledger-scrollbar-thumb-hover: color-mix(in srgb, var(--color-text-light) 72%, var(--color-border-strong));
+        scrollbar-width: thin;
+        scrollbar-color: var(--ledger-scrollbar-thumb) var(--ledger-scrollbar-track);
+      }
+      .ledger-scrollbar::-webkit-scrollbar {
+        width: var(--ledger-scrollbar-size);
+        height: var(--ledger-scrollbar-size);
+      }
+      .ledger-scrollbar::-webkit-scrollbar-track {
+        background: var(--ledger-scrollbar-track);
+        border-left: 1px solid color-mix(in srgb, var(--color-rule) 72%, transparent);
+      }
+      .ledger-scrollbar::-webkit-scrollbar-thumb {
+        min-height: 34px;
+        background: var(--ledger-scrollbar-thumb);
+        border: 2px solid var(--ledger-scrollbar-track);
+        border-radius: 4px;
+        background-clip: padding-box;
+      }
+      .ledger-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: var(--ledger-scrollbar-thumb-hover);
+        border-color: var(--ledger-scrollbar-track);
+        background-clip: padding-box;
+      }
+      .ledger-scrollbar::-webkit-scrollbar-corner {
+        background: transparent;
+      }
+
+      /* v5.7: keep the Skill history column beside Skill progress without letting its own height exhaust the sticky range. */
+      body[data-view="skills"] .skill-log-section {
+        position: sticky;
+        top: var(--skill-column-sticky-top, 76px);
+        align-self: start;
+        z-index: 24;
+        max-height: calc(100vh - var(--skill-column-sticky-top, 76px) - 14px);
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+      }
+      body[data-view="skills"] .skill-log-section > .ledger-section-head {
+        margin-bottom: 18px;
+      }
+      body[data-view="skills"] .skill-chart-surface {
+        margin-bottom: 16px;
+      }
+      @media (max-width: 880px) {
+        body[data-view="skills"] .skill-log-section {
+          position: static;
+          top: auto;
+          z-index: auto;
+          max-height: none;
+          overflow: visible;
+          scrollbar-gutter: auto;
+        }
+      }
+
+      .skill-entry-toggle-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 32px;
+      }
+      .skill-entry-toggle {
+        min-height: 30px;
+        padding: 6px 11px;
+        background: transparent;
+        border-color: var(--theme-border);
+        color: var(--theme-text-secondary);
+      }
+      .skill-entry-toggle:hover {
+        background: var(--theme-surface-secondary);
+        border-color: var(--section-accent);
+        color: var(--theme-text-primary);
+      }
+      .skill-entry-toggle.active {
+        background: var(--section-accent);
+        border-color: var(--section-accent);
+        color: #fff;
+      }
+      body.dark-mode .skill-entry-toggle.active,
+      body[data-theme="dark"] .skill-entry-toggle.active {
+        color: #15140f;
+      }
+      .skill-entry-toggle-count {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--theme-text-muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .skill-entry-toggle.active .skill-entry-toggle-count {
+        color: currentColor;
+        opacity: .78;
+      }
+      .skill-entry-toggle-arrow {
+        display: inline-block;
+        margin-left: 2px;
+        font-family: var(--font-display);
+        font-size: 14px;
+        line-height: 1;
+        transition: transform .12s ease;
+      }
+      .skill-entry-toggle[aria-expanded="true"] .skill-entry-toggle-arrow {
+        transform: rotate(180deg);
+      }
+      .skill-entry-disclosure {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--theme-line-soft);
+      }
+      .skill-entry-disclosure.hidden {
+        display: none !important;
+      }
+      body[data-view="skills"] .skill-entry-disclosure .skill-entry-toolbar {
+        flex: 0 0 auto;
+        width: 100%;
+        min-height: 0;
+        margin: 0;
+        padding: 0 0 4px;
+        border: 0;
+        border-bottom: 1px dotted var(--theme-line);
+      }
+      body[data-view="skills"] .skill-entry-disclosure .list-header-pills {
+        justify-content: flex-start;
+        margin: 0;
+      }
+      body[data-view="skills"] .skill-entry-list,
+      body[data-view="skills"] .skill-entry-list .ledger-list {
+        min-width: 0;
+        margin: 0;
+        padding-top: 0;
+      }
+      @media (max-width: 680px) {
+        .skill-entry-toggle {
+          width: auto;
+          justify-content: center;
+        }
+      }
+
+
+
+      /* v5.12: the Skills graph reads as a plotted ledger page rather than a dashboard card. */
+      /* v5.13: sortable Skill progress headers preserve the existing three-column ledger. */
+      body[data-view="skills"] .skill-chart-surface,
+      body[data-view="skills"] .skill-history-col .xp-chart-wrap {
+        margin: 0 0 16px;
+        padding: 14px 0 16px;
+        border: 0;
+        border-top: 1px solid var(--theme-line-soft);
+        border-bottom: 1px solid var(--theme-line-soft);
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+      body[data-view="skills"] .skill-chart-surface .xp-chart-header {
+        align-items: baseline;
+        padding: 0 2px 10px;
+        margin: 0 0 8px;
+        border-bottom: 1px dotted var(--theme-line);
+      }
+      body[data-view="skills"] .skill-chart-surface .xp-chart-title {
+        font-family: var(--font-display);
+        font-size: 15px;
+        font-weight: 650;
+        letter-spacing: -.01em;
+        color: var(--theme-text-primary);
+      }
+      body[data-view="skills"] .skill-chart-state {
+        margin-top: 3px;
+        font-family: var(--font-display);
+        font-style: italic;
+        font-size: 11px;
+        font-weight: 400;
+        line-height: 1.35;
+      }
+      body[data-view="skills"] .xp-chart-hint {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: .015em;
+      }
+      body[data-view="skills"] .xp-chart-reset {
+        padding: 4px 8px;
+        border-radius: 3px;
+        background: transparent;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 600;
+      }
+      body[data-view="skills"] .xp-chart-legend {
+        gap: 12px;
+        min-height: 18px;
+        margin: 0;
+        padding: 0 2px 4px;
+        border: 0;
+      }
+      body[data-view="skills"] .xp-legend-item {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        font-weight: 500;
+      }
+      body[data-view="skills"] .xp-legend-swatch {
+        width: 16px;
+        height: 1px;
+        border-radius: 0;
+      }
+      body[data-view="skills"] .xp-chart-canvas-wrap {
+        height: clamp(250px, 34vh, 310px);
+        min-height: 250px;
+        max-height: 310px;
+        border: 0;
+        background: transparent;
+      }
+      body[data-view="skills"] .skill-chart-summary {
+        margin-top: 8px;
+        border-top: 1px dotted var(--theme-line);
+      }
+      body[data-view="skills"] .skill-chart-summary-item {
+        padding-top: 10px;
+      }
+      body[data-view="skills"] .skill-chart-summary-label {
+        font-family: var(--font-mono);
+        font-size: 8px;
+        font-weight: 650;
+        letter-spacing: .06em;
+      }
+      body[data-view="skills"] .skill-chart-summary-value {
+        font-family: var(--font-display);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+
+      /* v5.17: chart hierarchy — heading, metrics, right-aligned controls, plot. */
+      body[data-view="skills"] .skill-chart-surface .xp-chart-header {
+        margin-bottom: 0;
+      }
+      body[data-view="skills"] .skill-chart-summary {
+        margin: 0 0 8px;
+        border-top: 0;
+      }
+      body[data-view="skills"] .skill-chart-summary-item {
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+      body[data-view="skills"] .xp-chart-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 28px;
+        margin: 0 0 6px;
+        padding: 0 2px;
+      }
+      body[data-view="skills"] .xp-chart-toolbar .xp-chart-legend {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding-bottom: 0;
+      }
+      body[data-view="skills"] .xp-chart-controls {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-left: auto;
+      }
+      body[data-view="skills"] .xp-chart-toolbar .xp-chart-actions {
+        margin-left: 0;
+        justify-content: flex-end;
+      }
+      @media (max-width: 680px) {
+        body[data-view="skills"] .xp-chart-toolbar {
+          align-items: flex-start;
+          flex-wrap: wrap;
+        }
+        body[data-view="skills"] .xp-chart-toolbar .xp-chart-legend {
+          flex-basis: 100%;
+        }
+        body[data-view="skills"] .xp-chart-controls {
+          width: 100%;
+          justify-content: flex-end;
+        }
+        body[data-view="skills"] .xp-chart-toolbar .xp-chart-actions {
+          justify-content: flex-end;
+        }
+      }
+
+    </style>
   </head>
   <body>
     <div class="wrap" role="main">
@@ -8316,16 +10056,15 @@
       <header class="page-title-block" id="page-title-block">
         <h1 class="page-title" id="page-title">Saulalog</h1>
         <p class="page-subtitle" id="page-subtitle">A personal activity ledger.</p>
+        <nav class="site-section-nav" id="site-section-nav" aria-label="Primary ledger sections">
+          <a href="#home" data-action="goto-home" data-nav="home">Home</a>
+          <a href="#combat" data-action="goto-drill" data-filter="combat" data-nav="combat">Combat</a>
+          <a href="#skills" data-action="goto-drill" data-filter="skills" data-nav="skills">Skills</a>
+          <a href="#quests" data-action="goto-drill" data-filter="quests" data-nav="quests">Quests</a>
+        </nav>
         <div class="home-header-metrics" id="home-header-metrics" aria-label="Account metrics">
           <div class="home-header-metrics-primary" id="home-header-metrics-primary">— entries · — active days</div>
           <div class="home-header-metrics-secondary" id="home-header-metrics-secondary">Latest activity: —</div>
-          <nav class="home-header-nav" aria-label="Primary ledger sections">
-            <a href="#combat" data-action="goto-drill" data-filter="combat">Combat</a>
-            <span aria-hidden="true">·</span>
-            <a href="#skills" data-action="goto-drill" data-filter="skills">Skills</a>
-            <span aria-hidden="true">·</span>
-            <a href="#quests" data-action="goto-drill" data-filter="quests">Quests</a>
-          </nav>
         </div>
       </header>
 
@@ -8423,13 +10162,13 @@
         <!-- One cohesive progress composition: Combat leads; Skills and Quests support. -->
         <section class="home-latest-progress" aria-label="Home progress overview">
           <div class="home-cohesive-grid">
-            <section class="home-combat-col home-combat-primary" id="home-drops-col" aria-labelledby="home-drops-title">
-              <div class="home-col-header">
-                <div class="home-col-title-group">
-                  <h3 class="home-col-title" id="home-drops-title">Recent combat drops</h3>
-                  <span class="home-col-sub" id="home-drops-sub"></span>
+            <section class="home-combat-col home-combat-primary ledger-section theme-combat" id="home-drops-col" aria-labelledby="home-drops-title">
+              <div class="home-col-header ledger-section-head">
+                <div class="home-col-title-group ledger-section-heading-copy">
+                  <h3 class="home-col-title ledger-section-title" id="home-drops-title">Recent combat drops</h3>
+                  <span class="home-col-sub ledger-section-subtitle" id="home-drops-sub"></span>
                 </div>
-                <a class="home-col-link home-combat-link" data-action="goto-drill" data-filter="combat" href="#combat">
+                <a class="home-col-link home-combat-link ledger-section-action" data-action="goto-drill" data-filter="combat" href="#combat">
                   Open Combat <span class="arrow" aria-hidden="true">→</span>
                 </a>
               </div>
@@ -8437,24 +10176,24 @@
             </section>
 
             <aside class="home-supporting-progress" aria-label="Skills and quest highlights">
-              <section class="home-progress-col home-skills-col home-support-section" aria-labelledby="home-skills-title">
-                <div class="home-support-section-head">
-                  <div class="home-col-title-group">
-                    <h4 class="home-support-section-title" id="home-skills-title">Skills <span class="home-col-count" id="home-skills-count">—</span></h4>
-                    <span class="home-col-sub">Progress milestones and skilling pets</span>
+              <section class="home-progress-col home-skills-col home-support-section ledger-section theme-skills" aria-labelledby="home-skills-title">
+                <div class="home-support-section-head ledger-section-head">
+                  <div class="home-col-title-group ledger-section-heading-copy">
+                    <h4 class="home-support-section-title ledger-section-title" id="home-skills-title">Skills <span class="home-col-count" id="home-skills-count">—</span></h4>
+                    <span class="home-col-sub ledger-section-subtitle">Progress milestones and skilling pets</span>
                   </div>
-                  <a class="home-support-link" data-action="goto-drill" data-filter="skills" href="#skills">Open Skills <span aria-hidden="true">→</span></a>
+                  <a class="home-support-link ledger-section-action" data-action="goto-drill" data-filter="skills" href="#skills">Open Skills <span aria-hidden="true">→</span></a>
                 </div>
                 <div class="home-history-body" id="home-skills-summary"></div>
               </section>
 
-              <section class="home-progress-col home-quests-col home-support-section" aria-labelledby="home-quests-title">
-                <div class="home-support-section-head">
-                  <div class="home-col-title-group">
-                    <h4 class="home-support-section-title" id="home-quests-title">Quests <span class="home-col-count" id="home-quests-count">—</span></h4>
-                    <span class="home-col-sub">Completions and quest-point milestones</span>
+              <section class="home-progress-col home-quests-col home-support-section ledger-section theme-quests" aria-labelledby="home-quests-title">
+                <div class="home-support-section-head ledger-section-head">
+                  <div class="home-col-title-group ledger-section-heading-copy">
+                    <h4 class="home-support-section-title ledger-section-title" id="home-quests-title">Quests <span class="home-col-count" id="home-quests-count">—</span></h4>
+                    <span class="home-col-sub ledger-section-subtitle">Completions and quest-point milestones</span>
                   </div>
-                  <a class="home-support-link" data-action="goto-drill" data-filter="quests" href="#quests">Open Quests <span aria-hidden="true">→</span></a>
+                  <a class="home-support-link ledger-section-action" data-action="goto-drill" data-filter="quests" href="#quests">Open Quests <span aria-hidden="true">→</span></a>
                 </div>
                 <div class="home-history-body" id="home-quests-summary"></div>
               </section>
@@ -8577,48 +10316,91 @@
       </div>
       <div class="main-content" id="main-content">
         <div class="combat-grid" id="combat-view">
-          <div class="combat-sec">
-            <h3>Bosses</h3>
-            <!-- Populated by renderCombatSide(); keep source markup empty to avoid stale saved state. -->
-            <div class="bubble-wrap" id="boss-bubbles">
+          <div class="combat-drops-col">
+            <div class="combat-tab-row" role="tablist" aria-label="Combat category">
+              <button
+                type="button"
+                class="combat-tab"
+                id="combat-tab-boss"
+                data-action="select-combat-tab"
+                data-monster-type="boss"
+                role="tab"
+                aria-controls="combat-sec-boss"
+              >Bosses</button>
+              <button
+                type="button"
+                class="combat-tab"
+                id="combat-tab-slayer"
+                data-action="select-combat-tab"
+                data-monster-type="slayer"
+                role="tab"
+                aria-controls="combat-sec-slayer"
+              >Slayer</button>
             </div>
-            <div class="combat-more-wrap">
-              <select
-                id="boss-more"
-                data-action="select-monster-more" data-monster-type="boss"
-              >
-                <option value="">More...</option>
-              </select>
-            </div>
-            <div class="loot-container" id="boss-loot-list">
-            </div>
+
+            <section
+              class="combat-sec ledger-section theme-combat"
+              id="combat-sec-boss"
+              role="tabpanel"
+              aria-labelledby="combat-tab-boss"
+            >
+              <!-- Populated by renderCombatSide(); keep source markup empty to avoid stale saved state. -->
+              <div class="bubble-wrap" id="boss-bubbles"></div>
+              <div class="combat-more-wrap">
+                <select id="boss-more" data-action="select-monster-more" data-monster-type="boss">
+                  <option value="">More...</option>
+                </select>
+              </div>
+              <div class="loot-container" id="boss-loot-list"></div>
+            </section>
+
+            <section
+              class="combat-sec ledger-section theme-combat"
+              id="combat-sec-slayer"
+              role="tabpanel"
+              aria-labelledby="combat-tab-slayer"
+            >
+              <!-- Populated by renderCombatSide(); keep source markup empty to avoid stale saved state. -->
+              <div class="bubble-wrap" id="slayer-bubbles"></div>
+              <div class="combat-more-wrap">
+                <select id="slayer-more" data-action="select-monster-more" data-monster-type="slayer">
+                  <option value="">More...</option>
+                </select>
+              </div>
+              <div class="loot-container" id="slayer-loot-list"></div>
+            </section>
           </div>
-          <div class="combat-sec">
-            <h3>Slayer</h3>
-            <!-- Populated by renderCombatSide(); keep source markup empty to avoid stale saved state. -->
-            <div class="bubble-wrap" id="slayer-bubbles">
+
+          <aside class="combat-kills-col" aria-label="Combat kill summary">
+            <div class="combat-kills-section">
+              <div class="combat-tab-row combat-kills-tab-row" role="tablist" aria-label="Combat kills view">
+                <button
+                  type="button"
+                  class="combat-tab"
+                  id="combat-kills-tab-recent"
+                  data-action="select-kills-tab"
+                  data-kills-tab="recent"
+                  role="tab"
+                  aria-controls="combat-kills-list"
+                >Recent</button>
+                <button
+                  type="button"
+                  class="combat-tab"
+                  id="combat-kills-tab-top"
+                  data-action="select-kills-tab"
+                  data-kills-tab="top"
+                  role="tab"
+                  aria-controls="combat-kills-list"
+                >Top in range</button>
+              </div>
+              <div class="combat-kills-list" id="combat-kills-list" role="tabpanel"></div>
+              <div class="combat-kills-note" id="combat-kills-note"></div>
             </div>
-            <div class="combat-more-wrap">
-              <select
-                id="slayer-more"
-                data-action="select-monster-more" data-monster-type="slayer"
-              >
-                <option value="">More...</option>
-              </select>
-            </div>
-            <div class="loot-container" id="slayer-loot-list">
-            </div>
-          </div>
+          </aside>
         </div>
-        <!-- Quest single-pane panel -->
-        <div class="dual-panel quest-single-panel hidden" id="quest-view">
-          <div class="dual-col">
-            <div class="dual-col-header">
-              <span>Quest Log</span>
-              <span class="col-count" id="quest-entry-count"></span>
-            </div>
-            <div class="dual-col-body" id="quest-list"></div>
-          </div>
+        <!-- Quest page: completions + milestones in a shared two-column ledger -->
+        <div class="quest-page theme-quests hidden" id="quest-view">
+          <div id="quest-list"></div>
         </div>
         <!-- Clue single-pane panel -->
         <div class="dual-panel clue-single-panel hidden" id="clue-view">
@@ -8630,56 +10412,86 @@
             <div class="dual-col-body" id="clue-list"></div>
           </div>
         </div>
-        <!-- Skills dual-column panel -->
-
-        <div class="dual-panel hidden skill-xp-panel" id="skill-view">
-          <div class="skill-summary-grid" id="skill-summary-grid"></div>
-          <div class="dual-col skill-history-col">
-            <div class="dual-col-header">
-              <span>XP History</span>
-              <span class="col-count" id="skill-history-label"></span>
-            </div>
-            <div class="skill-chart-state" id="skill-chart-state"></div>
-            <div class="xp-chart-wrap" id="xp-chart-section">
-              <div class="xp-chart-header">
-                <span class="xp-chart-title" id="xp-chart-title"
-                  >XP Progress</span
-                >
-                <div
-                  class="chart-mode-btns"
-                  id="chart-mode-btns"
-                  aria-hidden="true"
-                ></div>
-                <span class="xp-chart-hint" id="xp-chart-hint"
-                  >Scroll to zoom · Drag to pan</span
-                >
-                <button
-                  class="xp-chart-reset"
-                  id="xp-chart-reset"
-                  data-action="reset-xp-chart"
-                >
-                  Reset View
+        <!-- Skills page: per-skill progress index + searchable full ledger -->
+        <div class="skill-page theme-skills hidden" id="skill-view">
+          <div class="skill-two-column">
+            <section class="skill-status-section ledger-section theme-skills" aria-labelledby="skill-status-title">
+              <header class="ledger-section-head">
+                <div class="ledger-section-heading-copy">
+                  <h2 class="ledger-section-title" id="skill-status-title">Skill progress</h2>
+                  <span class="ledger-section-subtitle">Highest recorded XP milestone and pet status by skill</span>
+                </div>
+              </header>
+              <div class="skill-status-sortbar" id="skill-status-sortbar" role="group" aria-label="Sort skill progress">
+                <button class="skill-status-sort" data-action="sort-skill-progress" data-sort-key="skill" type="button">
+                  <span class="skill-status-sort-label">Skill</span>
+                  <span class="skill-status-sort-indicator" aria-hidden="true"></span>
+                </button>
+                <button class="skill-status-sort" data-action="sort-skill-progress" data-sort-key="xp" type="button">
+                  <span class="skill-status-sort-label">XP</span>
+                  <span class="skill-status-sort-indicator" aria-hidden="true"></span>
+                </button>
+                <button class="skill-status-sort" data-action="sort-skill-progress" data-sort-key="pet" type="button">
+                  <span class="skill-status-sort-label">Pet</span>
+                  <span class="skill-status-sort-indicator" aria-hidden="true"></span>
                 </button>
               </div>
-              <div class="xp-chart-legend" id="xp-chart-legend"></div>
-              <div class="xp-chart-canvas-wrap" id="xp-chart-canvas-wrap">
-                <canvas id="xp-chart"></canvas>
+              <div class="skill-status-list" id="skill-status-list"></div>
+            </section>
+
+            <section class="skill-log-section ledger-section theme-skills ledger-scrollbar" aria-labelledby="skill-log-title">
+              <header class="ledger-section-head">
+                <div class="ledger-section-heading-copy">
+                  <h2 class="ledger-section-title" id="skill-log-title">Skill history</h2>
+                  <span class="ledger-section-subtitle">Search and explore the complete Skill ledger</span>
+                </div>
+                <span class="ledger-section-count" id="skill-entry-count"></span>
+              </header>
+
+              <section class="skill-chart-surface xp-chart-wrap hidden" id="xp-chart-section" aria-labelledby="xp-chart-title">
+                <div class="xp-chart-header">
+                  <div>
+                    <span class="xp-chart-title" id="xp-chart-title">Recorded XP progression</span>
+                    <span class="skill-chart-state" id="skill-chart-state"></span>
+                  </div>
+                </div>
+                <div class="skill-chart-summary" id="skill-chart-summary"></div>
+                <div class="xp-chart-toolbar">
+                  <div class="xp-chart-legend" id="xp-chart-legend"></div>
+                  <div class="xp-chart-controls">
+                    <div class="chart-mode-btns" id="chart-mode-btns" aria-hidden="true"></div>
+                    <div class="xp-chart-actions">
+                      <span class="xp-chart-hint" id="xp-chart-hint">Scroll to zoom · Drag to pan</span>
+                      <button class="xp-chart-reset" id="xp-chart-reset" data-action="reset-xp-chart" type="button">Reset view</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="xp-chart-canvas-wrap" id="xp-chart-canvas-wrap">
+                  <canvas id="xp-chart"></canvas>
+                </div>
+                <div class="xp-pet-note" id="xp-pet-note" style="display:none">⭐ = Pet</div>
+              </section>
+
+              <div class="skill-entry-toggle-row">
+                <button
+                  class="skill-entry-toggle ledger-chip"
+                  id="skill-entry-toggle"
+                  data-action="toggle-skill-entries"
+                  type="button"
+                  aria-expanded="false"
+                  aria-controls="skill-entry-disclosure"
+                >
+                  <span id="skill-entry-toggle-label">Show all skill entries</span>
+                  <span class="skill-entry-toggle-count" id="skill-entry-toggle-count"></span>
+                  <span class="skill-entry-toggle-arrow" aria-hidden="true">⌄</span>
+                </button>
               </div>
-              <div class="xp-pet-note" id="xp-pet-note" style="display: none">
-                ⭐ = Pet
+
+              <div class="skill-entry-disclosure hidden" id="skill-entry-disclosure">
+                <div class="skill-entry-toolbar" id="skill-entry-toolbar"></div>
+                <div class="skill-entry-list" id="skill-entry-list"></div>
               </div>
-            </div>
-          </div>
-          <div class="dual-col skill-entries-col">
-            <div class="dual-col-header">
-              <span>Skill Log</span>
-              <span class="col-count" id="skill-entry-count"></span>
-            </div>
-            <div
-              class="list-pane-header skill-entry-toolbar"
-              id="skill-entry-toolbar"
-            ></div>
-            <div class="dual-col-body" id="skill-entry-list"></div>
+            </section>
           </div>
         </div>
         <div class="all-log-controls hidden" id="all-log-controls"></div>
@@ -8706,7 +10518,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "5";
+      const APP_VERSION = "5.17";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -8906,6 +10718,9 @@
           dateTo: null,
           sortOrder: "newest",
           currentPage: 0,
+          skillEntriesExpanded: false,
+          skillProgressSortKey: "skill",
+          skillProgressSortDirection: "asc",
         },
         combat: {
           selectedBoss: null,
@@ -8914,6 +10729,8 @@
           slayerLoot: null,
           bossKillcount: false,
           slayerKillcount: false,
+          activeTab: "boss",
+          killsTab: "recent",
         },
         filters: {
           skillSubs: { xp: true, level: true, pet: true, total: true, m200: true },
@@ -8995,15 +10812,45 @@
         /experience points in the|I levelled|level 99|While skilling,\s*I found\s+.+?,\s+the\s+.+?\s+pet\.|achieved at least level|total level of/i;
       const COMBAT_TRIGGER_RE =
         /killed|defeated|dropped|looted|found|surviving|defeating|battling|freeing|diving|exploring|plundering|hibernation/i;
-      const QUEST_MILESTONE_RE = /quest points?|Quest Complete/i;
-      const SONG_UNLOCK_RE = /unlocked a total of \d+ songs/i;
+      // Quest matching is centralized so title/detail wording variants cannot
+      // be split across conflicting completion and milestone rules.
+      const QUEST_COMPLETION_TITLE_RE =
+        /^\s*(?:quest\s+complete(?:d)?|completed\s+quest)\b\s*(?::|[-–—])?\s*/i;
+      const QUEST_COMPLETION_DETAIL_RE =
+        /\b(?:quest\s+complete(?:d)?|completed\s+(?:the\s+)?quest)\b/i;
+      const QUEST_POINT_RE = /\b[\d,]+\s+quest points?\b/i;
+      const MASTER_QUEST_CAPE_RE = /\bmaster quest cape\b/i;
+      const SONG_UNLOCK_RE = /\bunlocked a total of [\d,]+ songs\b/i;
+
+      function classifyQuestEntry(title, details) {
+        const titleText = String(title || "").trim();
+        const detailsText = String(details || "").trim();
+        const combined = `${titleText} ${detailsText}`;
+
+        // Completion wins before milestone detection. Previously, a completion
+        // mentioned only in Entry Details fell through to the milestone rule.
+        if (QUEST_COMPLETION_TITLE_RE.test(titleText)) return "completion";
+        if (QUEST_COMPLETION_DETAIL_RE.test(detailsText)) return "completion";
+
+        if (
+          QUEST_POINT_RE.test(combined) ||
+          MASTER_QUEST_CAPE_RE.test(combined) ||
+          SONG_UNLOCK_RE.test(combined)
+        ) return "milestone";
+
+        return null;
+      }
+
+      function stripQuestCompletionPrefix(value) {
+        return String(value || "").replace(QUEST_COMPLETION_TITLE_RE, "").trim();
+      }
 
       const KILL_AND_LOOT_RE =
         /\b(?:killed|kill|defeated|defeating|after killing)\b[\s\S]*\b(?:dropped|looted|found)\b|\b(?:dropped|looted|found)\b[\s\S]*\b(?:killed|kill|defeated|defeating)\b/i;
       const COMBAT_LOOKING_RE =
         /\b(?:killed|killcount|dropped|looted|defeated|defeating|battling|surviving|lair|boss|phantom|demon|dragon|beast|glacor|rex matriarch|dagannoth)\b/i;
       const QUEST_LOOKING_RE =
-        /\b(?:quest complete|quest points?|master quest cape|unlocked a total of \d+ songs)\b/i;
+        /\b(?:quest\s+complete(?:d)?|completed\s+(?:the\s+)?quest|[\d,]+\s+quest points?|master quest cape|unlocked a total of [\d,]+ songs)\b/i;
       const CLUE_LOOKING_RE =
         /\b(?:treasure trail|clue scroll|easy clue|medium clue|hard clue|elite clue|master clue)\b/i;
       const SKILL_LOOKING_RE =
@@ -9463,12 +11310,21 @@
         },
       };
 
+      function applySiteTheme(theme, { persist = true } = {}) {
+        const normalized = theme === "dark" ? "dark" : "light";
+        const isDark = normalized === "dark";
+        document.body.classList.toggle("dark-mode", isDark);
+        document.body.dataset.theme = normalized;
+        document.documentElement.style.colorScheme = normalized;
+        const icon = document.getElementById("theme-icon");
+        if (icon) icon.textContent = isDark ? "☀️" : "🌙";
+        if (persist) localStorage.setItem("theme", normalized);
+        return normalized;
+      }
+
       function toggleDarkMode() {
-        const isDark = document.body.classList.toggle("dark-mode");
-        document.getElementById("theme-icon").textContent = isDark
-          ? "☀️"
-          : "🌙";
-        localStorage.setItem("theme", isDark ? "dark" : "light");
+        const nextTheme = document.body.dataset.theme === "dark" ? "light" : "dark";
+        applySiteTheme(nextTheme);
         if (xpChart) {
           xpChart.destroy();
           xpChart = null;
@@ -9477,10 +11333,7 @@
         render();
       }
 
-      if (localStorage.getItem("theme") === "dark") {
-        document.body.classList.add("dark-mode");
-        document.getElementById("theme-icon").textContent = "☀️";
-      }
+      applySiteTheme(localStorage.getItem("theme") === "dark" ? "dark" : "light", { persist: false });
 
       // -- Date Range --
       function setDatePreset(p) {
@@ -9797,6 +11650,7 @@
       }
 
       function formatShortDate(dateLike) { const d = dateLike instanceof Date ? dateLike : parseTs(dateLike); if (!d) return "—"; return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }); }
+      function formatLongDate(dateLike) { const d = dateLike instanceof Date ? dateLike : parseTs(dateLike); if (!d) return "—"; return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }); }
       function getCurrentSearchQuery() { const input = document.getElementById("search"); return input ? input.value.trim() : ""; }
 
       function tokenizeSearchClause(clause) {
@@ -10483,6 +12337,8 @@
       const TAB_SHORTCUTS = { all: "1", skills: "2", combat: "3", clues: "4", quests: "5", misc: "6" };
 
       function renderStatsBar(filteredForCount) {
+        const statsBarEl = document.getElementById("stats-bar");
+        if (!statsBarEl) return;
         const base = appState.data.entries.filter((e) => {
           if (!appState.ui.dateFrom && !appState.ui.dateTo) return true;
           const d = parseTs(e.ts);
@@ -10499,7 +12355,7 @@
             count: id === "all" ? base.length : cnt(id),
           };
         });
-        document.getElementById("stats-bar").innerHTML = items
+        statsBarEl.innerHTML = items
           .map((it) => renderActionElement({
             tag: "button",
             className: `tab-btn ${appState.ui.activeFilter === it.id ? "active" : ""}`,
@@ -10581,6 +12437,13 @@
         const subtitleEl = document.getElementById("page-subtitle");
         if (!titleEl || !subtitleEl) return;
 
+        const activeNav = appState.ui.view === "home" ? "home" : appState.ui.activeFilter;
+        document.querySelectorAll("#site-section-nav [data-nav]").forEach((link) => {
+          const isActive = link.dataset.nav === activeNav;
+          if (isActive) link.setAttribute("aria-current", "page");
+          else link.removeAttribute("aria-current");
+        });
+
         if (appState.ui.view === "home") {
           breadcrumbSep && breadcrumbSep.classList.add("hidden");
           breadcrumbCurrent && (breadcrumbCurrent.textContent = "");
@@ -10661,6 +12524,7 @@
         appState.ui.view = "drill";
         appState.ui.activeFilter = "combat";
         appState.ui.currentPage = 0;
+        appState.combat.activeTab = type === "slayer" ? "slayer" : "boss";
         if (type === "boss") {
           appState.combat.selectedBoss = name;
           appState.combat.bossLoot = null;
@@ -10781,29 +12645,23 @@
             : drop.isFirst
               ? "First recorded"
               : "Repeat drop";
-        const featureTags = (drop) => {
-          const tags = [];
-          if (drop.isPet) tags.push("BOSS PET");
-          if (drop.isLogCompletion) tags.push("LOG COMPLETION");
-          tags.push(drop.isFirst ? "FIRST RECORDED" : "REPEAT DROP");
-          return tags;
-        };
-
         if (dropsListEl) {
           if (featured) {
             dropsListEl.innerHTML = `<div class="drop-showcase">
-              <article class="drop-feature">
-                <span class="drop-feature-kicker">Featured drop</span>
-                <h3 class="drop-feature-name">${escapeHtml(featured.item)}</h3>
-                <div class="drop-feature-tags">${featureTags(featured).map((tag) => `<span class="drop-feature-tag">${tag}</span>`).join("")}</div>
-                <div class="drop-feature-meta">
-                  <span class="drop-feature-source">${escapeHtml(featured.source)}</span>
-                  <span aria-hidden="true">·</span>
-                  <time>${escapeHtml(formatLongDate(featured.latest.ts))}</time>
+              <article class="featured-drop-card theme-combat" aria-label="Featured Combat drop">
+                <div class="featured-drop-card__orb" aria-hidden="true"></div>
+                <span class="featured-drop-card__label">Featured drop</span>
+                <div class="featured-drop-card__body">
+                  <h3 class="featured-drop-card__title">${escapeHtml(featured.item)}</h3>
+                  <div class="featured-drop-card__source">${escapeHtml(featured.source)}</div>
                 </div>
+                <footer class="featured-drop-card__footer">
+                  <span class="featured-drop-card__status">${escapeHtml(dropStatus(featured))}</span>
+                  <time class="featured-drop-card__date">${escapeHtml(formatLongDate(featured.latest.ts))}</time>
+                </footer>
               </article>
               <div>
-                <span class="drop-support-kicker">Recent drops</span>
+                <span class="drop-support-kicker ledger-recent-label">Recent drops</span>
                 <div class="drop-support-list">
                   ${recentDrops.map((drop, index) => `<div class="drop-support-row">
                     <span class="drop-support-index">${String(index + 1).padStart(2, "0")}</span>
@@ -10928,13 +12786,13 @@
             const highlightMeta = skillHighlight.sub === "pet"
               ? `${skillHighlight.skill || "Skill"} skilling pet`
               : `${skillHighlight.skill ? `${skillHighlight.skill} · ` : ""}${getSkillMilestoneLabel(skillHighlight)}`;
-            skillsSummaryEl.innerHTML = `<button class="home-support-feature home-support-feature-skill" data-action="goto-drill" data-filter="skills" type="button">
-                <span class="home-support-kicker">Featured skill event</span>
+            skillsSummaryEl.innerHTML = `<button class="home-support-feature home-support-feature-skill ledger-feature" data-action="goto-drill" data-filter="skills" type="button">
+                <span class="home-support-kicker ledger-kicker">Featured skill event</span>
                 <time class="home-support-date">${escapeHtml(formatShortDate(skillHighlight.ts))}</time>
                 <strong class="home-support-record-title">${escapeHtml(highlightName)}</strong>
                 <span class="home-support-record-meta">${escapeHtml(highlightMeta)}</span>
               </button>
-              ${recentSkills.length ? `<span class="home-support-recent-label">Recent progression</span>` : ""}
+              ${recentSkills.length ? `<span class="home-support-recent-label ledger-recent-label">Recent progression</span>` : ""}
               <div class="home-support-recent-list">
                 ${recentSkills.slice(0, 2).map((entry) => `<button class="home-support-row" data-action="goto-drill" data-filter="skills" type="button">
                   <time class="home-support-date">${escapeHtml(formatShortDate(entry.ts))}</time>
@@ -10954,7 +12812,7 @@
 
         const getQuestName = (entry) => {
           if (!entry) return "No quest completion recorded";
-          const title = String(entry.title || "").replace(/^quest complete:\s*/i, "").trim();
+          const title = stripQuestCompletionPrefix(entry.title);
           return title || entry.details || "Quest completed";
         };
         const getQuestPointLabel = (entry) => {
@@ -10964,13 +12822,13 @@
         };
 
         if (questsSummaryEl) {
-          questsSummaryEl.innerHTML = `<button class="home-support-feature home-support-feature-quest" data-action="goto-drill" data-filter="quests" type="button">
-              <span class="home-support-kicker">Featured completion</span>
+          questsSummaryEl.innerHTML = `<button class="home-support-feature home-support-feature-quest ledger-feature" data-action="goto-drill" data-filter="quests" type="button">
+              <span class="home-support-kicker ledger-kicker">Featured completion</span>
               <time class="home-support-date">${latestQuestCompletion ? escapeHtml(formatShortDate(latestQuestCompletion.ts)) : "—"}</time>
               <strong class="home-support-record-title">${escapeHtml(getQuestName(latestQuestCompletion))}</strong>
               <span class="home-support-record-meta">Quest completed</span>
             </button>
-            <span class="home-support-recent-label">Recent milestones</span>
+            <span class="home-support-recent-label ledger-recent-label">Recent milestones</span>
             <div class="home-support-recent-list">
               <button class="home-support-row" data-action="goto-drill" data-filter="quests" type="button">
                 <time class="home-support-date">${latestQuestPointMilestone ? escapeHtml(formatShortDate(latestQuestPointMilestone.ts)) : "—"}</time>
@@ -11214,6 +13072,8 @@
         "clear-range-filter": () => clearRangeFilter(),
         "clear-search-filter": () => clearSearchFilter(),
         "reset-xp-chart": () => resetXpChart(),
+        "toggle-skill-entries": () => toggleSkillEntries(),
+        "sort-skill-progress": (el) => sortSkillProgress(el.dataset.sortKey || "skill"),
         "close-entry-debug": () => closeEntryDebugDrawer(),
         "export-visible-entries": () => exportVisibleEntries(),
         "toggle-parser-warning-group": (el) => toggleParserWarningGroup(el.dataset.type || el.dataset.warningType),
@@ -11235,6 +13095,9 @@
         "select-clue-loot-item": (el) => selectClueLootItem(el.dataset.item),
         "load-more": () => loadMore(),
         "select-monster": (el) => selectMonster(el.dataset.monsterType, el.dataset.monster),
+        "select-combat-tab": (el) => selectCombatTab(el.dataset.monsterType),
+        "select-kills-tab": (el) => selectKillsTab(el.dataset.killsTab),
+        "select-skill-summary": (el) => toggleSkillSummarySelection(el.dataset.skill || ""),
         "select-monster-killcount": (el) => selectMonsterKillcount(el.dataset.monsterType, el.dataset.monster),
         "toggle-killcount-drill": (el) => toggleKillcountDrill(el.dataset.monsterType),
         "toggle-loot-drilldown": (el) => toggleLootDrilldown(el.dataset.monsterType, el.dataset.item || null),
@@ -11278,6 +13141,7 @@
         }
         if (target.dataset.action === "select-monster-more" && target.value) {
           selectMonster(target.dataset.monsterType, target.value);
+          return;
         }
       }
 
@@ -11373,7 +13237,7 @@
       // The sheet must be shared as "Anyone with the link" (Viewer).
       // A normal /edit URL or a CSV /export URL will both work.
       // ═══════════════════════════════════════════════════════════════
-      const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1DaIyQQA5XrpFHUN6r6Ntl_JKQ95vHPpQTLrNNm6m6Ag/edit';
+      const GOOGLE_SHEET_URL = `https://docs.google.com/spreadsheets/d/1DaIyQQA5XrpFHUN6r6Ntl_JKQ95vHPpQTLrNNm6m6Ag/edit`;
 
       function toGoogleSheetsCsvUrl(url) {
         const value = String(url || "").trim();
@@ -11562,16 +13426,19 @@
               return d;
             }
 
-            // ── Skills / Quest one-offs ──
-            // Master Quest cape belongs with quest milestones, while Master Max cape is a skill milestone.
-            if (
-              /master quest cape/i.test(details) ||
-              /master quest cape/i.test(title)
-            ) {
+            // ── Quests ──
+            // Run dedicated Quest classification before Skills and Combat so
+            // words such as "level", "found", or "completed" elsewhere in a
+            // Quest row cannot cause an earlier category to consume it.
+            const questType = classifyQuestEntry(title, details);
+            if (questType) {
               d.super = "quests";
-              d.sub = "milestone";
+              d.sub = questType;
               return d;
             }
+
+            // ── Skills ──
+            // Master Max cape is a skill milestone.
             if (
               /Master Max cape/i.test(details) ||
               /Master Max cape/i.test(title)
@@ -11731,25 +13598,6 @@
               // No monster could be extracted — fall through to quest/misc
             }
 
-            // ── Quests ──
-            // Quest entries render in one pane, with songs bundled under Milestones
-            // so the filter bar stays simple: Milestones vs Quest completions.
-            if (/^quest complete:/i.test(title)) {
-              d.super = "quests";
-              d.sub = "completion";
-              return d;
-            }
-            if (SONG_UNLOCK_RE.test(details)) {
-              d.super = "quests";
-              d.sub = "milestone";
-              return d;
-            }
-            if (QUEST_MILESTONE_RE.test(details)) {
-              d.super = "quests";
-              d.sub = "milestone";
-              return d;
-            }
-
             return d;
           })
           .filter(Boolean)
@@ -11860,6 +13708,34 @@
           appState.combat.slayerKillcount = false;
         }
         render();
+      }
+
+      function selectCombatTab(type) {
+        appState.combat.activeTab = type === "slayer" ? "slayer" : "boss";
+        render();
+      }
+
+      function selectKillsTab(tab) {
+        appState.combat.killsTab = tab === "top" ? "top" : "recent";
+        render();
+      }
+
+      function updateCombatTabUI() {
+        const active = appState.combat.activeTab === "slayer" ? "slayer" : "boss";
+        ["boss", "slayer"].forEach((type) => {
+          const tab = document.getElementById(`combat-tab-${type}`);
+          const panel = document.getElementById(`combat-sec-${type}`);
+          const isActive = active === type;
+          if (tab) {
+            tab.classList.toggle("active", isActive);
+            tab.setAttribute("aria-selected", String(isActive));
+            tab.tabIndex = isActive ? 0 : -1;
+          }
+          if (panel) {
+            panel.classList.toggle("hidden", !isActive);
+            panel.hidden = !isActive;
+          }
+        });
       }
 
       function toggleLootDrilldown(type, itemName) {
@@ -12064,9 +13940,8 @@
 
       function is200mXpEntry(e) {
         const text = `${e.title || ""} ${e.details || ""}`;
-        return /200\s*,?\s*000\s*,?\s*000\s*(?:XP|experience points)?/i.test(
-          text,
-        );
+        const xp = getSkillEntryXpValue(e);
+        return xp === 200_000_000 || /\b200\s*(?:m|million)\s*(?:XP|experience(?: points?)?)\b/i.test(text);
       }
 
       function getSkillFilterOptions() {
@@ -12194,136 +14069,309 @@
       }
 
 
-      function renderSkillSummaryDetails(selectedBase, visibleEntries) {
-        const summaryGrid = document.getElementById("skill-summary-grid");
-        const chartState = document.getElementById("skill-chart-state");
-        const selectionLabel = getSkillSelectionLabel();
-        const sortedBase = selectedBase
-          .slice()
-          .sort((a, b) => new Date(b.ts) - new Date(a.ts));
-        const latest = sortedBase[0] || null;
-        const selectedGroups = new Set(
-          [...appState.filters.selectedSkills].map(getSkillGroupName).filter(Boolean),
-        );
-        const selectionNote = appState.filters.selectedSkills.size === 0
-          ? "all groups"
-          : selectedGroups.size === 1
-            ? [...selectedGroups][0] + " group"
-            : selectedGroups.size + " groups";
-        const cards = [
-          {
-            label: "Selection",
-            value: selectionLabel,
-            note: selectionNote,
-          },
-          {
-            label: "Latest",
-            value: latest ? getSkillMilestoneType(latest) : "—",
-            note: latest ? formatShortDate(latest.ts) : "no matching logs",
-          },
-          {
-            label: "Level ups",
-            value: selectedBase.filter((e) => e.sub === "level").length.toLocaleString(),
-            note: "selected range",
-          },
-          {
-            label: "XP milestones",
-            value: selectedBase.filter((e) => e.sub === "xp" && !is200mXpEntry(e)).length.toLocaleString(),
-            note: "not counting 200m",
-          },
-          {
-            label: "Pets",
-            value: selectedBase.filter((e) => e.sub === "pet").length.toLocaleString(),
-            note: "skilling pet logs",
-          },
-          {
-            label: "Total level",
-            value: selectedBase.filter((e) => e.sub === "total").length.toLocaleString(),
-            note: "milestone logs",
-          },
-        ];
-        if (summaryGrid) {
-          summaryGrid.innerHTML = cards
-            .map(
-              (card) => `
-                <div class="skill-summary-card">
-                  <span class="skill-summary-label">${escapeHtml(card.label)}</span>
-                  <span class="skill-summary-value" title="${escapeHtml(card.value)}">${escapeHtml(card.value)}</span>
-                  <span class="skill-summary-note" title="${escapeHtml(card.note)}">${escapeHtml(card.note)}</span>
-                </div>`,
-            )
-            .join("");
-        }
-        if (chartState) {
-          chartState.textContent =
-            "Showing XP milestone history for " +
-            selectionLabel +
-            ". Empty charts mean no matching XP milestone logs in the current range.";
-        }
+      function getSkillEntryLevelValue(entry) {
+        const match = `${entry?.title || ""} ${entry?.details || ""}`.match(/(?:level(?: of)?|reached level)\s*(\d{1,4})/i);
+        return match ? Number(match[1]) : null;
       }
+
+      function getSkillEntryXpValue(entry) {
+        const match = `${entry?.title || ""} ${entry?.details || ""}`.match(/([\d,]+)\s+(?:XP|experience points?)/i);
+        return match ? Number(match[1].replace(/,/g, "")) : null;
+      }
+
+      function getSkillEntryMilestoneLabel(entry) {
+        if (!entry) return "Skill activity";
+        if (entry.sub === "pet") return "Skilling pet";
+        const xp = getSkillEntryXpValue(entry);
+        if (xp) {
+          if (xp >= 200_000_000) return "200m XP milestone";
+          if (xp >= 1_000_000) {
+            const millions = xp / 1_000_000;
+            return `${Number.isInteger(millions) ? millions : millions.toFixed(1)}m XP milestone`;
+          }
+          return `${xp.toLocaleString()} XP milestone`;
+        }
+        const level = getSkillEntryLevelValue(entry);
+        if (entry.sub === "total") return level ? `Total level ${level.toLocaleString()}` : "Total-level milestone";
+        if (level) return `Level ${level.toLocaleString()}`;
+        if (entry.sub === "xp") return "XP milestone";
+        if (entry.sub === "level") return "Level milestone";
+        return entry.details || entry.title || "Skill activity";
+      }
+
+      function getSkillFeaturedScore(entry) {
+        if (entry.sub === "pet") return 500;
+        const xp = getSkillEntryXpValue(entry) || 0;
+        if (xp >= 200_000_000) return 450;
+        const level = getSkillEntryLevelValue(entry) || 0;
+        if (level >= 120) return 400;
+        if (entry.sub === "total") return 350;
+        if (level >= 99) return 300;
+        if (xp > 0) return 200;
+        return 100;
+      }
+
+      function getSkillDisplayTitle(entry) {
+        if (!entry) return "No recorded skill event";
+        if (entry.sub === "pet") return entry.petName || `${entry.skill || "Skill"} pet`;
+        return entry.skill || (entry.sub === "total" ? "Total level" : entry.title || "Skill milestone");
+      }
+
+
+      function formatSkillXpCompact(value) {
+        const xp = Number(value) || 0;
+        if (!xp) return "—";
+        if (xp >= 1_000_000) {
+          const millions = xp / 1_000_000;
+          const label = Number.isInteger(millions) ? String(millions) : millions.toFixed(1).replace(/\.0$/, "");
+          return `${label}m`;
+        }
+        if (xp >= 1_000) {
+          const thousands = xp / 1_000;
+          const label = Number.isInteger(thousands) ? String(thousands) : thousands.toFixed(1).replace(/\.0$/, "");
+          return `${label}k`;
+        }
+        return xp.toLocaleString();
+      }
+
+      function sortSkillProgress(key) {
+        const allowed = new Set(["skill", "xp", "pet"]);
+        const nextKey = allowed.has(key) ? key : "skill";
+        if (appState.ui.skillProgressSortKey === nextKey) {
+          appState.ui.skillProgressSortDirection = appState.ui.skillProgressSortDirection === "asc" ? "desc" : "asc";
+        } else {
+          appState.ui.skillProgressSortKey = nextKey;
+          appState.ui.skillProgressSortDirection = "asc";
+        }
+        render();
+      }
+
+      function renderSkillProgressSortControls() {
+        const key = appState.ui.skillProgressSortKey || "skill";
+        const direction = appState.ui.skillProgressSortDirection === "desc" ? "desc" : "asc";
+        document.querySelectorAll(".skill-status-sort").forEach((button) => {
+          const buttonKey = button.dataset.sortKey || "";
+          const active = buttonKey === key;
+          const indicator = button.querySelector(".skill-status-sort-indicator");
+          button.classList.toggle("is-active", active);
+          button.setAttribute("aria-pressed", active ? "true" : "false");
+          if (indicator) indicator.textContent = active ? (direction === "asc" ? "↑" : "↓") : "↕";
+          const label = buttonKey === "skill" ? "Skill" : buttonKey === "xp" ? "XP" : "Pet";
+          const mode = buttonKey === "skill"
+            ? (active && direction === "desc" ? "Z to A" : "A to Z")
+            : (active && direction === "desc" ? "latest to earliest" : "earliest to latest");
+          button.title = `Sort ${label} ${mode}`;
+          button.setAttribute("aria-label", `Sort ${label} ${mode}`);
+        });
+      }
+
+      function compareSkillProgressDates(aTime, bTime, direction) {
+        const aMissing = !aTime;
+        const bMissing = !bTime;
+        if (aMissing && bMissing) return 0;
+        if (aMissing) return 1;
+        if (bMissing) return -1;
+        return direction === "desc" ? bTime - aTime : aTime - bTime;
+      }
+
+      function renderSkillStatusList(entries) {
+        const host = document.getElementById("skill-status-list");
+        if (!host) return;
+        const selectedSkill = appState.filters.selectedSkills.size === 1
+          ? [...appState.filters.selectedSkills][0]
+          : "";
+        const sortKey = appState.ui.skillProgressSortKey || "skill";
+        const sortDirection = appState.ui.skillProgressSortDirection === "desc" ? "desc" : "asc";
+        const statusRows = SKILLS.map((skill) => {
+          const skillEntries = entries
+            .filter((entry) => entry.skill === skill)
+            .slice()
+            .sort((a, b) => (parseTs(b.ts)?.getTime() || 0) - (parseTs(a.ts)?.getTime() || 0));
+          if (!skillEntries.length) return null;
+          const highestXp = skillEntries
+            .filter((entry) => entry.sub === "xp" && getSkillEntryXpValue(entry))
+            .sort((a, b) => {
+              const xpDiff = (getSkillEntryXpValue(b) || 0) - (getSkillEntryXpValue(a) || 0);
+              if (xpDiff) return xpDiff;
+              return (parseTs(b.ts)?.getTime() || 0) - (parseTs(a.ts)?.getTime() || 0);
+            })[0] || null;
+          const latestPet = skillEntries.find((entry) => entry.sub === "pet") || null;
+          if (!highestXp && !latestPet) return null;
+          return {
+            skill,
+            xp: highestXp ? getSkillEntryXpValue(highestXp) : 0,
+            xpTs: highestXp?.ts || "",
+            xpTime: parseTs(highestXp?.ts)?.getTime() || 0,
+            petName: latestPet ? (latestPet.petName || getSkillDisplayTitle(latestPet)) : "",
+            petTs: latestPet?.ts || "",
+            petTime: parseTs(latestPet?.ts)?.getTime() || 0,
+          };
+        }).filter(Boolean).sort((a, b) => {
+          let result = 0;
+          if (sortKey === "skill") {
+            result = a.skill.localeCompare(b.skill, undefined, { sensitivity: "base" });
+            if (sortDirection === "desc") result *= -1;
+          } else if (sortKey === "xp") {
+            result = compareSkillProgressDates(a.xpTime, b.xpTime, sortDirection);
+          } else {
+            result = compareSkillProgressDates(a.petTime, b.petTime, sortDirection);
+          }
+          return result || a.skill.localeCompare(b.skill, undefined, { sensitivity: "base" });
+        });
+
+        renderSkillProgressSortControls();
+
+        if (!statusRows.length) {
+          host.innerHTML = '<div class="skill-status-empty">No XP milestones or skilling pets match the current search and range.</div>';
+          return;
+        }
+
+        host.innerHTML = statusRows.map((row) => {
+          const active = selectedSkill === row.skill;
+          const xpLabel = row.xp ? formatSkillXpCompact(row.xp) : "—";
+          const petLabel = row.petName || "No pet";
+          const petTitle = row.petName ? ` title="${escapeHtml(row.petName)}"` : "";
+          return `<button class="skill-status-row${active ? " is-active" : ""}" data-action="select-skill-summary" data-skill="${escapeHtml(row.skill)}" type="button" aria-pressed="${active ? "true" : "false"}">
+            <span class="skill-status-name">${escapeHtml(row.skill)}</span>
+            <span class="skill-status-xp">${escapeHtml(xpLabel)}</span>
+            <span class="skill-status-xp-date">${row.xpTs ? escapeHtml(formatShortDate(row.xpTs)) : "—"}</span>
+            <span class="skill-status-pet${row.petName ? "" : " is-empty"}"${petTitle}>${escapeHtml(petLabel)}</span>
+            <span class="skill-status-pet-date">${row.petTs ? escapeHtml(formatShortDate(row.petTs)) : "—"}</span>
+          </button>`;
+        }).join("");
+      }
+
+      function renderSkillOverview(entries) {
+        const host = document.getElementById("skill-overview-content");
+        if (!host) return;
+        const sorted = entries.slice().sort((a, b) => (parseTs(b.ts)?.getTime() || 0) - (parseTs(a.ts)?.getTime() || 0));
+        const featured = sorted.slice().sort((a, b) => getSkillFeaturedScore(b) - getSkillFeaturedScore(a) || (parseTs(b.ts)?.getTime() || 0) - (parseTs(a.ts)?.getTime() || 0))[0] || null;
+        const recent = sorted.filter((entry) => !featured || entry.sourceIndex !== featured.sourceIndex).slice(0, 3);
+        if (!featured) {
+          host.innerHTML = '<div class="ledger-empty">No Skill history recorded in the current search and range.</div>';
+          return;
+        }
+        const featureMeta = featured.sub === "pet"
+          ? `${featured.skill || "Skill"} skilling pet`
+          : `${featured.skill ? featured.skill + " · " : ""}${getSkillEntryMilestoneLabel(featured)}`;
+        host.innerHTML = `
+          <div class="skill-overview-feature ledger-feature">
+            <span class="ledger-kicker">Featured skill event</span>
+            <time class="ledger-date">${escapeHtml(formatLongDate(featured.ts))}</time>
+            <span class="ledger-copy">
+              <strong class="ledger-entry-title">${escapeHtml(getSkillDisplayTitle(featured))}</strong>
+              <small class="ledger-entry-meta">${escapeHtml(featureMeta)}</small>
+            </span>
+          </div>
+          ${recent.length ? '<span class="skill-overview-recent-label ledger-recent-label">Recent progression</span>' : ''}
+          <div class="skill-overview-recent">
+            ${renderLedgerRows(recent.map((entry) => ({
+              dateLabel: formatShortDate(entry.ts),
+              title: getSkillDisplayTitle(entry),
+              meta: getSkillEntryMilestoneLabel(entry),
+              debugHtml: renderEntryDebugButton(entry.sourceIndex),
+            })), { emptyText: "No additional Skill activity in this range." })}
+          </div>`;
+      }
+
+      function renderSkillChartSummary(selectedBase) {
+        const summary = document.getElementById("skill-chart-summary");
+        const state = document.getElementById("skill-chart-state");
+        if (!summary) return;
+        const sorted = selectedBase.slice().sort((a, b) => (parseTs(b.ts)?.getTime() || 0) - (parseTs(a.ts)?.getTime() || 0));
+        const xpEntries = sorted.filter((entry) => entry.sub === "xp" && getSkillEntryXpValue(entry));
+        const latestXp = xpEntries[0] || null;
+        const latestActivity = sorted[0] || null;
+        const selection = getSkillSelectionLabel();
+        if (state) state.textContent = `Known XP milestones for ${selection}; this is recorded progression, not continuous XP history.`;
+        const items = [
+          { label: "Latest milestone", value: latestXp ? getSkillEntryMilestoneLabel(latestXp).replace(/ milestone$/i, "") : "No XP milestone" },
+          { label: "Recorded milestones", value: xpEntries.length.toLocaleString() },
+          { label: "Latest activity", value: latestActivity ? formatLongDate(latestActivity.ts) : "—" },
+        ];
+        summary.innerHTML = items.map((item) => `<div class="skill-chart-summary-item"><span class="skill-chart-summary-label">${escapeHtml(item.label)}</span><span class="skill-chart-summary-value" title="${escapeHtml(item.value)}">${escapeHtml(item.value)}</span></div>`).join("");
+      }
+
+      function updateSkillColumnStickyOffset() {
+        const commandBar = document.getElementById("sticky-controls-zone");
+        const commandBarVisible = commandBar && !commandBar.classList.contains("hidden");
+        const commandBarHeight = commandBarVisible ? commandBar.getBoundingClientRect().height : 0;
+        document.documentElement.style.setProperty("--skill-column-sticky-top", `${Math.ceil(commandBarHeight + 10)}px`);
+      }
+
+      function updateSkillEntryDisclosure(entryCount = null) {
+        const expanded = !!appState.ui.skillEntriesExpanded;
+        const disclosure = document.getElementById("skill-entry-disclosure");
+        const toggle = document.getElementById("skill-entry-toggle");
+        const label = document.getElementById("skill-entry-toggle-label");
+        const count = document.getElementById("skill-entry-toggle-count");
+        const logSection = document.querySelector(".skill-log-section");
+        if (disclosure) disclosure.classList.toggle("hidden", !expanded);
+        if (logSection) {
+          logSection.classList.toggle("entries-expanded", expanded);
+          logSection.classList.toggle("entries-collapsed", !expanded);
+        }
+        if (toggle) {
+          toggle.classList.toggle("active", expanded);
+          toggle.setAttribute("aria-expanded", expanded ? "true" : "false");
+        }
+        if (label) label.textContent = expanded ? "Hide all skill entries" : "Show all skill entries";
+        if (count && entryCount !== null) count.textContent = `(${Number(entryCount).toLocaleString()})`;
+        requestAnimationFrame(updateSkillColumnStickyOffset);
+      }
+
+      function toggleSkillEntries() {
+        appState.ui.skillEntriesExpanded = !appState.ui.skillEntriesExpanded;
+        updateSkillEntryDisclosure();
+      }
+
       function renderSkillPanel(entries) {
-        const selectionLabel = getSkillSelectionLabel();
         const selectedBase = entries.filter(skillEntryMatchesSelection);
         const skillEntries = selectedBase.filter(skillEntryMatchesSubFilters);
-
-        const sortEntries = (arr) =>
-          arr.slice().sort((a, b) => new Date(b.ts) - new Date(a.ts));
-
+        const sortEntries = (arr) => arr.slice().sort((a, b) => (parseTs(b.ts)?.getTime() || 0) - (parseTs(a.ts)?.getTime() || 0));
         const toolbarEl = document.getElementById("skill-entry-toolbar");
         const entryEl = document.getElementById("skill-entry-list");
         const entryCount = document.getElementById("skill-entry-count");
-        const historyLabel = document.getElementById("skill-history-label");
+        const chartSection = document.getElementById("xp-chart-section");
 
-        if (entryCount)
-          entryCount.textContent = `${skillEntries.length.toLocaleString()} entries`;
-        if (historyLabel) historyLabel.textContent = selectionLabel;
-        renderSkillSummaryDetails(selectedBase, skillEntries);
+        renderSkillStatusList(entries);
+        if (entryCount) entryCount.textContent = getLogCountLabel(skillEntries.length);
+        updateSkillEntryDisclosure(skillEntries.length);
 
         if (toolbarEl) {
-          toolbarEl.innerHTML = `
-            <div class="list-header-pills skill-filter-context" style="${getSkillFilterColorStyle()}">
-                ${getSkillFilterOptions()
-                  .map((s) => renderPillButton({
-                    className: "b-pill pill-skill",
-                    action: "toggle-sub-filter",
-                    dataset: { category: "skills", subfilter: s.id },
-                    label: s.label,
-                    count: getSkillSubFilterCount(selectedBase, s.id),
-                    active: !!appState.filters.skillSubs[s.id],
-                    tag: "span",
-                  }))
-                  .join("")}
-            </div>`;
+          toolbarEl.innerHTML = `<div class="list-header-pills skill-filter-context" style="${getSkillFilterColorStyle()}">
+            ${getSkillFilterOptions().map((filter) => renderPillButton({
+              className: "b-pill pill-skill",
+              action: "toggle-sub-filter",
+              dataset: { category: "skills", subfilter: filter.id },
+              label: filter.label,
+              count: getSkillSubFilterCount(selectedBase, filter.id),
+              active: !!appState.filters.skillSubs[filter.id],
+              tag: "span",
+            })).join("")}
+          </div>`;
         }
 
-        const makeEntry = (e) => `
-        <div class="dual-entry log-row accent-entry skill-log-entry" style="--entry-accent:var(--color-skill)" id="skill-entry-${escapeHtml(e.sourceIndex)}" data-source-index="${escapeHtml(e.sourceIndex)}">
-            ${isSkillBigMilestone(e) ? `<span class="skill-milestone-badge">${escapeHtml(getSkillMilestoneType(e))}</span>` : ""}
-            <div class="dual-entry-title">${escapeHtml(e.title)}</div>
-            <div class="dual-entry-detail">${escapeHtml(e.details)}</div>
-            <div class="dual-entry-ts">${escapeHtml(e.ts)}
-              ${renderEntryDebugButton(e.sourceIndex)}
-            </div>
-        </div>`;
+        // The chart data builder supports All Skills, skill groups, multiple
+        // selected skills, and single skills. Keep the chart visible for every
+        // Skills selection and let getXpChartData() choose the correct dataset.
+        if (chartSection) chartSection.classList.remove("hidden");
+        renderSkillChartSummary(selectedBase);
 
-        const activeFilters = getSkillFilterOptions()
-          .filter((filter) => appState.filters.skillSubs[filter.id])
-          .map((filter) => filter.label)
-          .join(", ");
-        const emptyState = `
-          <div class="skill-empty-state">
-            <div class="skill-empty-title">No skill entries match the current view.</div>
-            <div>No skill entries match: ${escapeHtml(selectionLabel)} · ${escapeHtml(getRangeLabel())} · ${escapeHtml(activeFilters || "no skill entry types")}</div>
-            <div class="skill-empty-actions">
-              <button class="mini-action-btn" data-action="clear-skill-selection" type="button">Clear skill filters</button>
-              <button class="mini-action-btn" data-action="clear-range-filter" type="button">Clear range</button>
-              <button class="mini-action-btn" data-action="reset-skill-subfilters" type="button">Show all skill entry types</button>
-            </div>
-          </div>`;
-
-        entryEl.innerHTML = skillEntries.length
-          ? sortEntries(skillEntries).map(makeEntry).join("")
-          : emptyState;
+        if (!entryEl) return;
+        const ordered = sortEntries(skillEntries);
+        const pageEnd = (appState.ui.currentPage + 1) * PAGE_SIZE;
+        const visible = ordered.slice(0, pageEnd);
+        const rows = visible.map((entry) => ({
+          dateLabel: formatShortDate(entry.ts),
+          title: getSkillDisplayTitle(entry),
+          meta: getSkillEntryMilestoneLabel(entry),
+          debugHtml: renderEntryDebugButton(entry.sourceIndex),
+        }));
+        const activeFilters = getSkillFilterOptions().filter((filter) => appState.filters.skillSubs[filter.id]).map((filter) => filter.label).join(", ");
+        entryEl.innerHTML = rows.length
+          ? `${renderLedgerRows(rows)}${ordered.length > visible.length ? `<button class="load-more-btn" data-action="load-more" type="button">Load more — showing ${visible.length.toLocaleString()} of ${ordered.length.toLocaleString()}</button>` : ""}`
+          : `<div class="skill-empty-state"><div class="skill-empty-title">No skill entries match the current view.</div><div>${escapeHtml(getSkillSelectionLabel())} · ${escapeHtml(getRangeLabel())} · ${escapeHtml(activeFilters || "no skill entry types")}</div><div class="skill-empty-actions"><button class="mini-action-btn" data-action="clear-skill-selection" type="button">All skills</button><button class="mini-action-btn" data-action="clear-range-filter" type="button">Clear range</button><button class="mini-action-btn" data-action="reset-skill-subfilters" type="button">Show all types</button></div></div>`;
       }
 
       function renderPaginatedRows(rows, renderRow, emptyHtml) {
@@ -12337,64 +14385,150 @@
         return `<div class="single-panel-flow">${bodyHtml}${loadMoreHtml}</div>`;
       }
 
+      function getLedgerThemeClass(section) {
+        const safeSection = ["combat", "skills", "quests", "clues", "misc", "all"].includes(section)
+          ? section
+          : "all";
+        return `theme-${safeSection}`;
+      }
+
+      function renderLedgerSectionHeader({ id, title, subtitle = "", countLabel = "", actionHtml = "" }) {
+        return `<header class="ledger-section-head">
+          <div class="ledger-section-heading-copy">
+            <h2 class="ledger-section-title"${id ? ` id="${escapeHtml(id)}"` : ""}>${escapeHtml(title)}</h2>
+            ${subtitle ? `<span class="ledger-section-subtitle">${escapeHtml(subtitle)}</span>` : ""}
+          </div>
+          ${(countLabel || actionHtml) ? `<div class="ledger-section-meta">${countLabel ? `<span class="ledger-section-count">${escapeHtml(countLabel)}</span>` : ""}${actionHtml}</div>` : ""}
+        </header>`;
+      }
+
+      function renderLedgerFeaturedEntry({ label, dateLabel, title, meta = "", debugHtml = "" }) {
+        return `<div class="ledger-feature">
+          <span class="ledger-kicker">${escapeHtml(label)}</span>
+          <time class="ledger-date">${escapeHtml(dateLabel || "—")}</time>
+          <span class="ledger-copy">
+            <strong class="ledger-entry-title">${escapeHtml(title)}</strong>
+            ${meta ? `<small class="ledger-entry-meta">${escapeHtml(meta)}</small>` : ""}
+          </span>
+          ${debugHtml ? `<span class="ledger-debug">${debugHtml}</span>` : ""}
+        </div>`;
+      }
+
+      function renderLedgerRows(rows, { emptyText = "No recent entries." } = {}) {
+        if (!rows.length) return `<div class="ledger-empty">${escapeHtml(emptyText)}</div>`;
+        return `<div class="ledger-list">${rows.map((row, index) => `<div class="ledger-row${index === rows.length - 1 ? " is-last" : ""}">
+          <time class="ledger-date">${escapeHtml(row.dateLabel || "—")}</time>
+          <span class="ledger-copy">
+            <strong class="ledger-entry-title">${escapeHtml(row.title || "Untitled entry")}</strong>
+            ${row.meta ? `<small class="ledger-entry-meta">${escapeHtml(row.meta)}</small>` : ""}
+          </span>
+          ${row.debugHtml ? `<span class="ledger-debug">${row.debugHtml}</span>` : ""}
+        </div>`).join("")}</div>`;
+      }
+
       function renderQuestPanel(entries) {
         const questTypes = [
-          { id: "milestone", label: "Milestones" },
           { id: "completion", label: "Quest completions" },
+          { id: "milestone", label: "Milestones" },
         ];
 
         // Counts respect global search/date filters, but ignore the quest toggles
-        // themselves so each badge remains useful when its category is hidden.
-        const countByType = (type) =>
-          entries.filter((e) => e.sub === type).length.toLocaleString();
-
-        const buttonRow = `
-        <div class="bubble-wrap clue-btn-row sticky-filter-row">
-            ${questTypes
-              .map(
-                (type) => `
-                ${renderPillButton({
-                  className: "b-pill pill-quest",
-                  action: "toggle-sub-filter",
-                  dataset: { category: "quests", subfilter: type.id },
-                  label: type.label,
-                  count: countByType(type.id),
-                  active: !!appState.filters.questSubs[type.id],
-                  tag: "span",
-                })}`,
-              )
-              .join("")}
-        </div>`;
-
-        const visibleEntries = entries.filter((e) => appState.filters.questSubs[e.sub]);
-        const sortedEntries = visibleEntries
+        // themselves so each filter remains useful while its section is hidden.
+        const entriesByType = (type) => entries
+          .filter((entry) => entry.sub === type)
           .slice()
-          .sort((a, b) => new Date(b.ts) - new Date(a.ts));
+          .sort((a, b) => (parseTs(b.ts)?.getTime() || 0) - (parseTs(a.ts)?.getTime() || 0));
+        const countByType = (type) => entriesByType(type).length.toLocaleString();
 
+        const buttonRow = "";
+
+        const getQuestDisplay = (entry, type) => {
+          if (!entry) return { title: "No recorded entry", meta: type === "completion" ? "Quest completed" : "Quest milestone" };
+          const raw = `${entry?.title || ""} ${entry?.details || ""}`.trim();
+          if (type === "completion") {
+            const cleaned = stripQuestCompletionPrefix(entry.title);
+            return {
+              title: cleaned || entry.details || "Quest completed",
+              meta: "Quest completed",
+            };
+          }
+          const qpMatch = raw.match(/([\d,]+)\s+quest points?/i);
+          if (qpMatch) {
+            return {
+              title: `${Number(qpMatch[1].replace(/,/g, "")).toLocaleString()} quest points`,
+              meta: "Quest-point milestone",
+            };
+          }
+          return {
+            title: entry.title || entry.details || "Quest milestone",
+            meta: /song/i.test(raw) ? "Music milestone" : "Quest milestone",
+          };
+        };
+
+        const renderQuestSection = (type) => {
+          const typeEntries = entriesByType(type);
+          const featured = typeEntries[0] || null;
+          const recentEntries = typeEntries.slice(1);
+          const sectionPageSize = 10;
+          const visibleCount = (appState.ui.currentPage + 1) * sectionPageSize;
+          const visibleRecent = recentEntries.slice(0, visibleCount);
+          const featuredDisplay = getQuestDisplay(featured, type);
+          const isCompletion = type === "completion";
+          const sectionTitle = isCompletion ? "Quest completions" : "Quest-point milestones";
+          const sectionSubtitle = isCompletion
+            ? "Completed quests recorded in the ledger"
+            : "Recorded progress toward quest-point goals";
+          const featuredLabel = isCompletion ? "Featured completion" : "Featured milestone";
+          const recentLabel = isCompletion ? "Recent completions" : "Recent milestones";
+
+          const featureHtml = featured
+            ? renderLedgerFeaturedEntry({
+                label: featuredLabel,
+                dateLabel: formatShortDate(featured.ts),
+                title: featuredDisplay.title,
+                meta: `${featuredDisplay.meta} · ${featured.ts}`,
+                debugHtml: renderEntryDebugButton(featured.sourceIndex),
+              })
+            : `<div class="ledger-empty">No ${isCompletion ? "quest completions" : "quest milestones"} match the current search and range.</div>`;
+
+          const recentRows = visibleRecent.map((entry) => {
+            const display = getQuestDisplay(entry, type);
+            return {
+              dateLabel: formatShortDate(entry.ts),
+              title: display.title,
+              meta: display.meta,
+              debugHtml: renderEntryDebugButton(entry.sourceIndex),
+            };
+          });
+          const recentHtml = visibleRecent.length
+            ? `<span class="ledger-recent-label">${recentLabel}</span>${renderLedgerRows(recentRows)}`
+            : "";
+
+          const shownTotal = Math.min(typeEntries.length, 1 + visibleRecent.length);
+          const loadMoreHtml = typeEntries.length > shownTotal
+            ? `<button class="load-more-btn quest-ledger-load-more" data-action="load-more" type="button">Load more — showing ${shownTotal.toLocaleString()} of ${typeEntries.length.toLocaleString()}</button>`
+            : "";
+
+          return `<section class="quest-ledger-section ledger-section ${getLedgerThemeClass("quests")}" aria-labelledby="quest-${type}-title">
+            ${renderLedgerSectionHeader({
+              id: `quest-${type}-title`,
+              title: sectionTitle,
+              subtitle: sectionSubtitle,
+              countLabel: `${typeEntries.length.toLocaleString()} ${typeEntries.length === 1 ? "entry" : "entries"}`,
+            })}
+            ${featureHtml}
+            ${recentHtml}
+            ${loadMoreHtml}
+          </section>`;
+        };
+
+        const visibleEntries = entries;
         const entryCount = document.getElementById("quest-entry-count");
-        if (entryCount)
-          entryCount.textContent = `${visibleEntries.length.toLocaleString()} entries`;
+        if (entryCount) entryCount.textContent = `${visibleEntries.length.toLocaleString()} entries`;
 
-        const makeEntry = (e) => `
-        <div class="entry quest-log-entry log-row accent-entry" style="--entry-accent:var(--color-quest)">
-            <div class="entry-content">
-                <span class="cat-dot" style="background:var(--color-quest)"></span>
-                <div class="entry-text-stack">
-                    <span class="entry-title">${renderAllLogEntryTitleHtml(e)}</span>
-                    <span class="entry-details">${escapeHtml(e.details)}</span>
-                </div>
-            </div>
-            ${renderEntryDebugButton(e.sourceIndex)}
-            <span class="entry-ts">${escapeHtml(e.ts)}</span>
-        </div>`;
-
+        const sectionsHtml = questTypes.map((type) => renderQuestSection(type.id)).join("");
         document.getElementById("quest-list").innerHTML =
-          buttonRow +
-          renderPaginatedRows(
-            sortedEntries,
-            makeEntry,
-            '<div class="dual-empty">No quest entries match the selected filters</div>',
-          );
+          `<div class="quest-ledger-stack">${sectionsHtml || '<div class="quest-ledger-empty">No Quest entries match the current search and range.</div>'}</div>`;
       }
 
       const CLUE_TYPES = ["easy", "medium", "hard", "elite", "master"];
@@ -12958,8 +15092,9 @@
         const isDebug = appState.flags.debugMode;
         const isHome  = appState.ui.view === "home" && !isDebug;
 
-        document.body.setAttribute("data-view",
-          isDebug ? "debug" : isHome ? "home" : appState.ui.activeFilter);
+        const renderedView = isDebug ? "debug" : isHome ? "home" : appState.ui.activeFilter;
+        document.body.setAttribute("data-view", renderedView);
+        document.body.setAttribute("data-section", isHome ? "home" : appState.ui.activeFilter || "all");
 
         renderShellHeader();
 
@@ -13029,7 +15164,7 @@
         if (statsBar) statsBar.classList.remove("hidden");
         if (heatmapSlot) heatmapSlot.classList.remove("hidden");
 
-        if (skillControls) skillControls.classList.toggle("hidden", appState.ui.activeFilter !== "skills");
+        if (skillControls) skillControls.classList.add("hidden");
         if (allLogControls) allLogControls.classList.toggle("hidden", appState.ui.activeFilter !== "all");
         combatView.classList.toggle("hidden", appState.ui.activeFilter !== "combat");
         questView.classList.toggle("hidden", appState.ui.activeFilter !== "quests");
@@ -13065,6 +15200,8 @@
         }
 
         if (appState.ui.activeFilter === "combat") {
+          renderCombatKillsSummary(filtered);
+          updateCombatTabUI();
           renderCombatSide(
             "boss",
             filtered.filter((e) => e.sub === "boss"),
@@ -13079,7 +15216,6 @@
           const clueFiltered = filtered.filter((e) => appState.filters.clueSubs[e.sub]);
           renderCluePanel(clueFiltered);
         } else if (appState.ui.activeFilter === "skills") {
-          buildSkillPicker(filtered);
           renderSkillPanel(filtered);
         } else {
           let display = [...listFiltered];
@@ -13127,6 +15263,84 @@
       function loadMore() {
         appState.ui.currentPage++;
         render();
+      }
+
+      function renderCombatKillsSummary(entries) {
+        const listEl = document.getElementById("combat-kills-list");
+        const noteEl = document.getElementById("combat-kills-note");
+        if (!listEl) return;
+
+        const activeTab = appState.combat.killsTab === "top" ? "top" : "recent";
+        ["recent", "top"].forEach((tabName) => {
+          const tab = document.getElementById(`combat-kills-tab-${tabName}`);
+          if (!tab) return;
+          const isActive = tabName === activeTab;
+          tab.classList.toggle("active", isActive);
+          tab.setAttribute("aria-selected", String(isActive));
+          tab.tabIndex = isActive ? 0 : -1;
+        });
+        listEl.setAttribute("aria-labelledby", `combat-kills-tab-${activeTab}`);
+
+        const totals = new Map();
+        entries.forEach((entry) => {
+          if (!entry?.monster || typeof entry.killCount !== "number" || entry.killCount <= 0) return;
+          const parsed = parseTs(entry.ts);
+          if (!parsed) return;
+          const current = totals.get(entry.monster) || {
+            name: entry.monster,
+            type: entry.sub === "slayer" ? "slayer" : "boss",
+            total: 0,
+            lastSeen: 0,
+            lastTs: entry.ts,
+          };
+          current.total += entry.killCount;
+          if (parsed.getTime() >= current.lastSeen) {
+            current.lastSeen = parsed.getTime();
+            current.lastTs = entry.ts;
+            current.type = entry.sub === "slayer" ? "slayer" : "boss";
+          }
+          totals.set(entry.monster, current);
+        });
+
+        const rows = [...totals.values()].sort((a, b) => {
+          if (activeTab === "top") return b.total - a.total || b.lastSeen - a.lastSeen;
+          return b.lastSeen - a.lastSeen || b.total - a.total;
+        });
+
+        if (!rows.length) {
+          listEl.innerHTML = `<div class="combat-kills-empty">No kill-count entries match the current search and range.</div>`;
+          if (noteEl) noteEl.textContent = "";
+          return;
+        }
+
+        const visible = rows.slice(0, 6);
+        const shortDate = (value) => {
+          const date = parseTs(value);
+          return date ? date.toLocaleDateString(undefined, { month: "short", day: "numeric" }) : "—";
+        };
+
+        listEl.innerHTML = visible.map((row, index) => `
+          <button
+            type="button"
+            class="combat-kill-row"
+            data-action="open-combat-encounter"
+            data-monster-type="${escapeHtml(row.type)}"
+            data-monster="${escapeHtml(row.name)}"
+            title="Open ${escapeHtml(row.name)}"
+          >
+            <span class="combat-kill-index">${String(index + 1).padStart(2, "0")}</span>
+            <span class="combat-kill-main">
+              <span class="combat-kill-name">${escapeHtml(row.name)}</span>
+              <span class="combat-kill-total">${row.total.toLocaleString()} kills logged</span>
+            </span>
+            <time class="combat-kill-date">${escapeHtml(shortDate(row.lastTs))}</time>
+          </button>`).join("");
+
+        if (noteEl) {
+          noteEl.textContent = rows.length > visible.length
+            ? `Showing ${visible.length} of ${rows.length} combatants in the current range.`
+            : `${rows.length} ${rows.length === 1 ? "combatant" : "combatants"} in the current range.`;
+        }
       }
 
       function renderCombatSide(type, entries) {
@@ -13395,6 +15609,26 @@
           .join("");
 
         groupedList.innerHTML = groupHtml || '<div class="skill-group-empty">No skills match your skill search.</div>';
+      }
+
+      function toggleSkillSummarySelection(skill) {
+        const selected = appState.filters.selectedSkills;
+        if (skill && selected.size === 1 && selected.has(skill)) {
+          clearSkillSelection();
+          return;
+        }
+        selectSingleSkill(skill);
+      }
+
+      function selectSingleSkill(skill) {
+        appState.filters.selectedSkills.clear();
+        if (skill && SKILLS.includes(skill)) appState.filters.selectedSkills.add(skill);
+        appState.ui.currentPage = 0;
+        if (xpChart) {
+          xpChart.destroy();
+          xpChart = null;
+        }
+        render();
       }
 
       function toggleSkill(skill) {
@@ -13669,14 +15903,15 @@
           data: xpPoints,
           borderColor: color,
           backgroundColor: color + "18",
-          borderWidth: 2,
-          pointRadius: xpPoints.map((p) => (p.isCapExtension ? 0 : 3)),
-          pointHoverRadius: xpPoints.map((p) => (p.isCapExtension ? 0 : 7)),
-          pointBackgroundColor: xpPoints.map((p) => color),
-          pointBorderColor: xpPoints.map((p) => surfaceColor),
-          pointBorderWidth: 2,
+          borderWidth: 1.5,
+          pointRadius: xpPoints.map((p) => (p.isCapExtension ? 0 : 2.5)),
+          pointHoverRadius: xpPoints.map((p) => (p.isCapExtension ? 0 : 5)),
+          pointStyle: "rectRot",
+          pointBackgroundColor: xpPoints.map((p) => surfaceColor),
+          pointBorderColor: xpPoints.map((p) => color),
+          pointBorderWidth: 1.5,
           fill: false,
-          tension: 0.3,
+          tension: 0,
           order: idx + 1,
           parsing: { xAxisKey: "x", yAxisKey: "y" },
         };
@@ -13750,16 +15985,17 @@
             data: points,
             borderColor: skillColor,
             backgroundColor: skillColor + "22",
-            borderWidth: 2.5,
-            pointRadius: 3,
-            pointHoverRadius: 7,
-            pointBackgroundColor: skillColor,
-            pointBorderColor: getComputedStyle(document.documentElement)
+            borderWidth: 1.5,
+            pointRadius: 2.5,
+            pointHoverRadius: 5,
+            pointStyle: "rectRot",
+            pointBackgroundColor: getComputedStyle(document.documentElement)
               .getPropertyValue("--color-surface")
               .trim(),
-            pointBorderWidth: 2,
-            fill: true,
-            tension: 0.35,
+            pointBorderColor: skillColor,
+            pointBorderWidth: 1.5,
+            fill: false,
+            tension: 0,
             parsing: { xAxisKey: "x", yAxisKey: "y" },
           };
           return {
@@ -13899,6 +16135,18 @@
         const textColor = getComputedStyle(document.documentElement)
           .getPropertyValue("--color-text-dim")
           .trim();
+        const ruleColor = getComputedStyle(document.documentElement)
+          .getPropertyValue("--theme-line-soft")
+          .trim() || borderColor;
+        const surfaceColor = getComputedStyle(document.documentElement)
+          .getPropertyValue("--theme-surface-primary")
+          .trim() || (isDark ? "#1c1b16" : "#fbf8f2");
+        const monoFont = getComputedStyle(document.documentElement)
+          .getPropertyValue("--font-mono")
+          .trim() || "monospace";
+        const bodyFont = getComputedStyle(document.documentElement)
+          .getPropertyValue("--font-body")
+          .trim() || "sans-serif";
 
         const {
           datasets,
@@ -13946,6 +16194,11 @@
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: { padding: { top: 8, right: 6, bottom: 0, left: 0 } },
+            elements: {
+              line: { borderJoinStyle: "miter", borderCapStyle: "butt" },
+              point: { hitRadius: 8 },
+            },
             interaction: { mode: "nearest", intersect: false, axis: "x" },
             onClick: (event, elements, chart) => {
               if (!elements || !elements.length) return;
@@ -13957,12 +16210,16 @@
             plugins: {
               legend: { display: false },
               tooltip: {
-                backgroundColor: isDark ? "#2d2d2d" : "#fff",
+                backgroundColor: surfaceColor,
                 titleColor: textColor,
                 bodyColor: textColor,
                 borderColor: borderColor,
                 borderWidth: 1,
-                padding: 10,
+                cornerRadius: 2,
+                padding: 9,
+                displayColors: false,
+                titleFont: { family: monoFont, size: 10, weight: "600" },
+                bodyFont: { family: bodyFont, size: 11, weight: "500" },
                 filter: (item) => {
                   // Show pet dataset items first, prominently
                   return true;
@@ -13980,20 +16237,6 @@
                       item.dataset.label + ": " + (d.y || "").toLocaleString()
                     );
                   },
-                  labelColor: (item) => {
-                    const d = item.raw;
-                    if (d && d.isPet === undefined) {
-                      // Pet dataset
-                      return {
-                        borderColor: "#c8930a",
-                        backgroundColor: "#f0c040",
-                      };
-                    }
-                    return {
-                      borderColor: item.dataset.borderColor,
-                      backgroundColor: item.dataset.borderColor,
-                    };
-                  },
                 },
               },
               zoom: {
@@ -14010,14 +16253,15 @@
                 chartKind === "bar"
                   ? {
                       type: "category",
-                      grid: { color: borderColor },
+                      grid: { color: ruleColor, borderDash: [2, 4], drawTicks: false },
                       ticks: {
                         color: textColor,
-                        font: { size: 10 },
-                        maxRotation: 45,
+                        font: { family: monoFont, size: 9, weight: "500" },
+                        padding: 8,
+                        maxRotation: 0,
                         minRotation: 0,
                       },
-                      border: { color: borderColor },
+                      border: { display: false },
                     }
                   : {
                       type: "time",
@@ -14026,22 +16270,24 @@
                         tooltipFormat: "MMM yyyy",
                         displayFormats: { month: "MMM yy", year: "yyyy" },
                       },
-                      grid: { color: borderColor },
+                      grid: { color: ruleColor, borderDash: [2, 4], drawTicks: false },
                       ticks: {
                         color: textColor,
-                        maxTicksLimit: 12,
-                        font: { size: 10 },
+                        maxTicksLimit: 10,
+                        padding: 8,
+                        font: { family: monoFont, size: 9, weight: "500" },
                       },
-                      border: { color: borderColor },
+                      border: { display: false },
                     },
               y: {
-                grid: { color: borderColor },
+                grid: { color: ruleColor, borderDash: [2, 4], drawTicks: false },
                 ticks: {
                   color: textColor,
-                  font: { size: 10 },
+                  padding: 8,
+                  font: { family: monoFont, size: 9, weight: "500" },
                   callback: (val) => formatXpAxis(val),
                 },
-                border: { color: borderColor },
+                border: { display: false },
               },
             },
           },
@@ -14094,6 +16340,7 @@
       window.addEventListener("resize", () => {
         renderHeatmap(appState.ui.activeFilter);
         syncHomeCategoryCardHeight();
+        updateSkillColumnStickyOffset();
       });
 
       // Init skill picker and restore URL state before loading data.
