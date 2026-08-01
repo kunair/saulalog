@@ -9633,7 +9633,8 @@
         // They share kill counts, so one matching log row is expanded to all three bosses.
         // Updated to include Osseous
         {
-          match: /\bRex Matriarchs?\b/i, /\b(?:An?\s+)?ancient experimental dinosaurs?:\s*(?:a\s+)?Rex Matriarchs?\b/i
+          //match: /\bRex Matriarchs?\b/i,
+          match: /\b(?:(?:An?\s+)?ancient experimental dinosaurs?:\s*(?:a\s+)?)?Rex Matriarchs?\b/i,
           canonical: ["Rathis", "Orikalka", "Pthentraken", "Osseous"],
         },
 
