@@ -140,6 +140,7 @@ body::before{
   letter-spacing:.1em;
 }
 .section-note{color:var(--text-dim);font-size:14px;max-width:640px;margin:-14px 0 24px;}
+.section-note em{color:var(--gold-dim);font-style:normal;}
 
 /* ---------- SEISMOGRAPH ---------- */
 .seismo-wrap{
@@ -205,7 +206,24 @@ body::before{
   color:var(--text-dim);
   margin:0 0 18px;
   font-weight:600;
+  display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;
 }
+.chart-subtitle{
+  font-size:11px;text-transform:none;letter-spacing:0;font-weight:400;
+  color:var(--text-faint);font-family:'JetBrains Mono',monospace;
+}
+.skill-progress-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:8px;}
+.skill-chip{
+  border:1px solid var(--line);border-radius:4px;padding:10px 11px;cursor:pointer;
+  transition:border-color .15s ease, transform .15s ease, background .15s ease;
+}
+.skill-chip:hover{border-color:var(--gold-dim);transform:translateY(-1px);background:var(--panel-2);}
+.skill-chip .sc-name{font-size:11.5px;color:var(--text);margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.skill-chip .sc-track{height:5px;background:var(--panel-2);border-radius:3px;overflow:hidden;margin-bottom:6px;}
+.skill-chip .sc-fill{height:100%;border-radius:3px;transition:width .85s cubic-bezier(.16,1,.3,1);}
+.skill-chip .sc-val{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-faint);}
+.skill-chip.maxed{border-color:rgba(201,154,82,.3);}
+.skill-chip.maxed .sc-val{color:var(--gold);font-weight:600;letter-spacing:.03em;}
 .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13px;}
 .bar-row .name{width:150px;flex:0 0 150px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .bar-track{flex:1;height:14px;background:var(--panel-2);border-radius:2px;overflow:hidden;position:relative;}
@@ -237,6 +255,14 @@ body::before{
 }
 .notable-card .item{font-size:14px;color:var(--text);font-weight:500;}
 .notable-card .meta{font-size:11px;color:var(--text-faint);margin-top:6px;font-family:'JetBrains Mono',monospace;}
+.notable-source{margin-top:9px;padding-top:9px;border-top:1px solid var(--line-soft);display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.ns-chip{
+  font-size:10.5px;color:var(--text-dim);background:var(--panel-2);border:1px solid var(--line);
+  padding:3px 8px;border-radius:12px;cursor:pointer;transition:border-color .12s ease,color .12s ease;
+}
+.ns-chip:hover{border-color:var(--gold-dim);color:var(--text);}
+.ns-source-plain{font-size:10.5px;color:var(--text-faint);font-style:italic;}
+.ns-odds{font-size:10.5px;color:var(--gold);font-family:'JetBrains Mono',monospace;}
 
 /* ---------- EXPLORER ---------- */
 .explorer-controls{
@@ -315,6 +341,9 @@ table.log-table tbody td{
 table.log-table tbody tr:hover{background:var(--panel);}
 table.log-table td.date{white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-faint);}
 table.log-table td.title{color:var(--text);}
+.row-entity-link{cursor:pointer;border-bottom:1px dotted transparent;transition:color .12s ease,border-color .12s ease;}
+.row-entity-link:hover{color:var(--gold);border-bottom-color:var(--gold-dim);}
+.detail-daylink{margin-top:8px;}
 table.log-table td.cat{white-space:nowrap;}
 .cat-chip{
   display:inline-block;
@@ -340,7 +369,26 @@ table.log-table td.cat{white-space:nowrap;}
 footer{padding:36px 0 60px;text-align:center;color:var(--text-faint);font-size:12px;}
 footer .dot{color:var(--gold);}
 
-.datasource{padding:22px 0 30px;border-bottom:1px solid var(--line);}
+.recent-latest{
+  font-size:12.5px;color:var(--text-dim);margin-bottom:14px;
+  font-family:'JetBrains Mono',monospace;
+}
+.recent-latest .rl-dot{
+  display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--teal);
+  margin-right:8px;position:relative;top:-1px;box-shadow:0 0 6px var(--teal);
+  animation:pulseDot 1.8s ease-in-out infinite;
+}
+.recent-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+.recent-card{background:var(--panel);padding:16px 18px;cursor:pointer;transition:background .15s ease, transform .15s ease;position:relative;}
+.recent-card:hover{background:var(--panel-2);transform:translateY(-2px);}
+.recent-card .rc-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin-bottom:7px;}
+.recent-card .rc-value{font-size:14px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.recent-card .rc-time{font-size:11px;color:var(--gold);font-family:'JetBrains Mono',monospace;margin-top:5px;}
+
+.ds-heading{
+  font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--text-faint);margin-bottom:12px;
+}
 .ds-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
 .ds-row .search-box{flex:2 1 320px;}
 .ds-btn{
@@ -361,26 +409,268 @@ footer .dot{color:var(--gold);}
 @media (max-width:640px){
   .bar-row .name{width:100px;flex:0 0 100px;}
 }
+
+/* ---------------- POLISH: reveal-on-scroll, glow, tooltips ---------------- */
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1);}
+.reveal.in-view{opacity:1;transform:none;}
+
+.hero-figure{transition:background .2s ease;}
+.hero-figure:hover{background:var(--panel-2);}
+
+.stat-card{position:relative;border-left:2px solid transparent;transition:background .18s ease, transform .18s ease, box-shadow .18s ease;}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 10px 28px -14px var(--accent-glow, rgba(0,0,0,.5));border-left-color:var(--accent, var(--line));}
+
+.bar-fill{transition:width .85s cubic-bezier(.16,1,.3,1);}
+.bar-row{border-radius:2px;transition:background .15s ease;}
+.bar-row:hover{background:var(--panel-2);}
+.bar-row:hover .name{color:var(--gold);}
+
+.comp-seg{transition:width 1s cubic-bezier(.16,1,.3,1), filter .15s ease;}
+.comp-seg:hover{filter:brightness(1.18);}
+
+.notable-card{transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;}
+.notable-card:hover{transform:translateY(-2px);box-shadow:0 10px 26px -14px rgba(193,80,63,.45);border-color:var(--crimson);}
+
+.seismo-wrap{position:relative;}
+.seismo-bar{cursor:default;}
+.seismo-bar:hover{filter:brightness(1.35);}
+.chart-tooltip{
+  position:absolute;pointer-events:none;opacity:0;
+  background:var(--panel-2);border:1px solid var(--line);
+  padding:7px 11px;border-radius:3px;font-size:12px;color:var(--text);
+  font-family:'JetBrains Mono',monospace;white-space:nowrap;
+  transition:opacity .1s ease;box-shadow:0 8px 20px -6px rgba(0,0,0,.6);
+  z-index:6;transform:translate(-50%,-100%);
+}
+.chart-tooltip.visible{opacity:1;}
+.chart-tooltip .tt-count{color:var(--gold);font-weight:600;}
+
+.seismo-callouts{display:flex;gap:28px;flex-wrap:wrap;margin-top:16px;}
+.seismo-callout{font-size:13px;color:var(--text-dim);}
+.seismo-callout strong{color:var(--gold);font-family:'JetBrains Mono',monospace;font-weight:600;}
+
+.pill{transition:transform .12s ease, border-color .12s ease, color .12s ease;}
+.pill:active{transform:scale(.96);}
+
+.ds-status.ok{position:relative;padding-left:16px;}
+.ds-status.ok::before{
+  content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:7px;height:7px;border-radius:50%;background:var(--teal);
+  box-shadow:0 0 8px var(--teal);
+  animation:pulseDot 1.8s ease-in-out infinite;
+}
+@keyframes pulseDot{0%,100%{opacity:.5;}50%{opacity:1;}}
+
+@media (prefers-reduced-motion: reduce){
+  .reveal, .bar-fill, .comp-seg, .stat-card, .notable-card{transition:none!important;animation:none!important;}
+}
+
+/* ---------------- TOP ACCENT + NAV ---------------- */
+.top-accent{
+  height:3px;width:100%;
+  background:linear-gradient(90deg, var(--crimson), var(--gold) 35%, var(--teal) 70%, var(--violet, #8a7ab5));
+}
+[id^="sec-"]{scroll-margin-top:64px;}
+
+.topnav{
+  position:sticky;top:0;z-index:20;
+  background:rgba(13,16,22,.86);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topnav-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;height:52px;}
+.topnav-brand{font-size:15px;font-weight:600;color:var(--gold);letter-spacing:.03em;flex:0 0 auto;}
+.topnav-right{display:flex;align-items:center;gap:14px;min-width:0;}
+.topnav-links{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;}
+.topnav-links::-webkit-scrollbar{display:none;}
+.topnav-links a{
+  font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-faint);text-decoration:none;white-space:nowrap;
+  padding:8px 12px;border-radius:20px;transition:color .15s ease, background .15s ease;
+}
+.topnav-links a:hover{color:var(--text);background:var(--panel-2);}
+.topnav-links a.active{color:#161a23;background:var(--gold);font-weight:600;}
+
+.topnav-source-btn{
+  font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--text-dim);background:var(--panel);border:1px solid var(--line);border-radius:20px;
+  padding:7px 13px;cursor:pointer;white-space:nowrap;flex:0 0 auto;
+  transition:border-color .12s ease,color .12s ease,background .12s ease;
+}
+.topnav-source-btn:hover{color:var(--text);border-color:var(--gold-dim);}
+.topnav-source-btn.active{background:var(--gold);border-color:var(--gold);color:#161a23;font-weight:600;}
+
+/* ---------------- HERO GLOW ---------------- */
+.hero{position:relative;overflow:hidden;}
+.hero-glow{
+  position:absolute;top:-160px;right:-120px;width:420px;height:420px;border-radius:50%;
+  background:radial-gradient(circle, rgba(201,154,82,.16), rgba(193,80,63,.08) 55%, transparent 72%);
+  pointer-events:none;filter:blur(6px);
+  animation:heroGlowDrift 14s ease-in-out infinite alternate;
+}
+@keyframes heroGlowDrift{0%{transform:translate(0,0) scale(1);}100%{transform:translate(-30px,30px) scale(1.08);}}
+
+/* ---------------- CROSS-LINK / JUMPABLE AFFORDANCE ---------------- */
+[data-jump]{cursor:pointer;}
+.bar-row[data-jump]{padding:2px 6px;margin:0 -6px 7px;position:relative;}
+.bar-row[data-jump]::after{
+  content:"→";position:absolute;right:60px;top:50%;transform:translateY(-50%) translateX(-4px);
+  color:var(--gold);opacity:0;transition:opacity .15s ease, transform .15s ease;font-size:12px;
+}
+.bar-row[data-jump]:hover::after{opacity:1;transform:translateY(-50%) translateX(0);}
+
+.stat-card[data-jump]::after{
+  content:"View entries →";position:absolute;right:18px;bottom:14px;
+  font-size:10px;color:var(--accent, var(--text-faint));opacity:0;transition:opacity .15s ease;
+  font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em;
+}
+.stat-card[data-jump]:hover::after{opacity:.85;}
+
+.comp-seg[data-jump]:hover{box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);}
+
+.notable-card[data-jump] .item{transition:color .15s ease;}
+.notable-card[data-jump]:hover .item{color:var(--gold);}
+
+/* ---------------- ACTIVE FILTER CHIP ---------------- */
+.active-filter-chip{
+  display:none;align-items:center;gap:8px;
+  background:var(--panel-2);border:1px solid var(--gold-dim);
+  color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;
+  padding:6px 8px 6px 12px;border-radius:20px;margin:0 0 14px;
+}
+.active-filter-chip.visible{display:inline-flex;}
+.active-filter-chip button{
+  background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:15px;
+  line-height:1;padding:2px 5px;border-radius:50%;transition:color .12s ease, background .12s ease;
+}
+.active-filter-chip button:hover{color:var(--text);background:var(--line);}
+
+/* ---------------- EXPLORER TABLE FLASH + EXPANDABLE ROWS ---------------- */
+.table-scroll{overflow-x:auto;transition:box-shadow .3s ease;}
+.table-scroll.flash{box-shadow:0 0 0 2px var(--gold);}
+table.log-table tbody tr.log-row{cursor:pointer;}
+table.log-table tbody tr.log-row:hover td{color:var(--text);}
+table.log-table tbody tr.log-row td.date{position:relative;padding-left:20px;}
+table.log-table tbody tr.log-row td.date::before{
+  content:"›";position:absolute;left:6px;top:9px;color:var(--text-faint);
+  transition:transform .15s ease,color .15s ease;
+}
+table.log-table tbody tr.log-row.expanded td.date::before{transform:rotate(90deg);color:var(--gold);}
+tr.detail-row td{
+  padding:0 10px;border-bottom:1px solid var(--line-soft);color:var(--text-dim);font-size:12.5px;
+  background:var(--panel);
+}
+tr.detail-row .detail-inner{max-height:0;overflow:hidden;transition:max-height .25s ease, padding .25s ease;padding:0;}
+tr.detail-row.open .detail-inner{max-height:200px;padding:10px 2px 12px;}
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width:720px){
+  .wrap{padding:0 16px;}
+  .hero{padding:44px 0 32px;}
+  .section{padding:38px 0;}
+  .topnav-inner{height:48px;}
+  .stat-card[data-jump]::after{display:none;}
+  .explorer-controls{flex-direction:column;align-items:stretch;}
+  .explorer-controls .search-box,
+  .explorer-controls .year-select,
+  .explorer-controls .sort-select{width:100%;}
+  .year-select select,.sort-select select{width:100%;}
+}
+@media (max-width:480px){
+  .hero-figures{grid-template-columns:1fr 1fr;display:grid;}
+  .hero-figure{border-right:1px solid var(--line)!important;}
+  .hero-figure:nth-child(2n){border-right:none!important;}
+  .hero-figure:nth-child(-n+2){border-bottom:1px solid var(--line);}
+}
+
+/* ---------------- QUICK-RESULTS DRAWER ---------------- */
+.quick-drawer{
+  position:fixed;right:20px;bottom:20px;width:360px;max-width:calc(100vw - 32px);
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  box-shadow:0 24px 60px -14px rgba(0,0,0,.65);
+  transform:translateY(20px) scale(.97);opacity:0;pointer-events:none;
+  transition:transform .28s cubic-bezier(.16,1,.3,1), opacity .2s ease;
+  z-index:30;display:flex;flex-direction:column;max-height:min(58vh,480px);
+}
+.quick-drawer.open{transform:translateY(0) scale(1);opacity:1;pointer-events:auto;}
+.qd-header{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 14px 12px 16px;border-bottom:1px solid var(--line);flex:0 0 auto;}
+.qd-title{display:flex;flex-direction:column;gap:2px;}
+.qd-label{font-family:'Cinzel',serif;font-size:14px;color:var(--gold);font-weight:600;}
+.qd-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-faint);}
+.qd-close{background:none;border:none;color:var(--text-faint);font-size:18px;line-height:1;cursor:pointer;padding:4px 9px;border-radius:50%;transition:color .12s ease,background .12s ease;}
+.qd-close:hover{color:var(--text);background:var(--panel-2);}
+.qd-chip.qd-self-chip{border-color:var(--gold-dim);color:var(--gold);}
+.qd-chip.qd-self-chip:hover{border-color:var(--gold);}
+.qd-chip.qd-self-chip.expanded{background:var(--gold);border-color:var(--gold);color:#161a23;}
+.qd-chip.qd-self-chip .qsc-arrow{display:inline-block;transition:transform .2s ease;margin-left:2px;}
+.qd-chip.qd-self-chip.expanded .qsc-arrow{transform:rotate(90deg);}
+.qd-body{overflow-y:auto;padding:0;flex:0 0 auto;max-height:0;transition:max-height .3s cubic-bezier(.16,1,.3,1);}
+.qd-body.expanded{padding:4px 0;max-height:340px;flex:1 1 auto;}
+.qd-source-body{display:none;padding:14px 16px 4px;}
+.qd-source-body.visible{display:block;}
+.qd-source-body .ds-row{display:flex;gap:8px;}
+.qd-source-body .search-box{flex:1;}
+.qd-row{display:flex;align-items:center;gap:9px;padding:8px 16px;border-bottom:1px solid var(--line-soft);font-size:12.5px;}
+.qd-row:last-child{border-bottom:none;}
+.qd-row .qd-date{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text-faint);flex:0 0 auto;white-space:nowrap;}
+.qd-row .qd-title-txt{flex:1;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+.qd-row .qd-qty{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);flex:0 0 auto;}
+.qd-more{padding:8px 16px;font-size:11.5px;color:var(--text-faint);font-family:'JetBrains Mono',monospace;}
+.qd-footer{padding:12px 14px;border-top:1px solid var(--line);flex:0 0 auto;}
+.qd-empty{padding:26px 16px;text-align:center;color:var(--text-faint);font-size:13px;}
+
+.qd-related{padding:11px 16px;border-bottom:1px solid var(--line);}
+.qd-related:empty{display:none;padding:0;border:none;}
+.qd-related-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin-bottom:8px;font-family:'JetBrains Mono',monospace;}
+.qd-chip-row{display:flex;flex-wrap:wrap;gap:6px;}
+.qd-chip{
+  display:inline-flex;align-items:center;gap:5px;cursor:pointer;
+  background:var(--panel-2);border:1px solid var(--line);border-radius:14px;
+  padding:5px 10px;font-size:11.5px;color:var(--text-dim);
+  transition:border-color .12s ease, color .12s ease, transform .12s ease;
+}
+.qd-chip:hover{border-color:var(--gold-dim);color:var(--text);transform:translateY(-1px);}
+.qd-chip b{color:var(--gold);font-family:'JetBrains Mono',monospace;font-weight:600;}
+
+@media (max-width:640px){
+  .quick-drawer{left:12px;right:12px;bottom:12px;width:auto;max-width:none;max-height:60vh;}
+}
 </style>
 </head>
 <body>
+<div class="top-accent"></div>
+<nav class="topnav" id="topnav">
+  <div class="topnav-inner wrap">
+    <span class="topnav-brand display">Chronicle</span>
+    <div class="topnav-right">
+      <div class="topnav-links">
+        <a href="#sec-seismo" data-nav="sec-seismo">Activity</a>
+        <a href="#sec-stats" data-nav="sec-stats">Glance</a>
+        <a href="#sec-charts" data-nav="sec-charts">Breakdown</a>
+        <a href="#sec-notable" data-nav="sec-notable">Notable</a>
+        <a href="#sec-explorer" data-nav="sec-explorer">Explorer</a>
+      </div>
+      <button class="topnav-source-btn" id="topnav-source-btn">Source</button>
+    </div>
+  </div>
+</nav>
 <div class="wrap">
 
   <header class="hero">
+    <div class="hero-glow"></div>
     <div class="hero-eyebrow"><span class="dot"></span>ADVENTURER'S LOG · FULL HISTORY EXTRACT</div>
     <h1>The <em>Chronicle</em></h1>
     <p class="hero-sub">Every kill, drop, level and milestone the game ever logged, in one place. <span id="hero-span"></span></p>
     <div class="hero-figures" id="hero-figures"></div>
   </header>
 
-  <section class="datasource" id="sec-datasource">
-    <div class="ds-row">
-      <div class="search-box"><input type="text" id="sheet-url-input" placeholder="Paste a Google Sheets URL (shared as “Anyone with the link”)…"></div>
-      <button class="ds-btn primary" id="load-sheet-btn">Load Sheet</button>
-      <button class="ds-btn" id="reset-source-btn">Use Snapshot</button>
+  <section class="section recent-activity" id="sec-recent">
+    <div class="section-head">
+      <h2>Recent Activity</h2>
     </div>
-    <div class="ds-status mono" id="source-status">Showing embedded snapshot</div>
-    <div class="ds-help">Sheet needs <code>Date</code>, <code>Entry Title</code>, and <code>Entry Details</code> columns, same as the original export. Share it via <strong>Share → General access → Anyone with the link</strong> first.</div>
+    <p class="section-note">The latest logged entry in each category. <em>Click a card to jump to it.</em></p>
+    <div class="recent-latest" id="recent-latest"></div>
+    <div class="recent-grid" id="recent-grid"></div>
   </section>
 
   <section class="section" id="sec-seismo">
@@ -388,17 +678,20 @@ footer .dot{color:var(--gold);}
       <h2>Activity Over Time</h2>
       <span class="tag" id="seismo-range"></span>
     </div>
-    <p class="section-note">Entries logged per month across the full account history. Gaps mark stretches offline; spikes mark grind sessions.</p>
+    <p class="section-note">Entries logged per month across the full account history. Gaps mark stretches offline; spikes mark grind sessions. <em>Click any month to jump to it in the Explorer.</em></p>
     <div class="seismo-wrap">
       <svg id="seismograph" viewBox="0 0 1400 220"></svg>
+      <div class="chart-tooltip" id="seismo-tooltip"></div>
     </div>
     <div class="seismo-legend" id="seismo-legend"></div>
+    <div class="seismo-callouts" id="seismo-callouts"></div>
   </section>
 
   <section class="section" id="sec-stats">
     <div class="section-head">
       <h2>At a Glance</h2>
     </div>
+    <p class="section-note">Click any card to see just those entries in the Explorer.</p>
     <div class="stats-grid" id="stats-grid"></div>
   </section>
 
@@ -406,24 +699,25 @@ footer .dot{color:var(--gold);}
     <div class="section-head">
       <h2>Breakdown</h2>
     </div>
+    <p class="section-note">Click a boss, skill, drop, or category segment to filter the Explorer to it.</p>
     <div class="charts-row">
+      <div class="chart-card">
+        <h3>Log Composition</h3>
+        <div id="chart-comp"></div>
+      </div>
       <div class="chart-card">
         <h3>Most Killed</h3>
         <div id="chart-bosses"></div>
       </div>
-      <div class="chart-card">
-        <h3>Skill Grind (XP milestones logged)</h3>
-        <div id="chart-skills"></div>
-      </div>
     </div>
     <div class="charts-row" style="margin-top:20px;">
       <div class="chart-card">
-        <h3>Most Found Drops</h3>
-        <div id="chart-drops"></div>
+        <h3>Skill Progress <span class="chart-subtitle" id="skill-progress-summary"></span></h3>
+        <div id="chart-skills"></div>
       </div>
       <div class="chart-card">
-        <h3>Log Composition</h3>
-        <div id="chart-comp"></div>
+        <h3>Most Found Drops</h3>
+        <div id="chart-drops"></div>
       </div>
     </div>
   </section>
@@ -433,7 +727,7 @@ footer .dot{color:var(--gold);}
       <h2>Notable Finds</h2>
       <span class="tag">Logged once</span>
     </div>
-    <p class="section-note">Drops that show up exactly one time in the whole history — the rarest confirmed pulls.</p>
+    <p class="section-note">Drops that show up exactly one time in the whole history — the rarest confirmed pulls. <em>Click a card for the item, or its source boss for that boss's kill log.</em></p>
     <div class="notable-grid" id="notable-grid"></div>
   </section>
 
@@ -442,6 +736,7 @@ footer .dot{color:var(--gold);}
       <h2>Explorer</h2>
       <span class="tag" id="explorer-count"></span>
     </div>
+    <p class="section-note">Search, filter, and sort every logged entry directly.</p>
     <div class="explorer-controls">
       <div class="search-box"><input type="text" id="search-input" placeholder="Search titles and details…"></div>
       <div class="year-select"><select id="year-select"><option value="">All years</option></select></div>
@@ -451,9 +746,13 @@ footer .dot{color:var(--gold);}
         <option value="qty-desc">Highest quantity</option>
       </select></div>
     </div>
-    <div class="pill-row" id="cat-pills" style="margin-bottom:16px;"></div>
+    <div class="pill-row" id="cat-pills" style="margin-bottom:10px;"></div>
+    <span class="active-filter-chip" id="active-filter-chip">
+      <span class="chip-label"></span>
+      <button id="chip-clear-btn" aria-label="Clear filter">×</button>
+    </span>
     <div class="result-count" id="result-count"></div>
-    <div class="table-scroll">
+    <div class="table-scroll" id="table-scroll">
       <table class="log-table">
         <thead><tr><th style="width:150px;">Date</th><th style="width:90px;">Category</th><th>Entry</th><th style="width:70px;">Qty</th></tr></thead>
         <tbody id="table-body"></tbody>
@@ -467,6 +766,32 @@ footer .dot{color:var(--gold);}
   </section>
 
   <footer>Compiled from the RuneScape Adventurer's Log <span class="dot">·</span> rendered client-side, no server involved</footer>
+</div>
+
+<div class="quick-drawer" id="quick-drawer">
+  <div class="qd-header">
+    <div class="qd-title">
+      <span class="qd-label" id="qd-label"></span>
+      <span class="qd-count" id="qd-count"></span>
+    </div>
+    <button class="qd-close" id="qd-close" aria-label="Close">×</button>
+  </div>
+  <div class="qd-related" id="qd-related"></div>
+  <div class="qd-body" id="qd-body"></div>
+  <div class="qd-source-body" id="qd-source-body">
+    <div class="ds-row">
+      <div class="search-box"><input type="text" id="sheet-url-input" placeholder="Paste a Google Sheets URL…"></div>
+    </div>
+    <div class="ds-row" style="margin-top:8px;">
+      <button class="ds-btn" id="load-sheet-btn" style="flex:1;">Load Sheet</button>
+      <button class="ds-btn" id="reset-source-btn" style="flex:1;">Use Snapshot</button>
+    </div>
+    <div class="ds-status mono" id="source-status">Showing embedded snapshot</div>
+    <div class="ds-help">Needs <code>Date</code>, <code>Entry Title</code>, <code>Entry Details</code> columns. Share via <strong>Share → Anyone with the link</strong> first.</div>
+  </div>
+  <div class="qd-footer" id="qd-footer">
+    <button class="ds-btn primary" id="qd-view-all" style="width:100%;">View all in Explorer ↓</button>
+  </div>
 </div>
 
 <script>
@@ -485,6 +810,24 @@ const CAT_META = {
 };
 
 function catMeta(c){ return CAT_META[c] || CAT_META.other; }
+
+// Collapses the raw classifier categories down to the 6 broad groups used
+// by the pill filters, composition chart, and drill-down suggestions.
+function mergedCatKey(cat){
+  if(cat==='levelup' || cat==='levelup_all' || cat==='total_levels') return 'level';
+  if(cat==='quest' || cat==='quest_points') return 'quest';
+  if(cat==='kill' || cat==='drop' || cat==='xp') return cat;
+  return 'other';
+}
+const CAT_GROUP_META = {
+  kill:  { label:'Kills',  color:'#c1503f' },
+  drop:  { label:'Drops',  color:'#c99a52' },
+  xp:    { label:'XP',     color:'#4f9d8d' },
+  level: { label:'Levels', color:'#6bb3a3' },
+  quest: { label:'Quests', color:'#4b6a8a' },
+  other: { label:'Misc',   color:'#6b7280' },
+};
+
 function fmt(n){ return n.toLocaleString('en-US'); }
 function fmtDate(d){
   return d.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
@@ -492,6 +835,50 @@ function fmtDate(d){
 function fmtDateTime(d){
   return d.toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'}) + ' · ' +
          d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+function fmtRelative(d){
+  const diffSec = Math.floor((Date.now() - d.getTime())/1000);
+  if(diffSec < 60) return 'just now';
+  const min = Math.floor(diffSec/60);
+  if(min < 60) return `${min}m ago`;
+  const hr = Math.floor(min/60);
+  if(hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr/24);
+  if(day < 30) return `${day}d ago`;
+  const month = Math.floor(day/30.44);
+  if(month < 12) return `${month}mo ago`;
+  const year = Math.floor(day/365.25);
+  return `${year}y ago`;
+}
+
+/* ---------------- ANIMATION HELPERS ---------------- */
+function animateValue(el, end, opts){
+  opts = opts || {};
+  const decimals = opts.decimals || 0;
+  const suffix = opts.suffix || '';
+  const duration = opts.duration || 1100;
+  const startTime = performance.now();
+  function frame(now){
+    const t = Math.min((now-startTime)/duration, 1);
+    const eased = 1 - Math.pow(1-t, 3);
+    const val = end * eased;
+    el.textContent = val.toLocaleString('en-US', {minimumFractionDigits:decimals, maximumFractionDigits:decimals}) + suffix;
+    if(t<1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+// Fades/slides .reveal children into place with a per-index stagger, then
+// (optionally) widens .bar-fill/.comp-seg children from 0 to their data-pct.
+function revealAndGrow(container){
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      container.querySelectorAll('.reveal').forEach(el=> el.classList.add('in-view'));
+      container.querySelectorAll('.bar-fill[data-pct], .comp-seg[data-pct], .sc-fill[data-pct]').forEach(el=>{
+        el.style.width = el.dataset.pct + '%';
+      });
+    });
+  });
 }
 
 let DATA = [];
@@ -533,6 +920,23 @@ function classifyRow(titleRaw){
   return { category:'other', subtype:t, quantity:null };
 }
 
+/* Drop entries often name the monster that dropped them in the details text
+   ("After killing a Pthentraken, it dropped a Heart of the berserker.") —
+   extract that so kills and drops can be linked to each other. */
+const DROP_SOURCE_RULES = [
+  /^After killing an? (.+?), it dropped (?:an?|some) (.+?)\.?$/,
+  /^After defeating (.+?), I (?:found|looted) (?:an? )?(.+?)\.?$/,
+  /^After (?:freeing|putting) (.+?)(?: from .*| back into .*), I (?:found|looted) (?:an? )?(.+?)\.?$/,
+];
+function extractDropSource(details){
+  const t = String(details||'').trim();
+  for(const re of DROP_SOURCE_RULES){
+    const m = t.match(re);
+    if(m) return m[1].trim().replace(/[,\s]+$/, '');
+  }
+  return null;
+}
+
 /* ---------------- FLEXIBLE DATE PARSING ---------------- */
 const MONTHS = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
 function parseFlexibleDate(str){
@@ -560,6 +964,9 @@ function loadFromClassified(rawRows){
   DATA = rawRows
     .filter(r=> r.cat!=='treasure' && r.cat!=='clan')
     .map(r=> ({ ...r, date: new Date(r.t) }));
+  DATA.forEach(r=>{
+    if(r.cat==='drop') r.src = extractDropSource(r.details);
+  });
   DATA.sort((a,b)=> b.date - a.date);
 }
 
@@ -690,15 +1097,24 @@ function renderHero(minDate, maxDate){
   document.getElementById('hero-span').textContent =
     `Spanning ${fmtDate(minDate)} through ${fmtDate(maxDate)}.`;
 
+  const spanYears = Math.round((maxDate-minDate)/(1000*60*60*24*365.25)*10)/10;
   const heroFigures = [
-    { num: fmt(DATA.length), lbl:'Log Entries' },
-    { num: fmt(new Set(DATA.filter(r=>r.cat==='kill').map(r=>r.sub)).size), lbl:'Bosses Faced' },
-    { num: fmt(new Set(DATA.filter(r=>r.cat==='drop').map(r=>r.sub)).size), lbl:'Unique Drops' },
-    { num: Math.round((maxDate-minDate)/(1000*60*60*24*365.25)*10)/10 + ' yrs', lbl:'Account Span' },
+    { value: DATA.length, lbl:'Log Entries' },
+    { value: new Set(DATA.filter(r=>r.cat==='kill').map(r=>r.sub)).size, lbl:'Bosses Faced' },
+    { value: new Set(DATA.filter(r=>r.cat==='drop').map(r=>r.sub)).size, lbl:'Unique Drops' },
+    { value: spanYears, decimals:1, suffix:' yrs', lbl:'Account Span' },
   ];
-  document.getElementById('hero-figures').innerHTML = heroFigures.map(f=>
-    `<div class="hero-figure"><span class="num mono">${f.num}</span><span class="lbl">${f.lbl}</span></div>`
+  const container = document.getElementById('hero-figures');
+  container.innerHTML = heroFigures.map((f,i)=>
+    `<div class="hero-figure reveal" style="transition-delay:${i*70}ms">
+      <span class="num mono" id="hero-fig-${i}">0</span>
+      <span class="lbl">${f.lbl}</span>
+    </div>`
   ).join('');
+  heroFigures.forEach((f,i)=>
+    animateValue(document.getElementById(`hero-fig-${i}`), f.value, { decimals:f.decimals||0, suffix:f.suffix||'' })
+  );
+  revealAndGrow(container);
 }
 
 function renderSeismograph(minDate, maxDate){
@@ -716,6 +1132,7 @@ function renderSeismograph(minDate, maxDate){
     if(idx[k]!==undefined) months[idx[k]].count++;
   });
 
+  const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const svg = document.getElementById('seismograph');
   const W = 1400, H = 220, padL=8, padR=8, padT=10, padB=34;
   const plotW = W-padL-padR, plotH = H-padT-padB;
@@ -729,10 +1146,13 @@ function renderSeismograph(minDate, maxDate){
     const y = padT + plotH - h;
     const isGap = m.count===0;
     const fill = isGap ? 'none' : (m.count > maxCount*0.6 ? '#c1503f' : (m.count>maxCount*0.25 ? '#c99a52' : '#4f9d8d'));
-    svgContent += `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${Math.max(bw-1,0.6)}" height="${h.toFixed(2)}" fill="${fill}" opacity="${isGap?0:0.9}"></rect>`;
+    const label = `${MONTH_NAMES[m.month]} ${m.year}`;
+    svgContent += `<rect class="seismo-bar" data-label="${label}" data-count="${m.count}" x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${Math.max(bw-1,0.6)}" height="${h.toFixed(2)}" fill="${fill}" style="opacity:0;transition:opacity .5s ease ${(i*2.2).toFixed(0)}ms" data-target-opacity="${isGap?0:0.9}"></rect>`;
     if(isGap){
-      svgContent += `<rect x="${x.toFixed(2)}" y="${(padT+plotH-1).toFixed(2)}" width="${Math.max(bw-1,0.6)}" height="1" fill="#2a303c"></rect>`;
+      svgContent += `<rect class="seismo-bar" data-label="${label}" data-count="0" x="${x.toFixed(2)}" y="${(padT+plotH-1).toFixed(2)}" width="${Math.max(bw-1,0.6)}" height="6" fill="#2a303c" style="opacity:0;transition:opacity .5s ease ${(i*2.2).toFixed(0)}ms" data-target-opacity="1"></rect>`;
     }
+    // transparent full-height hit target so short/empty bars are still easy to click
+    svgContent += `<rect class="seismo-bar seismo-hit" data-jump="1" data-jump-month="${m.key}" data-jump-label="${label}" data-label="${label}" data-count="${m.count}" x="${x.toFixed(2)}" y="${padT}" width="${Math.max(bw,1)}" height="${plotH}" fill="transparent" style="cursor:pointer"></rect>`;
     if(m.month===0){
       svgContent += `<line x1="${x.toFixed(2)}" y1="${padT}" x2="${x.toFixed(2)}" y2="${padT+plotH+6}" stroke="#2a303c" stroke-width="1"></line>`;
       svgContent += `<text x="${x.toFixed(2)}" y="${H-12}" fill="#5c6272" font-size="11" font-family="JetBrains Mono, monospace">${m.year}</text>`;
@@ -741,6 +1161,28 @@ function renderSeismograph(minDate, maxDate){
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
   svg.innerHTML = svgContent;
 
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      svg.querySelectorAll('.seismo-bar').forEach(bar=>{
+        bar.style.opacity = bar.dataset.targetOpacity;
+      });
+    });
+  });
+
+  // Hover tooltip
+  const tooltip = document.getElementById('seismo-tooltip');
+  const wrap = svg.closest('.seismo-wrap');
+  svg.onmousemove = (e)=>{
+    const target = e.target.closest('.seismo-bar');
+    if(!target){ tooltip.classList.remove('visible'); return; }
+    const wrapRect = wrap.getBoundingClientRect();
+    tooltip.innerHTML = `${target.dataset.label} · <span class="tt-count">${fmt(+target.dataset.count)}</span> ${target.dataset.count==='1'?'entry':'entries'}`;
+    tooltip.style.left = (e.clientX - wrapRect.left) + 'px';
+    tooltip.style.top = (e.clientY - wrapRect.top - 12) + 'px';
+    tooltip.classList.add('visible');
+  };
+  svg.onmouseleave = ()=> tooltip.classList.remove('visible');
+
   document.getElementById('seismo-range').textContent = `${minDate.getFullYear()}–${maxDate.getFullYear()}`;
   document.getElementById('seismo-legend').innerHTML = `
     <span><span class="sw" style="background:#4f9d8d"></span>Quiet month</span>
@@ -748,6 +1190,31 @@ function renderSeismograph(minDate, maxDate){
     <span><span class="sw" style="background:#c1503f"></span>Peak grind</span>
     <span><span class="sw" style="background:#2a303c"></span>No entries logged</span>
   `;
+
+  // Story callouts: busiest month + longest hiatus
+  const peak = months.reduce((best,m)=> m.count>best.count? m:best, months[0]);
+  let longestGap = { start:null, end:null, len:0 };
+  let curRun = null;
+  months.forEach(m=>{
+    if(m.count===0){
+      if(!curRun) curRun = { start:m, end:m, len:1 };
+      else { curRun.end = m; curRun.len++; }
+    } else {
+      if(curRun && curRun.len > longestGap.len) longestGap = curRun;
+      curRun = null;
+    }
+  });
+  if(curRun && curRun.len > longestGap.len) longestGap = curRun;
+
+  const callouts = [];
+  callouts.push(`<span class="seismo-callout">Busiest stretch: <strong>${MONTH_NAMES[peak.month]} ${peak.year}</strong> — ${fmt(peak.count)} entries</span>`);
+  if(longestGap.len > 0){
+    const gapLabel = longestGap.len===1
+      ? `${MONTH_NAMES[longestGap.start.month]} ${longestGap.start.year}`
+      : `${MONTH_NAMES[longestGap.start.month]} ${longestGap.start.year} – ${MONTH_NAMES[longestGap.end.month]} ${longestGap.end.year}`;
+    callouts.push(`<span class="seismo-callout">Longest break: <strong>${longestGap.len} month${longestGap.len===1?'':'s'}</strong> (${gapLabel})</span>`);
+  }
+  document.getElementById('seismo-callouts').innerHTML = callouts.join('');
 }
 
 function renderStats(){
@@ -760,28 +1227,37 @@ function renderStats(){
   const totalKills = kills.reduce((s,r)=> s+(r.qty||1), 0);
 
   const cards = [
-    { num: fmt(totalKills), lbl:'Boss Kills Logged', sub: fmt(kills.length)+' log entries' },
-    { num: fmt(drops.length), lbl:'Items Found' },
-    { num: fmt(xp.length), lbl:'XP Milestones Hit' },
-    { num: fmt(levels.length), lbl:'Level-Up Events' },
-    { num: fmt(quests.length), lbl:'Quest Milestones' },
+    { value: totalKills, lbl:'Boss Kills Logged', sub: fmt(kills.length)+' log entries', accent:'#c1503f', cat:'kill', label:'Kills' },
+    { value: drops.length, lbl:'Items Found', accent:'#c99a52', cat:'drop', label:'Drops' },
+    { value: xp.length, lbl:'XP Milestones Hit', accent:'#4f9d8d', cat:'xp', label:'XP milestones' },
+    { value: levels.length, lbl:'Level-Up Events', accent:'#6bb3a3', cat:'level', label:'Level-ups' },
+    { value: quests.length, lbl:'Quest Milestones', accent:'#5c7ea3', cat:'quest', label:'Quests' },
   ];
-  document.getElementById('stats-grid').innerHTML = cards.map(c=>
-    `<div class="stat-card"><div class="num mono">${c.num}</div><div class="lbl">${c.lbl}</div>${c.sub?`<div class="sub">${c.sub}</div>`:''}</div>`
+  const container = document.getElementById('stats-grid');
+  container.innerHTML = cards.map((c,i)=>
+    `<div class="stat-card reveal" data-jump="1" data-jump-cat="${c.cat}" data-jump-label="${c.label}" style="--accent:${c.accent};--accent-glow:${c.accent}55;transition-delay:${i*50}ms">
+      <div class="num mono" id="stat-fig-${i}">0</div>
+      <div class="lbl">${c.lbl}</div>
+      ${c.sub?`<div class="sub">${c.sub}</div>`:''}
+    </div>`
   ).join('');
+  cards.forEach((c,i)=> animateValue(document.getElementById(`stat-fig-${i}`), c.value));
+  revealAndGrow(container);
 }
 
-function renderBarList(el, items, color, maxItems){
+function renderBarList(el, items, color, maxItems, jumpCat){
   const top = items.slice(0, maxItems||10);
   const max = Math.max(...top.map(i=>i[1]),1);
-  el.innerHTML = top.map(([name,val])=>{
+  el.innerHTML = top.map(([name,val],i)=>{
     const pct = Math.max((val/max)*100, 3);
-    return `<div class="bar-row">
+    const jumpAttrs = jumpCat ? `data-jump="1" data-jump-cat="${jumpCat}" data-jump-search="${name.replace(/"/g,'&quot;')}" data-jump-label="${name}"` : '';
+    return `<div class="bar-row" ${jumpAttrs}>
       <div class="name" title="${name}">${name}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-track"><div class="bar-fill" data-pct="${pct}" style="width:0%;background:${color};transition-delay:${i*35}ms"></div></div>
       <div class="val mono">${fmt(val)}</div>
     </div>`;
   }).join('') || '<p style="color:var(--text-faint);font-size:13px;">No data.</p>';
+  revealAndGrow(el);
 }
 
 function groupSum(rows, keyFn, valFn){
@@ -793,39 +1269,66 @@ function groupSum(rows, keyFn, valFn){
   return [...m.entries()].sort((a,b)=> b[1]-a[1]);
 }
 
+function renderSkillProgress(el, xpRows){
+  const CAP = 200000000; // level 120, the true XP ceiling for every RS3 skill
+  const bySkill = new Map();
+  xpRows.forEach(r=>{
+    const cur = bySkill.get(r.sub) || { maxXp:0, count:0 };
+    cur.maxXp = Math.max(cur.maxXp, r.qty||0);
+    cur.count += 1;
+    bySkill.set(r.sub, cur);
+  });
+  const rows = [...bySkill.entries()].map(([name, v])=> ({
+    name, maxXp:v.maxXp, count:v.count, pct: Math.min(v.maxXp/CAP*100, 100),
+  }));
+  rows.sort((a,b)=> b.maxXp - a.maxXp || a.name.localeCompare(b.name));
+  const maxedCount = rows.filter(r=> r.maxXp >= CAP).length;
+
+  const summaryEl = document.getElementById('skill-progress-summary');
+  if(summaryEl) summaryEl.textContent = rows.length ? `${maxedCount} of ${rows.length} maxed (200M XP)` : '';
+
+  if(!rows.length){
+    el.innerHTML = '<p style="color:var(--text-faint);font-size:13px;">No XP milestones logged.</p>';
+    return;
+  }
+  el.innerHTML = `<div class="skill-progress-grid">${rows.map((r,i)=>{
+    const isMaxed = r.maxXp >= CAP;
+    const color = isMaxed ? 'var(--gold)' : 'var(--teal)';
+    const valueLabel = isMaxed ? 'MAXED · lvl 120' : `${r.pct.toFixed(1)}%`;
+    return `<div class="skill-chip reveal ${isMaxed?'maxed':''}" data-jump="1" data-jump-cat="xp" data-jump-search="${r.name}" data-jump-label="${r.name}" style="transition-delay:${Math.min(i*18,380)}ms" title="${fmt(r.maxXp)} XP logged · ${r.count} milestone${r.count===1?'':'s'} hit">
+      <div class="sc-name">${r.name}</div>
+      <div class="sc-track"><div class="sc-fill" data-pct="${r.pct.toFixed(2)}" style="width:0%;background:${color};"></div></div>
+      <div class="sc-val">${valueLabel}</div>
+    </div>`;
+  }).join('')}</div>`;
+  revealAndGrow(el);
+}
+
 function renderCharts(){
   const kills = DATA.filter(r=>r.cat==='kill');
   const bosses = groupSum(kills, r=>r.sub, r=>r.qty||1);
-  renderBarList(document.getElementById('chart-bosses'), bosses, 'var(--crimson)', 10);
+  renderBarList(document.getElementById('chart-bosses'), bosses, 'var(--crimson)', 10, 'kill');
 
   const xpRows = DATA.filter(r=>r.cat==='xp');
-  const skills = groupSum(xpRows, r=>r.sub, ()=>1);
-  renderBarList(document.getElementById('chart-skills'), skills, 'var(--teal)', 10);
+  renderSkillProgress(document.getElementById('chart-skills'), xpRows);
 
   const drops = DATA.filter(r=>r.cat==='drop');
   const dropCounts = groupSum(drops, r=>r.sub, ()=>1);
-  renderBarList(document.getElementById('chart-drops'), dropCounts, 'var(--gold)', 10);
+  renderBarList(document.getElementById('chart-drops'), dropCounts, 'var(--gold)', 10, 'drop');
 
   const total = DATA.length || 1;
   const merged = { kill:0, drop:0, xp:0, level:0, quest:0, other:0 };
-  DATA.forEach(r=>{
-    if(r.cat==='kill') merged.kill++;
-    else if(r.cat==='drop') merged.drop++;
-    else if(r.cat==='xp') merged.xp++;
-    else if(r.cat==='levelup'||r.cat==='levelup_all'||r.cat==='total_levels') merged.level++;
-    else if(r.cat==='quest'||r.cat==='quest_points') merged.quest++;
-    else merged.other++;
-  });
-  const compColors = { kill:'#c1503f', drop:'#c99a52', xp:'#4f9d8d', level:'#6bb3a3', quest:'#4b6a8a', other:'#6b7280' };
-  const compLabels = { kill:'Kills', drop:'Drops', xp:'XP', level:'Levels', quest:'Quests', other:'Misc' };
+  DATA.forEach(r=> merged[mergedCatKey(r.cat)]++);
   const segs = Object.entries(merged).filter(([,v])=>v>0);
-  const compHtml = `<div class="comp-bar">${segs.map(([k,v])=>
-    `<div class="comp-seg" style="width:${(v/total*100).toFixed(2)}%;background:${compColors[k]}" title="${compLabels[k]}: ${v}"></div>`
+  const compEl = document.getElementById('chart-comp');
+  const compHtml = `<div class="comp-bar">${segs.map(([k,v],i)=>
+    `<div class="comp-seg" data-jump="1" data-jump-cat="${k}" data-jump-label="${CAT_GROUP_META[k].label}" data-pct="${(v/total*100).toFixed(2)}" style="width:0%;background:${CAT_GROUP_META[k].color};transition-delay:${i*45}ms" title="${CAT_GROUP_META[k].label}: ${v} — click to view"></div>`
   ).join('')}</div>
   <div class="comp-key">${segs.map(([k,v])=>
-    `<span><span class="sw" style="background:${compColors[k]}"></span>${compLabels[k]} — ${(v/total*100).toFixed(1)}%</span>`
+    `<span><span class="sw" style="background:${CAT_GROUP_META[k].color}"></span>${CAT_GROUP_META[k].label} — ${(v/total*100).toFixed(1)}%</span>`
   ).join('')}</div>`;
-  document.getElementById('chart-comp').innerHTML = compHtml;
+  compEl.innerHTML = compHtml;
+  revealAndGrow(compEl);
 }
 
 function renderNotable(){
@@ -834,25 +1337,83 @@ function renderNotable(){
   drops.forEach(r=> counts.set(r.sub, (counts.get(r.sub)||0)+1));
   const onceItems = drops.filter(r=> counts.get(r.sub)===1)
     .sort((a,b)=> b.date-a.date);
-  document.getElementById('notable-grid').innerHTML = onceItems.map(r=>
-    `<div class="notable-card"><div class="item">${r.sub}</div><div class="meta">${fmtDate(r.date)}</div></div>`
-  ).join('') || '<p style="color:var(--text-faint)">No single-occurrence drops found.</p>';
+
+  // Build a case/prefix/plural-tolerant lookup of boss -> total kills logged
+  // (normal + hardmode combined), so we can show real rarity context.
+  const killTotals = new Map();
+  DATA.forEach(r=>{
+    if(r.cat==='kill'){
+      const key = r.sub.replace(/ \(HM\)$/, '');
+      killTotals.set(key, (killTotals.get(key)||0) + (r.qty||1));
+    }
+  });
+  const killLookup = new Map();
+  killTotals.forEach((v,k)=> killLookup.set(k.toLowerCase(), { name:k, total:v }));
+  function resolveBoss(src){
+    if(!src) return null;
+    const stripped = src.replace(/^[Tt]he /, '');
+    const candidates = [src, stripped, singularize(src), singularize(stripped)];
+    for(const c of candidates){
+      const hit = killLookup.get(c.toLowerCase());
+      if(hit) return hit;
+    }
+    return null;
+  }
+
+  const container = document.getElementById('notable-grid');
+  container.innerHTML = onceItems.map((r,i)=>{
+    let sourceHtml = '';
+    if(r.src){
+      const boss = resolveBoss(r.src);
+      if(boss){
+        sourceHtml = `<div class="notable-source">
+          <span class="ns-chip" data-jump="1" data-jump-cat="kill" data-jump-search="${boss.name.replace(/"/g,'&quot;')}" data-jump-label="${boss.name}">${boss.name}</span>
+          <span class="ns-odds">1 in ${fmt(boss.total)} kills</span>
+        </div>`;
+      } else {
+        sourceHtml = `<div class="notable-source"><span class="ns-source-plain">from ${r.src}</span></div>`;
+      }
+    }
+    return `<div class="notable-card reveal" data-jump="1" data-jump-cat="drop" data-jump-search="${r.sub.replace(/"/g,'&quot;')}" data-jump-label="${r.sub}" style="transition-delay:${Math.min(i*25,600)}ms">
+      <div class="item">${r.sub}</div>
+      <div class="meta">${fmtDate(r.date)}</div>
+      ${sourceHtml}
+    </div>`;
+  }).join('') || '<p style="color:var(--text-faint)">No single-occurrence drops found.</p>';
+  revealAndGrow(container);
 }
 
 /* ---------------- EXPLORER (persistent listeners, refreshable data) ---------------- */
 const Explorer = (function(){
-  const state = { search:'', cat:'all', year:'', sort:'date-desc', page:1, pageSize:50 };
+  const state = { search:'', cat:'all', year:'', monthKey:'', dayKey:'', sort:'date-desc', page:1, pageSize:50 };
   let filtered = [];
+  let currentPageItems = [];
+  let dayCounts = new Map();
+
+  function dayKeyOf(d){
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
 
   function matchesCatGroup(rowCat, groupKey){
     if(groupKey==='all') return true;
-    if(groupKey==='level') return rowCat==='levelup'||rowCat==='levelup_all'||rowCat==='total_levels';
-    if(groupKey==='quest') return rowCat==='quest'||rowCat==='quest_points';
-    return rowCat===groupKey;
+    return mergedCatKey(rowCat) === groupKey;
   }
 
   function escapeHtml(str){
     return str.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function clearTemporalScope(){ state.monthKey=''; state.dayKey=''; }
+
+  function updateChip(label){
+    const chip = document.getElementById('active-filter-chip');
+    const hasActive = state.cat!=='all' || state.search || state.year || state.monthKey || state.dayKey;
+    if(hasActive && label){
+      chip.classList.add('visible');
+      chip.querySelector('.chip-label').textContent = label;
+    } else {
+      chip.classList.remove('visible');
+    }
   }
 
   function rebuildControls(){
@@ -875,9 +1436,17 @@ const Explorer = (function(){
     document.getElementById('year-select').innerHTML =
       '<option value="">All years</option>' + years.map(y=>`<option value="${y}">${y}</option>`).join('');
 
+    dayCounts = new Map();
+    DATA.forEach(r=>{
+      const dk = dayKeyOf(r.date);
+      dayCounts.set(dk, (dayCounts.get(dk)||0)+1);
+    });
+
     state.cat='all'; state.year=''; state.search=''; state.sort='date-desc'; state.page=1;
+    clearTemporalScope();
     document.getElementById('search-input').value='';
     document.getElementById('sort-select').value='date-desc';
+    updateChip(null);
   }
 
   function applyFilters(){
@@ -885,6 +1454,12 @@ const Explorer = (function(){
     filtered = DATA.filter(r=>{
       if(!matchesCatGroup(r.cat, state.cat)) return false;
       if(state.year && r.date.getFullYear() !== Number(state.year)) return false;
+      if(state.dayKey){
+        if(dayKeyOf(r.date) !== state.dayKey) return false;
+      } else if(state.monthKey){
+        const mk = r.date.getFullYear()+'-'+String(r.date.getMonth()+1).padStart(2,'0');
+        if(mk !== state.monthKey) return false;
+      }
       if(s && !(r.title.toLowerCase().includes(s) || r.details.toLowerCase().includes(s))) return false;
       return true;
     });
@@ -895,28 +1470,62 @@ const Explorer = (function(){
     renderTable();
   }
 
+  // A row's title links to its own entity (boss/item/skill/etc) so exploring
+  // can start from the raw table too, not just the charts above.
+  function entityLinkAttrs(r){
+    return `data-jump="1" data-jump-cat="${mergedCatKey(r.cat)}" data-jump-search="${r.sub.replace(/"/g,'&quot;')}" data-jump-label="${r.sub.replace(/"/g,'&quot;')}"`;
+  }
+
   function renderTable(){
     const totalPages = Math.max(Math.ceil(filtered.length / state.pageSize), 1);
     if(state.page > totalPages) state.page = totalPages;
     const startIdx = (state.page-1)*state.pageSize;
-    const pageItems = filtered.slice(startIdx, startIdx+state.pageSize);
+    currentPageItems = filtered.slice(startIdx, startIdx+state.pageSize);
 
     document.getElementById('result-count').textContent = `${fmt(filtered.length)} entries match`;
     document.getElementById('explorer-count').textContent = `${fmt(DATA.length)} total`;
 
-    document.getElementById('table-body').innerHTML = pageItems.map(r=>{
+    document.getElementById('table-body').innerHTML = currentPageItems.map((r,i)=>{
       const meta = catMeta(r.cat);
-      return `<tr>
+      const hasDetails = r.details && r.details.trim() && r.details.trim() !== r.title.trim();
+      const dk = dayKeyOf(r.date);
+      const dayCount = dayCounts.get(dk) || 1;
+      const dayLink = dayCount > 1
+        ? `<div class="detail-daylink"><span class="ns-chip" data-jump="1" data-jump-day="${dk}" data-jump-label="${fmtDate(r.date)}">${fmt(dayCount)} entries logged this day →</span></div>`
+        : '';
+      return `<tr class="log-row" data-page-idx="${i}">
         <td class="date">${fmtDateTime(r.date)}</td>
         <td class="cat"><span class="cat-chip" style="background:${meta.color}">${meta.label}</span></td>
-        <td class="title">${escapeHtml(r.title)}</td>
+        <td class="title"><span class="row-entity-link" ${entityLinkAttrs(r)}>${escapeHtml(r.title)}</span></td>
         <td class="mono">${r.qty!==null && r.qty!==undefined ? fmt(r.qty) : '—'}</td>
-      </tr>`;
+      </tr>
+      <tr class="detail-row" data-page-idx="${i}"><td colspan="4"><div class="detail-inner">${hasDetails ? escapeHtml(r.details) : '<em style="color:var(--text-faint)">No additional detail logged for this entry.</em>'}${dayLink}</div></td></tr>`;
     }).join('');
 
     document.getElementById('page-info').textContent = `Page ${state.page} of ${totalPages}`;
     document.getElementById('prev-page').disabled = state.page<=1;
     document.getElementById('next-page').disabled = state.page>=totalPages;
+  }
+
+  function setFilter(opts){
+    opts = opts || {};
+    state.cat = opts.cat || 'all';
+    state.search = opts.search || '';
+    state.year = opts.year || '';
+    state.monthKey = opts.monthKey || '';
+    state.dayKey = opts.dayKey || '';
+    state.page = 1;
+
+    document.querySelectorAll('#cat-pills .pill').forEach(p=> p.classList.toggle('active', p.dataset.cat===state.cat));
+    document.getElementById('search-input').value = state.search;
+    document.getElementById('year-select').value = state.year;
+
+    updateChip(opts.label);
+    applyFilters();
+  }
+
+  function clearAll(){
+    setFilter({});
   }
 
   function init(){
@@ -926,21 +1535,52 @@ const Explorer = (function(){
       document.querySelectorAll('#cat-pills .pill').forEach(p=>p.classList.remove('active'));
       pill.classList.add('active');
       state.cat = pill.dataset.cat;
+      clearTemporalScope();
+      updateChip(null);
       applyFilters();
     });
     let searchTimer;
     document.getElementById('search-input').addEventListener('input', e=>{
       clearTimeout(searchTimer);
-      searchTimer = setTimeout(()=>{ state.search = e.target.value; applyFilters(); }, 180);
+      searchTimer = setTimeout(()=>{
+        state.search = e.target.value;
+        clearTemporalScope();
+        updateChip(null);
+        applyFilters();
+      }, 180);
     });
     document.getElementById('year-select').addEventListener('change', e=>{
-      state.year = e.target.value; applyFilters();
+      state.year = e.target.value;
+      clearTemporalScope();
+      updateChip(null);
+      applyFilters();
     });
     document.getElementById('sort-select').addEventListener('change', e=>{
       state.sort = e.target.value; applyFilters();
     });
     document.getElementById('prev-page').addEventListener('click', ()=>{ if(state.page>1){ state.page--; renderTable(); } });
     document.getElementById('next-page').addEventListener('click', ()=>{ state.page++; renderTable(); });
+    document.getElementById('chip-clear-btn').addEventListener('click', clearAll);
+
+    document.getElementById('table-body').addEventListener('click', e=>{
+      // clicks on an entity link or same-day link are handled by the global
+      // [data-jump] delegate — don't also toggle row expansion in that case.
+      if(e.target.closest('[data-jump]')) return;
+      const row = e.target.closest('tr.log-row');
+      if(!row) return;
+      const idx = row.dataset.pageIdx;
+      row.classList.toggle('expanded');
+      const detailRow = document.querySelector(`tr.detail-row[data-page-idx="${idx}"]`);
+      if(detailRow) detailRow.classList.toggle('open');
+    });
+  }
+
+  function getPreview(limit){
+    return { total: filtered.length, items: filtered.slice(0, limit || 8) };
+  }
+
+  function getFilteredRows(){
+    return filtered;
   }
 
   function refresh(){
@@ -948,20 +1588,266 @@ const Explorer = (function(){
     applyFilters();
   }
 
-  return { init, refresh };
+  return { init, refresh, setFilter, getPreview, getFilteredRows };
 })();
 
 /* ---------------- ORCHESTRATION ---------------- */
+function renderRecentActivity(){
+  if(!DATA.length) return;
+  const latest = DATA[0]; // DATA is kept sorted newest-first
+
+  const RECENT_DEFS = [
+    { key:'kill',  label:'Last Boss Killed', match:r=> r.cat==='kill' },
+    { key:'drop',  label:'Last Item Found',  match:r=> r.cat==='drop' },
+    { key:'xp',    label:'Last XP Milestone',match:r=> r.cat==='xp' },
+    { key:'quest', label:'Last Quest Logged',match:r=> r.cat==='quest' },
+  ];
+  const mostRecentByCat = {};
+  for(const r of DATA){
+    for(const d of RECENT_DEFS){
+      if(!mostRecentByCat[d.key] && d.match(r)) mostRecentByCat[d.key] = r;
+    }
+    if(Object.keys(mostRecentByCat).length >= RECENT_DEFS.length) break;
+  }
+
+  const latestEl = document.getElementById('recent-latest');
+  if(latestEl){
+    latestEl.innerHTML = `<span class="rl-dot"></span>Last logged ${fmtRelative(latest.date)} — ${escapeHtmlGlobal(latest.title)}`;
+  }
+
+  const cards = RECENT_DEFS.map(d=> ({ ...d, row: mostRecentByCat[d.key] })).filter(c=> c.row);
+  const container = document.getElementById('recent-grid');
+  if(container){
+    container.innerHTML = cards.map(c=>{
+      const r = c.row;
+      const valueText = (c.key==='xp' && r.qty) ? `${r.sub} — ${fmt(r.qty)} XP` : r.sub;
+      return `<div class="recent-card reveal" data-jump="1" data-jump-cat="${c.key}" data-jump-search="${r.sub.replace(/"/g,'&quot;')}" data-jump-label="${r.sub.replace(/"/g,'&quot;')}">
+        <div class="rc-label">${c.label}</div>
+        <div class="rc-value" title="${valueText.replace(/"/g,'&quot;')}">${valueText}</div>
+        <div class="rc-time">${fmtRelative(r.date)}</div>
+      </div>`;
+    }).join('');
+    revealAndGrow(container);
+  }
+}
+function escapeHtmlGlobal(str){
+  return String(str||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
 function renderAll(){
+  const sourcePanelOpen = document.getElementById('qd-source-body').classList.contains('visible');
+  if(!sourcePanelOpen) closeQuickDrawer();
   const minDate = DATA.reduce((m,r)=> r.date<m? r.date:m, DATA[0].date);
   const maxDate = DATA.reduce((m,r)=> r.date>m? r.date:m, DATA[0].date);
   renderHero(minDate, maxDate);
+  renderRecentActivity();
   renderSeismograph(minDate, maxDate);
   renderStats();
   renderCharts();
   renderNotable();
   Explorer.refresh();
 }
+
+/* ---------------- CROSS-LINKING: [data-jump] opens a floating preview drawer, no scroll needed ---------------- */
+function jumpChip(cat, search, displayHtml, plainLabel, opts){
+  opts = opts || {};
+  const monthAttr = opts.monthKey ? ` data-jump-month="${opts.monthKey}"` : '';
+  const dayAttr = opts.dayKey ? ` data-jump-day="${opts.dayKey}"` : '';
+  const searchAttr = search ? ` data-jump-search="${String(search).replace(/"/g,'&quot;')}"` : '';
+  return `<span class="qd-chip" data-jump="1" data-jump-cat="${cat}"${searchAttr}${monthAttr}${dayAttr} data-jump-label="${String(plainLabel).replace(/"/g,'&quot;')}">${displayHtml}</span>`;
+}
+
+// Offers a "what to explore next" breakdown of whatever the drawer is
+// currently showing: bosses within a category, or the category mix within
+// a month/day, or a mix of both when several filters are stacked together.
+const DRILLDOWN_NOUN = { kill:'bosses killed', drop:'drops found', xp:'skills active', level:'skills levelled', quest:'quests logged', other:'entries' };
+
+function buildDrilldown(opts){
+  const rows = Explorer.getFilteredRows();
+  if(rows.length < 2) return '';
+
+  const groupByCat = !opts.cat || opts.cat === 'all';
+  const groupFn = groupByCat ? (r=> mergedCatKey(r.cat)) : (r=> r.sub);
+  const valueFn = (!groupByCat && opts.cat==='kill') ? (r=> r.qty||1) : (()=>1);
+
+  const counts = new Map();
+  rows.forEach(r=> counts.set(groupFn(r), (counts.get(groupFn(r))||0) + valueFn(r)));
+  if(counts.size <= 1) return '';
+
+  const top = [...counts.entries()].sort((a,b)=> b[1]-a[1]).slice(0,8);
+  const label = groupByCat ? 'Breakdown of this view' : `Top ${DRILLDOWN_NOUN[opts.cat] || 'entries'} in this view`;
+  const chips = top.map(([key,count])=>{
+    const chipCat = groupByCat ? key : opts.cat;
+    const chipSearch = groupByCat ? '' : key;
+    const plain = groupByCat ? ((CAT_GROUP_META[key]||{}).label || key) : key;
+    const display = `${plain} <b>${fmt(count)}</b>`;
+    return jumpChip(chipCat, chipSearch, display, plain, opts);
+  }).join('');
+  return `<div class="qd-related-label">${label}</div><div class="qd-chip-row">${chips}</div>`;
+}
+
+function buildRelatedLinks(opts){
+  // Boss preview -> show its confirmed drops
+  if(opts.cat === 'kill' && opts.search){
+    const bossName = opts.search.replace(/ \(HM\)$/, '').toLowerCase();
+    const counts = new Map();
+    DATA.forEach(r=>{
+      if(r.cat==='drop' && r.src && r.src.toLowerCase()===bossName){
+        counts.set(r.sub, (counts.get(r.sub)||0)+1);
+      }
+    });
+    if(!counts.size) return '';
+    const top = [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6);
+    const chips = top.map(([name,count])=> jumpChip('drop', name, `${name} <b>${count}</b>`, name, opts)).join('');
+    return `<div class="qd-related-label">Confirmed drops from this boss</div><div class="qd-chip-row">${chips}</div>`;
+  }
+  // Drop preview -> show which boss(es) it's confirmed from
+  if(opts.cat === 'drop' && opts.search){
+    const counts = new Map();
+    DATA.forEach(r=>{
+      if(r.cat==='drop' && r.sub===opts.search && r.src){
+        counts.set(r.src, (counts.get(r.src)||0)+1);
+      }
+    });
+    if(!counts.size) return '';
+    const top = [...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6);
+    const chips = top.map(([name,count])=> jumpChip('kill', name, `${name} <b>${count}</b>`, name, opts)).join('');
+    return `<div class="qd-related-label">Dropped by</div><div class="qd-chip-row">${chips}</div>`;
+  }
+  // Skill XP preview -> link to its own level-up log
+  if(opts.cat === 'xp' && opts.search){
+    const n = DATA.filter(r=> r.cat==='levelup' && r.sub===opts.search).length;
+    if(!n) return '';
+    const display = `${n} level-up${n===1?'':'s'} logged`;
+    return `<div class="qd-related-label">Also tracked for this skill</div><div class="qd-chip-row">${
+      jumpChip('level', opts.search, display, `${opts.search} level-ups`, opts)
+    }</div>`;
+  }
+  // Level-up preview -> link back to that skill's XP milestones
+  if(opts.cat === 'level' && opts.search){
+    const n = DATA.filter(r=> r.cat==='xp' && r.sub===opts.search).length;
+    if(!n) return '';
+    const display = `${n} XP milestone${n===1?'':'s'} logged`;
+    return `<div class="qd-related-label">Also tracked for this skill</div><div class="qd-chip-row">${
+      jumpChip('xp', opts.search, display, `${opts.search} XP progress`, opts)
+    }</div>`;
+  }
+  // Anything broader (a whole category, a month, a day, or a mix) -> suggest a breakdown
+  return buildDrilldown(opts);
+}
+
+const ENTRIES_NOUN = { kill:'kills', drop:'drops', xp:'XP entries', level:'level-ups', quest:'quests', other:'entries' };
+
+function setDrawerMode(mode){
+  const isSource = mode === 'source';
+  document.getElementById('qd-related').style.display = isSource ? 'none' : '';
+  document.getElementById('qd-body').style.display = isSource ? 'none' : '';
+  document.getElementById('qd-footer').style.display = isSource ? 'none' : '';
+  document.getElementById('qd-source-body').classList.toggle('visible', isSource);
+  document.getElementById('qd-count').style.display = isSource ? 'none' : '';
+}
+
+function openQuickDrawer(opts){
+  setDrawerMode('entity');
+  Explorer.setFilter(opts);
+  const preview = Explorer.getPreview(8);
+  document.getElementById('qd-label').textContent = opts.label || 'Filtered results';
+  document.getElementById('qd-count').textContent = `${fmt(preview.total)} ${preview.total===1?'entry':'entries'} match`;
+
+  const selfChip = `<span class="qd-chip qd-self-chip" id="qd-self-chip">${fmt(preview.total)} ${ENTRIES_NOUN[opts.cat] || 'entries'} <span class="qsc-arrow">→</span></span>`;
+  const relatedHtml = buildRelatedLinks(opts);
+  document.getElementById('qd-related').innerHTML = relatedHtml
+    ? relatedHtml.replace('<div class="qd-chip-row">', `<div class="qd-chip-row">${selfChip}`)
+    : `<div class="qd-related-label">Explore</div><div class="qd-chip-row">${selfChip}</div>`;
+  document.getElementById('qd-body').classList.remove('expanded');
+
+  const body = document.getElementById('qd-body');
+  if(!preview.items.length){
+    body.innerHTML = '<div class="qd-empty">No matching entries.</div>';
+  } else {
+    body.innerHTML = preview.items.map(r=>{
+      const meta = catMeta(r.cat);
+      const isSameEntity = opts.cat===mergedCatKey(r.cat) && opts.search===r.sub;
+      const titleHtml = isSameEntity
+        ? r.title
+        : `<span class="row-entity-link" data-jump="1" data-jump-cat="${mergedCatKey(r.cat)}" data-jump-search="${r.sub.replace(/"/g,'&quot;')}" data-jump-label="${r.sub.replace(/"/g,'&quot;')}">${r.title}</span>`;
+      return `<div class="qd-row">
+        <span class="qd-date">${fmtDate(r.date)}</span>
+        <span class="cat-chip" style="background:${meta.color}">${meta.label}</span>
+        <span class="qd-title-txt" title="${r.title.replace(/"/g,'&quot;')}">${titleHtml}</span>
+        <span class="qd-qty">${r.qty!==null && r.qty!==undefined ? fmt(r.qty) : ''}</span>
+      </div>`;
+    }).join('');
+    if(preview.total > preview.items.length){
+      body.innerHTML += `<div class="qd-more">+ ${fmt(preview.total - preview.items.length)} more — view all below</div>`;
+    }
+  }
+  document.getElementById('quick-drawer').classList.add('open');
+  document.getElementById('topnav-source-btn').classList.remove('active');
+}
+
+function openSourceDrawer(){
+  setDrawerMode('source');
+  document.getElementById('qd-label').textContent = 'Data Source';
+  document.getElementById('quick-drawer').classList.add('open');
+  document.getElementById('topnav-source-btn').classList.add('active');
+}
+
+function closeQuickDrawer(){
+  document.getElementById('quick-drawer').classList.remove('open');
+  document.getElementById('topnav-source-btn').classList.remove('active');
+}
+
+document.addEventListener('click', e=>{
+  const el = e.target.closest('[data-jump]');
+  if(!el) return;
+  openQuickDrawer({
+    cat: el.dataset.jumpCat || 'all',
+    search: el.dataset.jumpSearch || '',
+    monthKey: el.dataset.jumpMonth || '',
+    dayKey: el.dataset.jumpDay || '',
+    label: el.dataset.jumpLabel || '',
+  });
+});
+
+document.getElementById('qd-close').addEventListener('click', closeQuickDrawer);
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeQuickDrawer(); });
+document.getElementById('qd-related').addEventListener('click', e=>{
+  const chip = e.target.closest('.qd-self-chip');
+  if(!chip) return;
+  chip.classList.toggle('expanded');
+  document.getElementById('qd-body').classList.toggle('expanded');
+});
+document.getElementById('qd-view-all').addEventListener('click', ()=>{
+  closeQuickDrawer();
+  document.getElementById('sec-explorer').scrollIntoView({ behavior:'smooth', block:'start' });
+  const scrollBox = document.getElementById('table-scroll');
+  scrollBox.classList.add('flash');
+  setTimeout(()=> scrollBox.classList.remove('flash'), 900);
+});
+
+/* ---------------- STICKY NAV: active-section tracking ---------------- */
+(function setupNavObserver(){
+  const navLinks = [...document.querySelectorAll('.topnav-links a[data-nav]')];
+  const sections = navLinks.map(a=> document.getElementById(a.dataset.nav)).filter(Boolean);
+  if(!sections.length || !('IntersectionObserver' in window)) return;
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      const link = navLinks.find(a=> a.dataset.nav === entry.target.id);
+      if(!link) return;
+      link.classList.toggle('active', entry.isIntersecting);
+    });
+  }, { rootMargin:'-20% 0px -70% 0px', threshold:0 });
+  sections.forEach(s=> obs.observe(s));
+})();
+
+/* ---------------- DATA SOURCE (now just another drawer mode) ---------------- */
+document.getElementById('topnav-source-btn').addEventListener('click', ()=>{
+  const drawer = document.getElementById('quick-drawer');
+  const isSourceOpen = drawer.classList.contains('open') && document.getElementById('qd-source-body').classList.contains('visible');
+  if(isSourceOpen) closeQuickDrawer();
+  else openSourceDrawer();
+});
 
 Explorer.init();
 try{
