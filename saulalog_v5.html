@@ -9631,9 +9631,10 @@
 
         // Generic Rex Matriarch kill-count logs apply to the three original Rex Matriarchs.
         // They share kill counts, so one matching log row is expanded to all three bosses.
+        // Updated to include Osseous
         {
-          match: /\bRex Matriarchs?\b/i,
-          canonical: ["Rathis", "Orikalka", "Pthentraken"],
+          match: /\bRex Matriarchs?\b/i, /\b(?:An?\s+)?ancient experimental dinosaurs?:\s*(?:a\s+)?Rex Matriarchs?\b/i
+          canonical: ["Rathis", "Orikalka", "Pthentraken", "Osseous"],
         },
 
         // Generic Dagannoth King kill-count logs apply to all three Dagannoth Kings.
