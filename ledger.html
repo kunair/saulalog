@@ -2,7 +2,7 @@
 
 <!--
   ═══════════════════════════════════════════════════════════════════════════
-  Saulalog v5.22 — v6 header implementation
+  Saulalog v5.24 — v6 header implementation
   ═══════════════════════════════════════════════════════════════════════════
 
   v5 establishes the current homepage and navigation model:
@@ -29,7 +29,7 @@
   <head>
     <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Saulalog v5.23</title>
+    <title>Saulalog v5.24</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7.5' fill='%231a1715'/%3E%3Ccircle cx='8' cy='8' r='6.3' fill='none' stroke='%23a8312a' stroke-width='0.5'/%3E%3Ccircle cx='8' cy='8' r='5.5' fill='none' stroke='%23a8312a' stroke-width='0.5'/%3E%3Ctext x='8' y='11' font-family='Georgia, serif' font-weight='700' font-size='7.2' fill='%23f5f1ea' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -9506,7 +9506,7 @@
       // ── App configuration ──────────────────────────────────────────────
       // Keep deployment settings and user-facing assumptions centralized so
       // the one-file GitHub Pages app stays easier to maintain.
-      const APP_VERSION = "5.23";
+      const APP_VERSION = "5.24";
       const CSV_CACHE_KEY = "saulalog:lastCsv";
       const CSV_CACHE_META_KEY = "saulalog:lastCsvMeta";
       const SEARCH_DEBOUNCE_MS = 150;
@@ -9624,18 +9624,16 @@
 
         // Specific Rex Matriarchs activity from Ancient experimental dinosaurs is Osseous.
         // Keep this before the generic Rex Matriarch alias below.
-        //{
-        //  match: /\b(?:An?\s+)?ancient experimental dinosaurs?:\s*(?:a\s+)?Rex Matriarchs?\b/i,
-        //  canonical: "Osseous",
-        //},
+        {
+          match: /\b(?:An?\s+)?ancient experimental dinosaurs?:\s*(?:a\s+)?Rex Matriarchs?\b/i,
+          canonical: "Osseous",
+        },
 
         // Generic Rex Matriarch kill-count logs apply to the three original Rex Matriarchs.
         // They share kill counts, so one matching log row is expanded to all three bosses.
-        // Updated to include Osseous
         {
-          //match: /\bRex Matriarchs?\b/i,
-          match: /\b(?:(?:An?\s+)?ancient experimental dinosaurs?:\s*(?:a\s+)?)?Rex Matriarchs?\b/i,
-          canonical: ["Rathis", "Orikalka", "Pthentraken", "Osseous"],
+          match: /\bRex Matriarchs?\b/i,
+          canonical: ["Rathis", "Orikalka", "Pthentraken"],
         },
 
         // Generic Dagannoth King kill-count logs apply to all three Dagannoth Kings.
@@ -12307,7 +12305,8 @@
         }
 
         try {
-          const response = await fetch(SHEET_URL);
+          const cacheBustUrl = SHEET_URL + (SHEET_URL.includes("?") ? "&" : "?") + "_cb=" + Date.now();
+          const response = await fetch(cacheBustUrl, { cache: "no-store" });
           if (!response.ok) throw new Error("Network response was not ok");
           const csvText = await response.text();
 
